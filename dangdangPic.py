@@ -2,34 +2,40 @@
 #＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝网页爬取图片＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝
 #Python 2.7
 
-# 正则
-import re
-# 网络交互
-import requests
-# 操作系统功能
-import os
-
 import sys
 import xml.dom.minidom
 import webbrowser
 
-# 定义一个类
+# 正则
+import re
+# 操作系统功能
+import os
+# 网络交互
+import requests
+
+
+
+#辅助函数
+def remove_noise(section):
+    res = section
+    for each in re.findall(u'<.*?>',section,re.S):
+        res = res.replace(each,u'').replace(u'\r\n',u'')
+    return res
+
+
+#爬虫类
 class Spider:
-
-    #定义一个函数
-    def savePicture(self, _url):
-
-        # 要爬的网址
-        url = _url
-
+    def __init__(self,url):
         # 获取网页源代码
-        html = requests.get(url).text
+        self._html = requests.get(url).text
 
+    #找图片
+    def searchPicture(self):
         # 正则
         regX = '<img alt=\"\" src=\".*.jpg\" title=\"\" id=\"modalBigImg\">'
 
         #找到第一张大图
-        elem_url = re.findall(regX,html,re.S)
+        elem_url = re.findall(regX,self._html,re.S)
         for each in elem_url:
             print(each)
             pic_url = re.findall('http://.*.jpg',each,re.S)
@@ -38,7 +44,7 @@ class Spider:
         #找到共有几张图
         #问号表示非贪婪匹配
         regX = '<ul id=\"mask-small-list-slider\">.*?</ul>'
-        elem_url = re.findall(regX,html,re.S)
+        elem_url = re.findall(regX,self._html,re.S)
         numPicture = 0
         for each in elem_url:
             pic_url = re.findall('data-imghref=\"http://.*?.jpg\"',each,re.S)
@@ -47,24 +53,38 @@ class Spider:
                 numPicture += 1
         print("Here is " + str(numPicture) + " pictures!\n")
 
-        #找书籍信息
-        print("title: ")
-        title = re.findall('<h1.*?</h1>',html,re.S)[0]
-        print("subtitle: ")
-        subtitle = re.findall('<h2>.*?</h2>',html,re.S)[0]
-        print("author: ")
-        author = re.findall('<span class=\"t1\" id=\"author\" dd_name=\".*?</span>',html,re.S)[0]
-        print("press: ")
-        press = re.findall('<span class=\"t1\" dd_name=\".*?</span>',html,re.S)[0]
-        print("press time: ")
-        presstime = re.findall('</span><span class=\"t1\">.*?</span>',html,re.S)[0]
+    #找书籍信息
+    def searchAttr(self):
+        title = re.findall(u'<h1 title=.*?>.*?</h1>',self._html,re.S)[0]
+        print(u'标题：' + remove_noise(title))
+        subtitle = re.findall(u'<h2>.*?</h2>',self._html,re.S)[0]
+        print(u'副标题：' + remove_noise(subtitle))
+        author = re.findall(u'<span class=\"t1\" id=\"author\" dd_name=\"\u4f5c\u8005\".*?</span>',self._html,re.S)[0]
+        print(u'作者：' + remove_noise(author))
+        press = re.findall(u'<span class=\"t1\" dd_name=\"\u51fa\u7248\u793e\".*?</span>',self._html,re.S)[0]
+        print(u'出版社：' + remove_noise(press))
+        presstime = re.findall(u'<span class=\"t1\">\u51fa\u7248\u65f6\u95f4.*?</span>',self._html,re.S)[0]
+        print(u'出版时间：' + remove_noise(presstime))
+        page = re.findall(u'<li>\u9875 \u6570.*?</li>',self._html,re.S)[0]
+        print(u'页数：' + remove_noise(page))
+        word = re.findall(u'<li>\u5b57 \u6570.*?</li>',self._html,re.S)[0]
+        print(u'字数：' + remove_noise(word))
+        size = re.findall(u'<li>\u5f00 \u672c.*?</li>',self._html,re.S)[0]
+        print(u'开本：' + remove_noise(size))
+        material = re.findall(u'<li>\u7eb8 \u5f20.*?</li>',self._html,re.S)[0]
+        print(u'纸张：' + remove_noise(material))
+        pack = re.findall(u'<li>\u5305 \u88c5.*?</li>',self._html,re.S)[0]
+        print(u'包装：' + remove_noise(pack))
+        isbn = re.findall(u'<li>\u56fd\u9645\u6807\u51c6\u4e66\u53f7.*?</li>',self._html,re.S)[0]
+        print(u'国际标准书号ISBN：' + remove_noise(isbn))
+        classification = re.findall(u'<li class=\"clearfix fenlei\" dd_name=\"\u8be6\u60c5\u6240\u5c5e\u5206\u7c7b\".*?>.*?</li>',self._html,re.S)[0]
+        print(u'所属分类：' + remove_noise(classification))
         print("")
 
 
 
 #匹配命令行参数
 def scanForMatch(pattern,arg):
-
     match = re.match(pattern,arg)
     if match:
         return True
@@ -75,7 +95,6 @@ def scanForMatch(pattern,arg):
 
 #命令行参数：生成配置文件
 def matchGenerateConfigFile(arg):
-
     regex = r"-generate$|-g$"
     res = scanForMatch(regex,arg)
     return res
@@ -83,7 +102,6 @@ def matchGenerateConfigFile(arg):
 
 #命令行参数：解析配置文件
 def matchConfigFile(arg):
-
     regex = r".*[a-zA-Z0-9_]*\.xml$"
     res = scanForMatch(regex,arg)
     return res
@@ -91,7 +109,6 @@ def matchConfigFile(arg):
 
 #生成配置文件
 def generateDefaultConfig():
-
     fp = open('dangdangConfig.xml','w')
 
     content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + \
@@ -118,7 +135,6 @@ def getNodeText(nodelist):
 
 #解析配置文件
 def parseConfigFile(configFile):
-    
     fullurl = []
     tree = xml.dom.minidom.parse(configFile)
     configNode = tree.getElementsByTagName(u"config")[0]
@@ -139,17 +155,15 @@ def parseConfigFile(configFile):
     return fullurl
 
 
-def spiderPictures(urllist):
-    
-    spider = Spider()
-
+def spiderStart(urllist):
     for url in urllist:
-        spider.savePicture(url)
+        spider = Spider(url)
+        spider.searchPicture()
+        spider.searchAttr()
 
 
 
 def printUsage():
-
     print("")
     print("Usage modes:")
     print("")
@@ -160,7 +174,6 @@ def printUsage():
 
 
 def main():
-
     print("Starting spider...\n")
 
     numArgs = 0
@@ -181,7 +194,7 @@ def main():
             return False
         else:
             url = parseConfigFile(sys.argv[1])
-            spiderPictures(url)
+            spiderStart(url)
 
     print("\nFinished.")
     return True
