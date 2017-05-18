@@ -12,7 +12,7 @@ using namespace std;
 using namespace ZWST;
 
 
-PyObject* RunPython::_spider = nullptr;
+PyObject* RunPython::_pymodule = nullptr;
 
 RunPython::RunPython()
 {
@@ -25,7 +25,7 @@ RunPython::RunPython()
                         "sys.path.append(os.path.dirname(os.getcwd()))\n"
                         "sys.path.append(os.path.dirname(os.path.dirname(os.getcwd())))\n");
 
-      _spider = PyImport_ImportModule("Spider");
+      _pymodule = PyImport_ImportModule("Spider");
    }
 }
 
@@ -35,12 +35,12 @@ RunPython::~RunPython()
 }
 
 
-void RunPython::run_generate_xml()
+void RunPython::runGenerateXml()
 {
-   PyObject* pyfunc = PyObject_GetAttrString(_spider,"generateDefaultConfig");
+   PyObject* pyfunc = PyObject_GetAttrString(_pymodule,"generateDefaultConfig");
    PyEval_CallObject(pyfunc,0);
 }
 
 
-void RunPython::run_spider()
+void RunPython::runSpider()
 {}

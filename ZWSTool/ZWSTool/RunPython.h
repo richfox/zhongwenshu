@@ -23,10 +23,10 @@ namespace ZWST
       RunPython();
       ~RunPython();
 
-      void run_generate_xml();
-      void run_spider();
+      void runGenerateXml();
+      void runSpider();
 
    private:
-      static PyObject* _spider;
+      static PyObject* _pymodule;
    };
 }
