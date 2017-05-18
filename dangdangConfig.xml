@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+  <!-- Exmaple for catch picture from dangdang: http://product.dangdang.com/20771643.html -->
+  <http>
+    <url>product.dangdang.com</url>
+    <productID>20771643</productID>
+  </http>
+</config>

@@ -13,6 +13,10 @@ import os
 # 网络交互
 import requests
 
+import codecs
+sys.stdout = codecs.getwriter('utf8')(sys.stdout)
+
+
 
 
 #辅助函数
@@ -56,29 +60,29 @@ class Spider:
     #找书籍信息
     def searchAttr(self):
         title = re.findall(u'<h1 title=.*?>.*?</h1>',self._html,re.S)[0]
-        print(u'标题：' + remove_noise(title))
+        print(u"title:" + remove_noise(title))
         subtitle = re.findall(u'<h2>.*?</h2>',self._html,re.S)[0]
-        print(u'副标题：' + remove_noise(subtitle))
+        print(u'subtitle:' + remove_noise(subtitle))
         author = re.findall(u'<span class=\"t1\" id=\"author\" dd_name=\"\u4f5c\u8005\".*?</span>',self._html,re.S)[0]
-        print(u'作者：' + remove_noise(author))
+        print(u'author:' + remove_noise(author))
         press = re.findall(u'<span class=\"t1\" dd_name=\"\u51fa\u7248\u793e\".*?</span>',self._html,re.S)[0]
-        print(u'出版社：' + remove_noise(press))
+        print(u'press:' + remove_noise(press))
         presstime = re.findall(u'<span class=\"t1\">\u51fa\u7248\u65f6\u95f4.*?</span>',self._html,re.S)[0]
-        print(u'出版时间：' + remove_noise(presstime))
+        print(u'press time:' + remove_noise(presstime))
         page = re.findall(u'<li>\u9875 \u6570.*?</li>',self._html,re.S)[0]
-        print(u'页数：' + remove_noise(page))
+        print(u'page:' + remove_noise(page))
         word = re.findall(u'<li>\u5b57 \u6570.*?</li>',self._html,re.S)[0]
-        print(u'字数：' + remove_noise(word))
+        print(u'word:' + remove_noise(word))
         size = re.findall(u'<li>\u5f00 \u672c.*?</li>',self._html,re.S)[0]
-        print(u'开本：' + remove_noise(size))
-        material = re.findall(u'<li>\u7eb8 \u5f20.*?</li>',self._html,re.S)[0]
-        print(u'纸张：' + remove_noise(material))
-        pack = re.findall(u'<li>\u5305 \u88c5.*?</li>',self._html,re.S)[0]
-        print(u'包装：' + remove_noise(pack))
+        print(u'size:' + remove_noise(size))
+        paper = re.findall(u'<li>\u7eb8 \u5f20.*?</li>',self._html,re.S)[0]
+        print(u'paper:' + remove_noise(paper))
+        packing = re.findall(u'<li>\u5305 \u88c5.*?</li>',self._html,re.S)[0]
+        print(u'packing' + remove_noise(packing))
         isbn = re.findall(u'<li>\u56fd\u9645\u6807\u51c6\u4e66\u53f7.*?</li>',self._html,re.S)[0]
-        print(u'国际标准书号ISBN：' + remove_noise(isbn))
+        print(u'ISBN:' + remove_noise(isbn))
         classification = re.findall(u'<li class=\"clearfix fenlei\" dd_name=\"\u8be6\u60c5\u6240\u5c5e\u5206\u7c7b\".*?>.*?</li>',self._html,re.S)[0]
-        print(u'所属分类：' + remove_noise(classification))
+        print(u'classification:' + remove_noise(classification))
         print("")
 
 
@@ -163,42 +167,4 @@ def spiderStart(urllist):
 
 
 
-def printUsage():
-    print("")
-    print("Usage modes:")
-    print("")
-    print('python ${THIS_SCRIPT_NAME}.py {--generate | -g}   (Generates a default configuration file')
-    print("")    
-    print('python ${THIS_SCRIPT_NAME}.py ${configFile}    (Uses all settings of the configuration file')
-    print("")    
 
-
-def main():
-    print("Starting spider...\n")
-
-    numArgs = 0
-    for arg in sys.argv:
-        numArgs += 1
-
-    if numArgs == 1:
-        print("Error: Required arguments not passed.")
-        printUsage()
-        return False
-    
-    if matchGenerateConfigFile(sys.argv[1]):
-        generateDefaultConfig()
-        return True
-    elif matchConfigFile(sys.argv[1]):
-        if not os.path.exists(sys.argv[1]):
-            print('Error: config file does not exist.')
-            return False
-        else:
-            url = parseConfigFile(sys.argv[1])
-            spiderStart(url)
-
-    print("\nFinished.")
-    return True
-
-
-
-main()
