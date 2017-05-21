@@ -23,7 +23,8 @@ RunPython::RunPython()
       PyRun_SimpleString("import os, sys\n"
                         "sys.path.append(os.getcwd())\n"
                         "sys.path.append(os.path.dirname(os.getcwd()))\n"
-                        "sys.path.append(os.path.dirname(os.path.dirname(os.getcwd())))\n");
+                        "sys.path.append(os.path.dirname(os.path.dirname(os.getcwd())))\n"
+                        "sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.getcwd()))))\n");
 
       _pymodule = PyImport_ImportModule("Spider");
    }
