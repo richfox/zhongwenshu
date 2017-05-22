@@ -5,6 +5,7 @@
 import sys
 import xml.dom.minidom
 import webbrowser
+import xml.etree.ElementTree
 
 # 正则
 import re
@@ -110,6 +111,12 @@ def matchConfigFile(arg):
     res = scanForMatch(regex,arg)
     return res
 
+#命令行参数：更新配置文件
+def matchUrl(arg):
+    regex = r".*[a-zA-Z0-9_]*\.com$"
+    res = scanForMatch(regex,arg)
+    return res
+
 
 #生成配置文件
 def generateDefaultConfig():
@@ -159,11 +166,24 @@ def parseConfigFile(configFile):
     return fullurl
 
 
+#更新配置文件
+def generateConfig(url,id):
+    config = xml.etree.ElementTree.Element("config")
+    http = xml.etree.ElementTree.SubElement(config,"http")
+    xml.etree.ElementTree.SubElement(http,"url").text = url
+    xml.etree.ElementTree.SubElement(http,"productID").text = id
+    tree = xml.etree.ElementTree.ElementTree(config)
+    tree.write("dangdangConfig.xml","utf-8")
+    print('Generated special config file: dangdangConfig.xml')
+
+
 def spiderStart(urllist):
+    print("Starting spider...\n")
     for url in urllist:
         spider = Spider(url)
         spider.searchPicture()
         spider.searchAttr()
+    print("\nFinished.")
 
 
 

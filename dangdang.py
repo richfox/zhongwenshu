@@ -14,36 +14,41 @@ def printUsage():
     print("Usage modes:")
     print("")
     print('python ${THIS_SCRIPT_NAME}.py {--generate | -g}   (Generates a default configuration file')
-    print("")    
+    print("")
     print('python ${THIS_SCRIPT_NAME}.py ${configFile}    (Uses all settings of the configuration file')
-    print("")    
+    print("")
+    print('python ${THIS_SCRIPT_NAME}.py {url,id}    (Generates a special configuration file, then use it')
+    print("")
 
 
 def main():
-    print("Starting spider...\n")
-
     numArgs = 0
     for arg in sys.argv:
         numArgs += 1
 
     if numArgs == 1:
         print("Error: Required arguments not passed.")
-        printUsage()
-        return False
-    
-    if Spider.matchGenerateConfigFile(sys.argv[1]):
-        Spider.generateDefaultConfig()
-        return True
-    elif Spider.matchConfigFile(sys.argv[1]):
-        if not os.path.exists(sys.argv[1]):
-            print('Error: config file does not exist.')
-            return False
-        else:
-            url = Spider.parseConfigFile(sys.argv[1])
+    elif numArgs == 2:
+        if Spider.matchGenerateConfigFile(sys.argv[1]):
+            Spider.generateDefaultConfig()
+            return True
+        elif Spider.matchConfigFile(sys.argv[1]):
+            if not os.path.exists(sys.argv[1]):
+                print('Error: config file does not exist.')
+                return False
+            else:
+                url = Spider.parseConfigFile(sys.argv[1])
+                Spider.spiderStart(url)
+                return True
+    elif numArgs == 3:
+        if Spider.matchUrl(sys.argv[1]):
+            Spider.generateConfig(sys.argv[1],sys.argv[2])
+            url = Spider.parseConfigFile("dangdangConfig.xml")
             Spider.spiderStart(url)
+            return True
 
-    print("\nFinished.")
-    return True
+    printUsage()
+    return False
 
 
 
