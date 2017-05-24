@@ -54,10 +54,19 @@ void RunPython::runSpider(const char* url,const char* id)
    pyfunc = PyObject_GetAttrString(_pymodule,"parseConfigFile");
    pyargs = PyTuple_New(1);
    PyTuple_SetItem(pyargs,0,Py_BuildValue("s","dangdangConfig.xml"));
-   PyObject* res = PyEval_CallObject(pyfunc,pyargs);
+   PyObject* pyres = PyEval_CallObject(pyfunc,pyargs);
 
-   PyObject* pyclass = PyObject_GetAttrString(_pymodule,"Spider");
-   PyObject* pyinstance = PyInstance_New(pyclass,res,0);
-   PyObject_CallMethod(pyinstance,"searchPicture",0,0);
-   PyObject_CallMethod(pyinstance,"searchAttr",0,0);
+   for (int i=0; i<PyList_Size(pyres); i++)
+   {
+      PyObject* vollurl = PyList_GetItem(pyres,i);
+      PyObject* pyclass = PyObject_GetAttrString(_pymodule,"Spider");
+      pyargs = PyTuple_New(1);
+      PyTuple_SetItem(pyargs,0,Py_BuildValue("s",PyString_AsString(vollurl)));
+      PyObject* pyinstance = PyInstance_New(pyclass,pyargs,0);
+      //PyObject* res = PyObject_CallMethod(pyinstance,"getHtml",0,0);
+      //const char* tt = PyUnicode_AS_DATA(res);
+      //PyObject* res = PyObject_CallMethod(pyinstance,"getPage",0,0);
+      //const char* tt = PyUnicode_AS_DATA(res);
+      PyObject* res = PyObject_CallMethod(pyinstance,"searchPicture",0,0);
+   }
 }

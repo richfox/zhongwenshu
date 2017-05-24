@@ -4,6 +4,7 @@
 
 #pragma once
 #include "afxwin.h"
+#include <string>
 
 #ifdef _DEBUG
    #undef _DEBUG

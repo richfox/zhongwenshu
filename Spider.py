@@ -33,6 +33,17 @@ class Spider:
     def __init__(self,url):
         # 获取网页源代码
         self._html = requests.get(url).text
+        self._title = u""
+        self._page = u""
+
+    def getHtml(self):
+        return self._html
+
+    def getTitle(self):
+        return self._title
+
+    def getPage(self):
+        return self._page
 
     #找图片
     def searchPicture(self):
@@ -60,8 +71,8 @@ class Spider:
 
     #找书籍信息
     def searchAttr(self):
-        title = re.findall(u'<h1 title=.*?>.*?</h1>',self._html,re.S)[0]
-        print(u"title:" + remove_noise(title))
+        _title = re.findall(u'<h1 title=.*?>.*?</h1>',self._html,re.S)[0]
+        print(u"title:" + remove_noise(_title))
         subtitle = re.findall(u'<h2>.*?</h2>',self._html,re.S)[0]
         print(u'subtitle:' + remove_noise(subtitle))
         author = re.findall(u'<span class=\"t1\" id=\"author\" dd_name=\"\u4f5c\u8005\".*?</span>',self._html,re.S)[0]
@@ -70,8 +81,8 @@ class Spider:
         print(u'press:' + remove_noise(press))
         presstime = re.findall(u'<span class=\"t1\">\u51fa\u7248\u65f6\u95f4.*?</span>',self._html,re.S)[0]
         print(u'press time:' + remove_noise(presstime))
-        page = re.findall(u'<li>\u9875 \u6570.*?</li>',self._html,re.S)[0]
-        print(u'page:' + remove_noise(page))
+        _page = re.findall(u'<li>\u9875 \u6570.*?</li>',self._html,re.S)[0]
+        print(u'page:' + remove_noise(_page))
         word = re.findall(u'<li>\u5b57 \u6570.*?</li>',self._html,re.S)[0]
         print(u'word:' + remove_noise(word))
         size = re.findall(u'<li>\u5f00 \u672c.*?</li>',self._html,re.S)[0]
