@@ -24,7 +24,7 @@ namespace ZWST
       ~RunPython();
 
       void runGenerateXml();
-      void runSpider();
+      void runSpider(const char* url,const char* id);
 
    private:
       static PyObject* _pymodule;

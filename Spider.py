@@ -118,7 +118,7 @@ def matchUrl(arg):
     return res
 
 
-#生成配置文件
+#生成默认配置文件
 def generateDefaultConfig():
     fp = open('dangdangConfig.xml','w')
 
@@ -166,7 +166,7 @@ def parseConfigFile(configFile):
     return fullurl
 
 
-#更新配置文件
+#生成配置文件
 def generateConfig(url,id):
     config = xml.etree.ElementTree.Element("config")
     http = xml.etree.ElementTree.SubElement(config,"http")

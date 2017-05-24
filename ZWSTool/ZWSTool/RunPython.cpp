@@ -43,5 +43,21 @@ void RunPython::runGenerateXml()
 }
 
 
-void RunPython::runSpider()
-{}
+void RunPython::runSpider(const char* url,const char* id)
+{
+   PyObject* pyfunc = PyObject_GetAttrString(_pymodule,"generateConfig");
+   PyObject* pyargs = PyTuple_New(2);
+   PyTuple_SetItem(pyargs,0,Py_BuildValue("s",url));
+   PyTuple_SetItem(pyargs,1,Py_BuildValue("s",id));
+   PyEval_CallObject(pyfunc,pyargs);
+
+   pyfunc = PyObject_GetAttrString(_pymodule,"parseConfigFile");
+   pyargs = PyTuple_New(1);
+   PyTuple_SetItem(pyargs,0,Py_BuildValue("s","dangdangConfig.xml"));
+   PyObject* res = PyEval_CallObject(pyfunc,pyargs);
+
+   PyObject* pyclass = PyObject_GetAttrString(_pymodule,"Spider");
+   PyObject* pyinstance = PyInstance_New(pyclass,res,0);
+   PyObject_CallMethod(pyinstance,"searchPicture",0,0);
+   PyObject_CallMethod(pyinstance,"searchAttr",0,0);
+}
