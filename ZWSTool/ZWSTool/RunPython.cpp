@@ -43,7 +43,7 @@ void RunPython::runGenerateXml()
 }
 
 
-void RunPython::runSpider(const char* url,const char* id)
+DangdangBooks RunPython::runSpider(const char* url,const char* id)
 {
    PyObject* pyfunc = PyObject_GetAttrString(_pymodule,"generateConfig");
    PyObject* pyargs = PyTuple_New(2);
@@ -56,6 +56,7 @@ void RunPython::runSpider(const char* url,const char* id)
    PyTuple_SetItem(pyargs,0,Py_BuildValue("s","dangdangConfig.xml"));
    PyObject* pyres = PyEval_CallObject(pyfunc,pyargs);
 
+   DangdangBooks books;
    for (int i=0; i<PyList_Size(pyres); i++)
    {
       PyObject* vollurl = PyList_GetItem(pyres,i);
@@ -63,10 +64,18 @@ void RunPython::runSpider(const char* url,const char* id)
       pyargs = PyTuple_New(1);
       PyTuple_SetItem(pyargs,0,Py_BuildValue("s",PyString_AsString(vollurl)));
       PyObject* pyinstance = PyInstance_New(pyclass,pyargs,0);
-      //PyObject* res = PyObject_CallMethod(pyinstance,"getHtml",0,0);
-      //const char* tt = PyUnicode_AS_DATA(res);
-      //PyObject* res = PyObject_CallMethod(pyinstance,"getPage",0,0);
-      //const char* tt = PyUnicode_AS_DATA(res);
-      PyObject* res = PyObject_CallMethod(pyinstance,"searchPicture",0,0);
+      PyObject* callres = PyObject_CallMethod(pyinstance,"searchPicture",0,0);
+      callres = PyObject_CallMethod(pyinstance,"searchAttr",0,0);
+      callres = PyObject_CallMethod(pyinstance,"getHtml",0,0);
+      const char* html = PyUnicode_AS_DATA(callres);
+
+      DangdangBook book;
+      callres = PyObject_CallMethod(pyinstance,"getTitle",0,0);
+      book.title = PyUnicode_AS_DATA(callres);
+      callres = PyObject_CallMethod(pyinstance,"getPage",0,0);
+      book.page = PyUnicode_AS_DATA(callres);
+      books.push_back(book);
    }
+
+   return books;
 }

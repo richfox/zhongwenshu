@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Python">
+      <UniqueIdentifier>{dffaef9f-4148-4419-8cc3-c6eb5b7feef8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -55,6 +58,15 @@
     <None Include="ZWSTool.htm" />
     <None Include="res\ZWSTool.rc2">
       <Filter>Ressourcendateien</Filter>
+    </None>
+    <None Include="..\..\dangdang.py">
+      <Filter>Python</Filter>
+    </None>
+    <None Include="..\..\fetchExternalSDKs.py">
+      <Filter>Python</Filter>
+    </None>
+    <None Include="..\..\Spider.py">
+      <Filter>Python</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

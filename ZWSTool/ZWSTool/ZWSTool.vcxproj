@@ -213,6 +213,9 @@
     <ClCompile Include="ZWSToolDlg.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\dangdang.py" />
+    <None Include="..\..\fetchExternalSDKs.py" />
+    <None Include="..\..\Spider.py" />
     <None Include="res\ZWSTool.rc2" />
     <None Include="ZWSTool.htm">
       <DeploymentContent>true</DeploymentContent>

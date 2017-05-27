@@ -57,5 +57,7 @@ namespace ZWST
       CButton _btnDefault;
    public:
       afx_msg void OnBnClickedButtonDefault();
+   protected:
+      CEdit _editTitle;
    };
 }

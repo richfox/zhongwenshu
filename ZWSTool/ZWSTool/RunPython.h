@@ -5,6 +5,7 @@
 #pragma once
 #include "afxwin.h"
 #include <string>
+#include <vector>
 
 #ifdef _DEBUG
    #undef _DEBUG
@@ -18,6 +19,14 @@
 
 namespace ZWST
 {
+   struct DangdangBook
+   {
+      std::string title;
+      std::string page;
+   };
+
+   typedef std::vector<DangdangBook> DangdangBooks;
+
    class RunPython
    {
    public:
@@ -25,7 +34,7 @@ namespace ZWST
       ~RunPython();
 
       void runGenerateXml();
-      void runSpider(const char* url,const char* id);
+      DangdangBooks runSpider(const char* url,const char* id);
 
    private:
       static PyObject* _pymodule;

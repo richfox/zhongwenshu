@@ -69,6 +69,7 @@ void CZWSToolDlg::DoDataExchange(CDataExchange* pDX)
    DDX_Control(pDX, IDC_BUTTON_SPIDER, _btnSpider);
    DDX_Control(pDX, IDC_COMBO_URL, _comboUrl);
    DDX_Control(pDX, IDC_BUTTON_DEFAULT, _btnDefault);
+   DDX_Control(pDX, IDC_EDIT1, _editTitle);
 }
 
 BEGIN_MESSAGE_MAP(CZWSToolDlg, CDHtmlDialog)
@@ -184,7 +185,13 @@ void CZWSToolDlg::OnBnClickedButtonSpider()
    CString url,id;
    _comboUrl.GetWindowText(url);
    _editID.GetWindowText(id);
-   _python->runSpider(CW2A(url.Trim()).m_szBuffer,CW2A(id.Trim()).m_szBuffer);
+   const auto& books = _python->runSpider(CW2A(url.Trim()).m_szBuffer,CW2A(id.Trim()).m_szBuffer);
+
+   for (const auto& book : books)
+   {
+      CStringA title = book.title.c_str();
+      _editTitle.SetWindowText(CA2W(title));
+   }
 }
 
 
