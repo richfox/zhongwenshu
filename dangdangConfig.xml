@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config>
-  <!-- Exmaple for catch picture from dangdang: http://product.dangdang.com/20771643.html -->
+  <!-- Exmaple for order from dangdang: http://order.dangdang.com/orderdetails.aspx?orderid=35672123788 -->
   <http>
-    <url>product.dangdang.com</url>
-    <productID>20771643</productID>
+    <url>order.dangdang.com</url>
+    <orderID>35672123788</orderID>
   </http>
 </config>

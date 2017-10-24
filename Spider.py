@@ -13,6 +13,8 @@ import re
 import os
 # 网络交互
 import requests
+# XPath
+from lxml import etree
 
 import codecs
 sys.stdout = codecs.getwriter('utf8')(sys.stdout)
@@ -97,6 +99,12 @@ class Spider:
         print(u'classification:' + remove_noise(classification))
         print("")
 
+    #找订单信息
+    def searchOrder(self):
+        html = etree.HTML(self._html)
+        print(etree.tostring(html,pretty_print=True))
+        res = html.xpath(u'//*[@id="normalorder"]/div[5]/div[2]/table[1]/tbody/tr')
+        print(res)
 
 
 #匹配命令行参数
@@ -177,12 +185,13 @@ def getNodeText(nodelist):
 
 #解析配置文件
 def parseConfigFile(configFile):
-    urls = []
+    urls = {}
     tree = xml.dom.minidom.parse(configFile)
     configNode = tree.getElementsByTagName(u"config")[0]
     for node in configNode.childNodes:
         if node.nodeName == 'http':
             fullurl = "http://"
+            tag = -1
             for http in node.childNodes:
                 if http.nodeName == 'url':
                     url = getNodeText(http.childNodes)
@@ -191,12 +200,14 @@ def parseConfigFile(configFile):
                     productID = getNodeText(http.childNodes)
                     fullurl += productID
                     fullurl += ".html"
+                    tag = 0
                 elif http.nodeName == 'orderID':
                     orderID = getNodeText(http.childNodes)
                     fullurl += "orderdetails.aspx?orderid=" + orderID
+                    tag = 1
 
             print(fullurl)
-            urls.append(fullurl)
+            urls[fullurl] = tag
 
     return urls
 
@@ -214,10 +225,13 @@ def generateConfig(url,id):
 
 def spiderStart(urllist):
     print("Starting spider...\n")
-    for url in urllist:
+    for url, tag in urllist.items():
         spider = Spider(url)
-        spider.searchPicture()
-        spider.searchAttr()
+        if tag == 0:
+            spider.searchPicture()
+            spider.searchAttr()
+        elif tag == 1:
+            spider.searchOrder()
     print("\nFinished.")
 
 
