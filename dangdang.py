@@ -32,6 +32,9 @@ def main():
         if Spider.matchGenerateConfigFile(sys.argv[1]):
             Spider.generateDefaultConfig()
             return True
+        elif Spider.matchGenerateOrderConfigFile(sys.argv[1]):
+            Spider.generateDefaultOrderConfig()
+            return True
         elif Spider.matchConfigFile(sys.argv[1]):
             if not os.path.exists(sys.argv[1]):
                 print('Error: config file does not exist.')

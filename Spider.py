@@ -115,6 +115,11 @@ def matchGenerateConfigFile(arg):
     res = scanForMatch(regex,arg)
     return res
 
+def matchGenerateOrderConfigFile(arg):
+    regex = r"-o$"
+    res = scanForMatch(regex,arg)
+    return res
+
 
 #命令行参数：解析配置文件
 def matchConfigFile(arg):
@@ -146,6 +151,21 @@ def generateDefaultConfig():
     fp.close()
     print('Generated default config file: dangdangConfig.xml')
 
+def generateDefaultOrderConfig():
+    fp = open('dangdangConfig.xml','w')
+
+    content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + \
+            "<config>\n" + \
+            "  <!-- Exmaple for order from dangdang: http://order.dangdang.com/orderdetails.aspx?orderid=35672123788 -->\n" + \
+            "  <http>\n" + \
+            "    <url>order.dangdang.com</url>\n" + \
+            "    <orderID>35672123788</orderID>\n" + \
+            "  </http>\n" + \
+            "</config>\n"
+
+    fp.write(content)
+    fp.close()
+    print('Generated default order config file: dangdangConfig.xml')
 
 def getNodeText(nodelist):
     text = []
@@ -170,7 +190,11 @@ def parseConfigFile(configFile):
                 elif http.nodeName == 'productID':
                     productID = getNodeText(http.childNodes)
                     picurl += productID
-            picurl += ".html"
+                    picurl += ".html"
+                elif http.nodeName == 'orderID':
+                    orderID = getNodeText(http.childNodes)
+                    picurl += "orderdetails.aspx?orderid=" + orderID
+
             print(picurl)
             fullurl.append(picurl)
 
