@@ -177,28 +177,28 @@ def getNodeText(nodelist):
 
 #解析配置文件
 def parseConfigFile(configFile):
-    fullurl = []
+    urls = []
     tree = xml.dom.minidom.parse(configFile)
     configNode = tree.getElementsByTagName(u"config")[0]
     for node in configNode.childNodes:
         if node.nodeName == 'http':
-            picurl = "http://"
+            fullurl = "http://"
             for http in node.childNodes:
                 if http.nodeName == 'url':
                     url = getNodeText(http.childNodes)
-                    picurl += url + "/"
+                    fullurl += url + "/"
                 elif http.nodeName == 'productID':
                     productID = getNodeText(http.childNodes)
-                    picurl += productID
-                    picurl += ".html"
+                    fullurl += productID
+                    fullurl += ".html"
                 elif http.nodeName == 'orderID':
                     orderID = getNodeText(http.childNodes)
-                    picurl += "orderdetails.aspx?orderid=" + orderID
+                    fullurl += "orderdetails.aspx?orderid=" + orderID
 
-            print(picurl)
-            fullurl.append(picurl)
+            print(fullurl)
+            urls.append(fullurl)
 
-    return fullurl
+    return urls
 
 
 #生成配置文件
