@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<config>
-  <!-- Exmaple for order from dangdang: http://order.dangdang.com/orderdetails.aspx?orderid=35672123788 -->
-  <http>
-    <url>order.dangdang.com</url>
-    <orderID>35672123788</orderID>
-  </http>
-</config>

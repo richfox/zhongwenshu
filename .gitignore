@@ -7,5 +7,6 @@ ZWSTool/ipch/
 ZWSTool/x64/
 ZWSTool/ZWSTool/ZWSTool.aps
 ZWSTool/ZWSTool/ZWSTool.vcxproj.user
-dangdangConfig.xml
 Spider.pyc
+order.dangdang.html
+dangdangConfig.xml
