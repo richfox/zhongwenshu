@@ -14,7 +14,7 @@ import os
 # 网络交互
 import requests
 # XPath
-from lxml import etree
+import lxml.etree
 
 import codecs
 sys.stdout = codecs.getwriter('utf8')(sys.stdout)
@@ -101,10 +101,8 @@ class Spider:
 
     #找订单信息
     def searchOrder(self):
-        html = etree.HTML(self._html)
-        print(etree.tostring(html,pretty_print=True))
-        res = html.xpath(u'//*[@id="normalorder"]/div[5]/div[2]/table[1]/tbody/tr')
-        print(res)
+        htmltree = lxml.etree.HTML(self._html)
+        print(lxml.etree.tostring(htmltree,pretty_print=True))
 
 
 #匹配命令行参数
@@ -132,6 +130,11 @@ def matchGenerateOrderConfigFile(arg):
 #命令行参数：解析配置文件
 def matchConfigFile(arg):
     regex = r".*[a-zA-Z0-9_]*\.xml$"
+    res = scanForMatch(regex,arg)
+    return res
+
+def matchOrderHtmlFile(arg):
+    regex = r".*[a-zA-Z0-9_]*\.html$"
     res = scanForMatch(regex,arg)
     return res
 
@@ -212,6 +215,7 @@ def parseConfigFile(configFile):
     return urls
 
 
+
 #生成配置文件
 def generateConfig(url,id):
     config = xml.etree.ElementTree.Element("config")
@@ -233,7 +237,6 @@ def spiderStart(urllist):
         elif tag == 1:
             spider.searchOrder()
     print("\nFinished.")
-
 
 
 
