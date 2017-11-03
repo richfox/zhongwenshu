@@ -17,18 +17,43 @@ class Visitor:
         self._htmltree = htmltree
 
     def searchOrderGoods(self):
-        basepath = '//*[@id="normalorder"]//table//*[@name="productname"]'
-        books = self._htmltree.xpath(basepath)
-        titles = self._htmltree.xpath(basepath+'/@title')
+        basepath = '//*[@id="normalorder"]//table[@class="tabl_merch"]'
+        books = self._htmltree.xpath(basepath + '//*[@name="productname"]')
+        titles = self._htmltree.xpath(basepath + '//*[@name="productname"]/@title')
+        hrefs = self._htmltree.xpath(basepath + '//*[@name="productname"]/@href')
+        prices = self._htmltree.xpath(basepath + '//*[@class="tab_w3"]')
+        bonuses = self._htmltree.xpath(basepath + '//*[@class="tab_w2"]')
+        amounts = self._htmltree.xpath(basepath + '//*[@class="tab_w6"]')
+        sums = self._htmltree.xpath(basepath + '//*[@class="tab_w4"]')
+
+        ordernr = self._htmltree.xpath('//*[@id="normalorder"]//div[@id="divorderhead"][@class="order_news"]/p/text()[6]')
+        others = self._htmltree.xpath('//*[@id="normalorder"]//table[@class="tabl_other"]//span')
+        endprice = self._htmltree.xpath('//*[@id="normalorder"]//div[@class="price_total"]/span[1]')
 
         wb = openpyxl.Workbook()
         ws = wb.active
-        for i,title in enumerate(titles):
+        for i,book in enumerate(books):
             #lxml.html.tostring(book,pretty_print=True,encoding='utf-8')
-            col = 'A'
-            row = str(i+1)
-            cell = col + row
-            ws[cell] = title
+
+            ws.cell(row=i+1,column=1,value=titles[i]).hyperlink = hrefs[i]
+            res = prices[i].xpath('./span')
+            if len(res) == 0: #没有折扣
+                ws.cell(row=i+1,column=2,value=prices[i].text)
+            else:
+                ws.cell(row=i+1,column=2,value=res[0].text)
+            ws.cell(row=i+1,column=3,value=bonuses[i].text)
+            ws.cell(row=i+1,column=4,value=amounts[i].text)
+            ws.cell(row=i+1,column=5,value=sums[i].text)
+
+        lastrow = i+1
+        ws.cell(row=lastrow+1,column=1,value=ordernr[0])
+        ws.cell(row=lastrow+1,column=6,value=endprice[0].text)
+        for i,elem in enumerate(others):
+            if i == 0:
+                ws.cell(row=lastrow+1,column=5,value=others[0].text)
+            else:
+                ws.cell(row=lastrow+1+i-1,column=3,value=others[i].text)
+        
         wb.save('_books.xlsx')
         
 
