@@ -26,7 +26,7 @@ class Visitor:
         amounts = self._htmltree.xpath(basepath + '//*[@class="tab_w6"]')
         sums = self._htmltree.xpath(basepath + '//*[@class="tab_w4"]')
 
-        ordernr = self._htmltree.xpath('//*[@id="normalorder"]//div[@id="divorderhead"][@class="order_news"]/p/text()[6]')
+        ordernr = self._htmltree.xpath('//*[@id="normalorder"]//div[@id="divorderhead"][@class="order_news"]/p/text()')
         ordertime = self._htmltree.xpath('//*[@id="normalorder"]//div[@id="divorderhead"][@class="order_news"]//span[@class="order_news_hint"]/span')
         others = self._htmltree.xpath('//*[@id="normalorder"]//table[@class="tabl_other"]//span')
         endprice = self._htmltree.xpath('//*[@id="normalorder"]//div[@class="price_total"]/span[1]')
@@ -47,8 +47,22 @@ class Visitor:
             ws.cell(row=i+1,column=5,value=sums[i].text)
 
         lastrow = i+1
-        ws.cell(row=lastrow+1,column=1,value=ordernr[0]+ordertime[0].text+ordertime[1].text)
+
+        #订单号，下单时间
+        for nr in ordernr:
+            if nr.strip(' \n\t'):
+                nr = nr.strip(' \n\t')
+                break
+        if len(ordertime) == 0:
+            ws.cell(row=lastrow+1,column=1,value=nr)
+        elif len(ordertime) == 1:
+            ws.cell(row=lastrow+1,column=1,value=nr+ordertime[0].text)
+        elif len(ordertime) == 2:
+            ws.cell(row=lastrow+1,column=1,value=nr+ordertime[0].text+ordertime[1].text)
+
+        #最终价
         ws.cell(row=lastrow+1,column=6,value=endprice[0].text)
+
         for i,elem in enumerate(others):
             if i == 0:
                 ws.cell(row=lastrow+1,column=5,value=others[0].text)
