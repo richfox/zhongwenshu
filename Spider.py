@@ -1,6 +1,7 @@
 ﻿#-*-coding:utf-8-*-
 #＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝网页爬取图片＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝
 #Python 2.7
+#author: Xiang Fu
 
 import sys
 import xml.dom.minidom
