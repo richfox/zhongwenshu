@@ -45,9 +45,12 @@ class Visitor:
                 ws.cell(row=i+1,column=2,value=res[0].text)
             ws.cell(row=i+1,column=3,value=bonuses[i].text)
             ws.cell(row=i+1,column=4,value=amounts[i].text)
-            ws.cell(row=i+1,column=5,value=sums[i].text)
 
-        lastrow = i+1
+            #小计以数字形式保存
+            sum = re.findall('\d+.\d+',sums[i].text)[0]
+            ws.cell(row=i+1,column=5,value=sum)
+
+        lastrow = len(books)
 
         #订单号，下单时间
         for nr in ordernr:
