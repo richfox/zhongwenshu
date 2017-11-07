@@ -18,7 +18,7 @@ class Visitor:
         self._htmltree = htmltree
 
     def searchOrderGoods(self):
-        basepath = '//*[@id="normalorder"]//table[@class="tabl_merch"]'
+        basepath = '//*[@id="normalorder"]//*[@class="merch_bord"]//table[@class="tabl_merch"]'
         books = self._htmltree.xpath(basepath + '//*[@name="productname"]')
         titles = self._htmltree.xpath(basepath + '//*[@name="productname"]/@title')
         hrefs = self._htmltree.xpath(basepath + '//*[@name="productname"]/@href')
@@ -31,6 +31,7 @@ class Visitor:
         ordertime = self._htmltree.xpath('//*[@id="normalorder"]//div[@id="divorderhead"][@class="order_news"]//span[@class="order_news_hint"]/span')
         others = self._htmltree.xpath('//*[@id="normalorder"]//table[@class="tabl_other"]//span')
         endprice = self._htmltree.xpath('//*[@id="normalorder"]//div[@class="price_total"]/span[1]')
+        payment = self._htmltree.xpath('//*[@id="normalorder"]//*[@class="order_detail_frame"]/ul[position()=4]/li')
 
         wb = openpyxl.Workbook()
         ws = wb.active
@@ -52,17 +53,17 @@ class Visitor:
 
         lastrow = len(books)
 
-        #订单号，下单时间
+        #订单号，下单时间，付款方式
         for nr in ordernr:
             if nr.strip(' \n\t'):
                 nr = nr.strip(' \n\t')
                 break
         if len(ordertime) == 0:
-            ws.cell(row=lastrow+1,column=1,value=nr)
+            ws.cell(row=lastrow+1,column=1,value=nr+payment[0].text)
         elif len(ordertime) == 1:
-            ws.cell(row=lastrow+1,column=1,value=nr+ordertime[0].text)
+            ws.cell(row=lastrow+1,column=1,value=nr+ordertime[0].text+payment[0].text)
         elif len(ordertime) == 2:
-            ws.cell(row=lastrow+1,column=1,value=nr+ordertime[0].text+ordertime[1].text)
+            ws.cell(row=lastrow+1,column=1,value=nr+ordertime[0].text+ordertime[1].text+payment[0].text)
 
         #最终价
         ws.cell(row=lastrow+1,column=6,value=endprice[0].text)
