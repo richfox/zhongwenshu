@@ -44,7 +44,7 @@ class Visitor:
 
             ws.cell(row=i+j+1,column=1,value=titles[i]).hyperlink = hrefs[i]
 
-            if len(prices[i].xpath('./text()')) != 0:
+            if len(prices[i].xpath('./text()')) != 0: #没有折扣的情况，比如订单35737447378 
                 ws.cell(row=i+j+1,column=2,value=prices[i].text)
             else:
                 res = prices[i].xpath('./span')
