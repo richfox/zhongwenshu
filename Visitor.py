@@ -19,13 +19,16 @@ class Visitor:
 
     def searchOrderGoods(self):
         basepath = '//*[@id="normalorder"]//*[@class="merch_bord"]//table[@class="tabl_merch"]'
-        books = self._htmltree.xpath(basepath + '//*[@name="productname"]')
-        titles = self._htmltree.xpath(basepath + '//*[@name="productname"]/@title')
-        hrefs = self._htmltree.xpath(basepath + '//*[@name="productname"]/@href')
+        books = self._htmltree.xpath(basepath + '//*[@class="tab_w1"]/*[@name="productname"]')
+        titles = self._htmltree.xpath(basepath + '//*[@class="tab_w1"]/*[@name="productname"]/@title')
+        hrefs = self._htmltree.xpath(basepath + '//*[@class="tab_w1"]/*[@name="productname"]/@href')
         prices = self._htmltree.xpath(basepath + '//*[@class="tab_w3"]')
         bonuses = self._htmltree.xpath(basepath + '//*[@class="tab_w2"]')
         amounts = self._htmltree.xpath(basepath + '//*[@class="tab_w6"]')
         sums = self._htmltree.xpath(basepath + '//*[@class="tab_w4"]')
+
+        #换购商品
+        subbooks = self._htmltree.xpath(basepath + '//*[@class="tab_w1"]/*[@class="present"]')
 
         ordernr = self._htmltree.xpath('//*[@id="normalorder"]//div[@id="divorderhead"][@class="order_news"]/p/text()')
         ordertime = self._htmltree.xpath('//*[@id="normalorder"]//div[@id="divorderhead"][@class="order_news"]//span[@class="order_news_hint"]/span')
@@ -35,23 +38,45 @@ class Visitor:
 
         wb = openpyxl.Workbook()
         ws = wb.active
+        j = 0
         for i,book in enumerate(books):
             #lxml.html.tostring(book,pretty_print=True,encoding='utf-8')
 
-            ws.cell(row=i+1,column=1,value=titles[i]).hyperlink = hrefs[i]
-            res = prices[i].xpath('./span')
-            if len(res) == 0: #没有折扣
-                ws.cell(row=i+1,column=2,value=prices[i].text)
+            ws.cell(row=i+j+1,column=1,value=titles[i]).hyperlink = hrefs[i]
+
+            if len(prices[i].xpath('./text()')) != 0:
+                ws.cell(row=i+j+1,column=2,value=prices[i].text)
             else:
-                ws.cell(row=i+1,column=2,value=res[0].text)
-            ws.cell(row=i+1,column=3,value=bonuses[i].text)
-            ws.cell(row=i+1,column=4,value=amounts[i].text)
+                res = prices[i].xpath('./span')
+                ws.cell(row=i+j+1,column=2,value=res[0].text)
+
+            ws.cell(row=i+j+1,column=3,value=bonuses[i].text)
+            ws.cell(row=i+j+1,column=4,value=amounts[i].text)
 
             #小计以数字形式保存
             sum = re.findall('\d+.\d+',sums[i].text)[0]
-            ws.cell(row=i+1,column=5,value=sum)
+            ws.cell(row=i+j+1,column=5,value=sum)
 
-        lastrow = len(books)
+            #换购商品
+            res = books[i].xpath('../br')
+            if len(res) != 0: #有换购
+                j += 1
+                hgtitle = books[i].xpath('../a[2]/@title')
+                hghref = books[i].xpath('../a[2]/@href')
+                hgprice = prices[i].xpath('./span/text()')
+                hgamount = amounts[i].xpath('./text()[2]')
+                hgsum = sums[i].xpath('./text()[2]')
+                
+                ws.cell(row=i+j+1,column=1,value='[HG] ' + hgtitle[0]).hyperlink = hghref[0]
+                if len(hgprice) != 0:
+                    ws.cell(row=i+j+1,column=2,value=hgprice[0])
+                if len(hgamount) != 0:
+                    ws.cell(row=i+j+1,column=4,value=hgamount[0])
+                if len(hgsum) != 0:
+                    ws.cell(row=i+j+1,column=5,value=re.findall('\d+.\d+',hgsum[0])[0])
+
+
+        lastrow = len(books) + len(subbooks)
 
         #订单号，下单时间，付款方式
         for nr in ordernr:
