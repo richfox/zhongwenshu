@@ -15,8 +15,22 @@ import re
 class Visitor:
     def __init__(self,file):
         htmlstring = open(file,'r').read()
-        htmltree = lxml.html.document_fromstring(htmlstring.decode('gb2312'))
+        htmltree = lxml.html.document_fromstring(self.preprocess(htmlstring))
         self._htmltree = htmltree
+
+    #预处理，比如先删除一些非法字符
+    def preprocess(self,htmlstring):
+        try:
+            res = htmlstring.decode('gb2312')
+        except Exception as error:
+            print error
+            print 'delete illegal multibyte sequence...'
+            pos = re.findall('decodebytesinposition(\d+)-(\d+):illegal',str(error).replace(' ',''))
+            if len(pos) != 0:
+                htmlstring = htmlstring[0:int(pos[0][0])] + htmlstring[int(pos[0][1]):]
+                return self.preprocess(htmlstring)
+        else:
+            return res
 
     def searchOrderGoods(self):
         basepath = '//*[@id="normalorder"]//*[@class="merch_bord"]//table[@class="tabl_merch"]'
