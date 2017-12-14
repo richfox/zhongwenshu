@@ -1,7 +1,8 @@
 ﻿#-*-coding:utf-8-*-
 #＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝网页爬取图片＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝
 #Python 2.7
-#author: Xiang Fu
+#Author: Xiang Fu
+#Email: tech@zhongwenshu.de
 
 import sys
 import os

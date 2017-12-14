@@ -1,7 +1,8 @@
 #-*-coding:utf-8-*-
 #＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝访问语法树＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝
 #Python 2.7
-#author: Xiang Fu
+#Author: Xiang Fu
+#Email: tech@zhongwenshu.de
 
 
 
