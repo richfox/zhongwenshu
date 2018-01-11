@@ -94,9 +94,10 @@ class Visitor:
         lastrow = len(books) + len(subbooks)
 
         #订单号，下单时间，付款方式
-        for nr in ordernr:
-            if nr.strip(' \n\t'):
-                nr = nr.strip(' \n\t')
+        nr = ''
+        for n in ordernr:
+            if n.strip(' \n\t'):
+                nr = n.strip(' \n\t')
                 break
         if len(ordertime) == 0:
             ws.cell(row=lastrow+1,column=1,value=nr+payment[0].text)
