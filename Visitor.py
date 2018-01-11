@@ -57,7 +57,12 @@ class Visitor:
         for i,book in enumerate(books):
             #lxml.html.tostring(book,pretty_print=True,encoding='utf-8')
 
-            ws.cell(row=i+j+1,column=1,value=titles[i]).hyperlink = hrefs[i]
+            #预售商品
+            res = book.xpath('../span[@class="c_red"]')
+            if len(res) != 0: #是预售
+                ws.cell(row=i+j+1,column=1,value='[YS] ' + titles[i]).hyperlink = hrefs[i]
+            else:
+                ws.cell(row=i+j+1,column=1,value=titles[i]).hyperlink = hrefs[i]
 
             if len(prices[i].xpath('./text()')) != 0: #没有折扣的情况，比如订单35737447378 
                 ws.cell(row=i+j+1,column=2,value=prices[i].text)
