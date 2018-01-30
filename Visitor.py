@@ -46,8 +46,9 @@ class Visitor:
         subbooks = self._htmltree.xpath(basepath + '//*[@class="tab_w1"]/*[@class="present"]')
 
         ordernr = self._htmltree.xpath('//*[@id="normalorder"]//div[@id="divorderhead"][@class="order_news"]/p/text()')
+        parcel = self._htmltree.xpath('//*[@id="normalorder"]//span[@class="business_package_bg"]')
         ordertime = self._htmltree.xpath('//*[@id="normalorder"]//div[@id="divorderhead"][@class="order_news"]//span[@class="order_news_hint"]/span')
-        others = self._htmltree.xpath('//*[@id="normalorder"]//table[@class="tabl_other"]//span')
+        others = self._htmltree.xpath('//*[@id="normalorder"]//div[@class="ditail_frame_notop"]/table[@class="tabl_other"]')
         endprice = self._htmltree.xpath('//*[@id="normalorder"]//div[@class="price_total"]/span[1]')
         payment = self._htmltree.xpath('//*[@id="normalorder"]//*[@class="order_detail_frame"]/ul[position()=4]/li')
 
@@ -98,27 +99,38 @@ class Visitor:
 
         lastrow = len(books) + len(subbooks)
 
-        #订单号，下单时间，付款方式
-        nr = ''
-        for n in ordernr:
-            if n.strip(' \n\t'):
-                nr = n.strip(' \n\t')
-                break
-        if len(ordertime) == 0:
-            ws.cell(row=lastrow+1,column=1,value=nr+payment[0].text)
-        elif len(ordertime) == 1:
-            ws.cell(row=lastrow+1,column=1,value=nr+ordertime[0].text+payment[0].text)
-        elif len(ordertime) == 2:
-            ws.cell(row=lastrow+1,column=1,value=nr+ordertime[0].text+ordertime[1].text+payment[0].text)
+        #订单号，下单时间，付款方式，最终价
+        if len(ordernr) != 0: #普通订单不分包裹
+            nr = ''
+            for n in ordernr:
+                if n.strip(' \n\t'):
+                    nr = n.strip(' \n\t')
+                    break
+            if len(ordertime) == 0:
+                ws.cell(row=lastrow+1,column=1,value=nr+payment[0].text)
+            elif len(ordertime) == 1:
+                ws.cell(row=lastrow+1,column=1,value=nr+ordertime[0].text+payment[0].text)
+            elif len(ordertime) == 2:
+                ws.cell(row=lastrow+1,column=1,value=nr+ordertime[0].text+ordertime[1].text+payment[0].text)
+            #最终价
+            ws.cell(row=lastrow+1,column=6,value=endprice[0].text)
+            #优惠
+            bonus = others[0].xpath('.//span')
+            for i,elem in enumerate(bonus):
+                if i == 0:
+                    ws.cell(row=lastrow+1,column=5,value=bonus[0].text)
+                else:
+                    ws.cell(row=lastrow+1+i-1,column=3,value=bonus[i].text)
+        else: #分包裹
+            for i,elem in enumerate(parcel):
+                note = elem.xpath('./b/text()')
+                nr = elem.xpath('./text()[1]')
+                time = elem.xpath('.//span[@class="t_time_n"]')
+                ws.cell(row=lastrow+1+i,column=1,value=note[0]+nr[0]+time[0].text+payment[0].text)
+                ws.cell(row=lastrow+1+i,column=6,value=endprice[i].text)
+                bonus = others[i].xpath('.//span')
+                ws.cell(row=lastrow+1+i,column=5,value=bonus[0].text)
 
-        #最终价
-        ws.cell(row=lastrow+1,column=6,value=endprice[0].text)
-
-        for i,elem in enumerate(others):
-            if i == 0:
-                ws.cell(row=lastrow+1,column=5,value=others[0].text)
-            else:
-                ws.cell(row=lastrow+1+i-1,column=3,value=others[i].text)
         
         wb.save('_books.xlsx')
         
