@@ -128,15 +128,26 @@ def matchGenerateOrderConfigFile(arg):
     res = scanForMatch(regex,arg)
     return res
 
+def matchGenerateSqlConigFile(arg):
+    regex = r"-sql$"
+    res = scanForMatch(regex,arg)
+    return res
+
 
 #命令行参数：解析配置文件
 def matchConfigFile(arg):
-    regex = r".*[a-zA-Z0-9_]*\.xml$"
+    regex = r"[a-zA-Z0-9_]*\.xml$"
     res = scanForMatch(regex,arg)
     return res
 
 def matchOrderHtmlFile(arg):
     regex = r".*[a-zA-Z0-9_]*\.html$"
+    res = scanForMatch(regex,arg)
+    return res
+
+
+def matSqlFile(arg):
+    regex = r"[a-zA-Z0-9_]*\.sql\.xml$"
     res = scanForMatch(regex,arg)
     return res
 
@@ -180,6 +191,25 @@ def generateDefaultOrderConfig():
     fp.close()
     print('Generated default order config file: dangdangConfig.xml')
 
+def generateDefaultSqlConfig():
+    fp = open('mySQLConfig.sql.xml','w')
+
+    content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + \
+            "<config>\n" + \
+            "  <!-- Exmaple for mysql server: https://konsoleh.your-server.de/ -->\n" + \
+            "  <mysql>\n" + \
+            "    <host>konsoleh.your-server.de</host>\n" + \
+            "    <user>to_input</user>\n" + \
+            "    <password>to_input</password>\n" + \
+            "    <db>zhongw_test</db>\n" + \
+            "  </mysql>\n" + \
+            "</config>\n"
+
+    fp.write(content)
+    fp.close()
+    print('Generated default sql config file: mySQLConfig.sql.xml')
+    
+
 def getNodeText(nodelist):
     text = []
     for node in nodelist:
@@ -216,6 +246,30 @@ def parseConfigFile(configFile):
 
     return urls
 
+
+def parseSqlConfigFile(configFile):
+    sqls = {}
+    tree = xml.dom.minidom.parse(configFile)
+    configNode = tree.getElementsByTagName(u"config")[0]
+    for node in configNode.childNodes:
+        if node.nodeName == 'mysql':
+            fullurl = "http://"
+            username = ""
+            password = ""
+            dbname = ""
+            for mysql in node.childNodes:
+                if mysql.nodeName == 'host':
+                    url = getNodeText(mysql.childNodes)
+                    fullurl += url + "/"
+                elif mysql.nodeName == 'user':
+                    username = getNodeText(mysql.childNodes)
+                elif mysql.nodeName == 'password':
+                    password = getNodeText(mysql.childNodes)
+                elif mysql.nodeName == 'db':
+                    dbname = getNodeText(mysql.childNodes)
+
+            sqls[fullurl] = (username,password,dbname)
+    return sqls
 
 
 #生成配置文件

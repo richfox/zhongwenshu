@@ -8,6 +8,7 @@ import sys
 import os
 import Spider
 import Visitor
+import SQLimport
 
 
 
@@ -15,15 +16,19 @@ def printUsage():
     print("")
     print("Usage modes:")
     print("")
-    print('python ${THIS_SCRIPT_NAME}.py {--generate | -g}   (Generates a default configuration file')
+    print('python ${THIS_SCRIPT_NAME}.py {--generate | -g}   Generates a default configuration file')
     print("")
-    print('python ${THIS_SCRIPT_NAME}.py {-o}   (Generates a default order configuration file')
+    print('python ${THIS_SCRIPT_NAME}.py {-o}   Generates a default order configuration file')
     print("")
-    print('python ${THIS_SCRIPT_NAME}.py ${configFile.xml}    (Uses all settings of the xml configuration file')
+    print('python ${THIS_SCRIPT_NAME}.py {-sql}    Generates a default sql configuration file')
     print("")
-    print('python ${THIS_SCRIPT_NAME}.py ${file.html}    (visit the html file')
+    print('python ${THIS_SCRIPT_NAME}.py ${configFile.xml}    Uses all settings of the xml configuration file')
     print("")
-    print('python ${THIS_SCRIPT_NAME}.py {url,id}    (Generates a special configuration file, then use it')
+    print('python ${THIS_SCRIPT_NAME}.py ${file.html}    visit the html file')
+    print("")
+    print('python ${THIS_SCRIPT_NAME}.py {url,id}    Generates a special configuration file, then use it')
+    print("")
+    print('python ${THIS_SCRIPT_NAME}.py ${file.sql.xml}    import to database with settings of the xml file')
     print("")
 
 
@@ -41,13 +46,16 @@ def main():
         elif Spider.matchGenerateOrderConfigFile(sys.argv[1]):
             Spider.generateDefaultOrderConfig()
             return True
+        elif Spider.matchGenerateSqlConigFile(sys.argv[1]):
+            Spider.generateDefaultSqlConfig()
+            return True
         elif Spider.matchConfigFile(sys.argv[1]):
             if not os.path.exists(sys.argv[1]):
                 print('Error: config file does not exist.')
                 return False
             else:
-                url = Spider.parseConfigFile(sys.argv[1])
-                Spider.spiderStart(url)
+                urls = Spider.parseConfigFile(sys.argv[1])
+                Spider.spiderStart(urls)
                 return True
         elif Spider.matchOrderHtmlFile(sys.argv[1]):
             if not os.path.exists(sys.argv[1]):
@@ -56,11 +64,19 @@ def main():
             else:
                 Visitor.visitorStart(sys.argv[1])
                 return True
+        elif Spider.matSqlFile(sys.argv[1]):
+            if not os.path.exists(sys.argv[1]):
+                print('Error: sql config file does not exist.')
+                return False
+            else:
+                sqls = Spider.parseSqlConfigFile(sys.argv[1])
+                SQLimport.SQLimport(sqls)
+                return True
     elif numArgs == 3:
         if Spider.matchUrl(sys.argv[1]):
             Spider.generateConfig(sys.argv[1],sys.argv[2])
-            url = Spider.parseConfigFile("dangdangConfig.xml")
-            Spider.spiderStart(url)
+            urls = Spider.parseConfigFile("dangdangConfig.xml")
+            Spider.spiderStart(urls)
             return True
 
     printUsage()

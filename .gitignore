@@ -14,3 +14,5 @@ Visitor.pyc
 _books.xlsx
 ~$_books.xlsx
 .vscode/settings.json
+mySQLConfig.sql.xml
+SQLimport.pyc
