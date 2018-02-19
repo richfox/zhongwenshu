@@ -136,7 +136,7 @@ def matchGenerateSqlConigFile(arg):
 
 #命令行参数：解析配置文件
 def matchConfigFile(arg):
-    regex = r"[a-zA-Z0-9_]*\.xml$"
+    regex = r".*[a-zA-Z0-9_]*\.xml$"
     res = scanForMatch(regex,arg)
     return res
 
@@ -147,7 +147,7 @@ def matchOrderHtmlFile(arg):
 
 
 def matSqlFile(arg):
-    regex = r"[a-zA-Z0-9_]*\.sql\.xml$"
+    regex = r".*[a-zA-Z0-9_]*\.sxml$"
     res = scanForMatch(regex,arg)
     return res
 
@@ -192,7 +192,7 @@ def generateDefaultOrderConfig():
     print('Generated default order config file: dangdangConfig.xml')
 
 def generateDefaultSqlConfig():
-    fp = open('mySQLConfig.sql.xml','w')
+    fp = open('mySQLConfig.sxml','w')
 
     content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + \
             "<config>\n" + \
@@ -207,7 +207,7 @@ def generateDefaultSqlConfig():
 
     fp.write(content)
     fp.close()
-    print('Generated default sql config file: mySQLConfig.sql.xml')
+    print('Generated default sql config file: mySQLConfig.sxml')
     
 
 def getNodeText(nodelist):

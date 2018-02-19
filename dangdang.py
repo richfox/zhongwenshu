@@ -28,7 +28,7 @@ def printUsage():
     print("")
     print('python ${THIS_SCRIPT_NAME}.py {url,id}    Generates a special configuration file, then use it')
     print("")
-    print('python ${THIS_SCRIPT_NAME}.py ${file.sql.xml}    import to database with settings of the xml file')
+    print('python ${THIS_SCRIPT_NAME}.py ${file.sxml}    import to database with settings of the xml file')
     print("")
 
 
