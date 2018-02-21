@@ -202,6 +202,7 @@ def generateDefaultSqlConfig():
             "    <user>to_input</user>\n" + \
             "    <password>to_input</password>\n" + \
             "    <db>zhongw_test</db>\n" + \
+            "    <charset>utf8</charset>\n" + \
             "  </mysql>\n" + \
             "</config>\n"
 
@@ -253,22 +254,24 @@ def parseSqlConfigFile(configFile):
     configNode = tree.getElementsByTagName(u"config")[0]
     for node in configNode.childNodes:
         if node.nodeName == 'mysql':
-            fullurl = "http://"
+            host = ""
             username = ""
             password = ""
             dbname = ""
+            charset = ""
             for mysql in node.childNodes:
                 if mysql.nodeName == 'host':
-                    url = getNodeText(mysql.childNodes)
-                    fullurl += url + "/"
+                    host = getNodeText(mysql.childNodes)
                 elif mysql.nodeName == 'user':
                     username = getNodeText(mysql.childNodes)
                 elif mysql.nodeName == 'password':
                     password = getNodeText(mysql.childNodes)
                 elif mysql.nodeName == 'db':
                     dbname = getNodeText(mysql.childNodes)
+                elif mysql.nodeName == 'charset':
+                    charset = getNodeText(mysql.childNodes)
 
-            sqls[fullurl] = (username,password,dbname)
+            sqls[host] = (username,password,dbname,charset)
     return sqls
 
 

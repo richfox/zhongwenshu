@@ -5,18 +5,19 @@
 #Email: tech@zhongwenshu.de
 
 
-import pymysql.cursors
+import pymysql
 
 
 def SQLimport(sqllist):
     print("Import start...\n")
 
-    for host,(username,password,dbname) in sqllist.items():
-        connection = pymysql.connect(host=host,user=username,password=password,db=dbname,charset='utf8',cursorclass=pymysql.cursors.DictCursor)
+    for host,(username,password,dbname,charset) in sqllist.items():
+
+        connection = pymysql.connect(host=host,user=username,password=password,db=dbname,charset=charset)
         try:
             with connection.cursor() as cursor:
-                sql = "SELECT `user_id` FROM `ecs_test_users` WHERE `user_name`=%s"
-                cursor.execute(sql,('xfu'))
+                sql = "SELECT `user_id`, `email` FROM `ecs_test_users` WHERE `user_name`=%s"
+                cursor.execute(sql,'xfu')
                 res = cursor.fetchone()
                 print(res)
         finally:
