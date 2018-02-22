@@ -7,12 +7,10 @@ ZWSTool/ipch/
 ZWSTool/x64/
 ZWSTool/ZWSTool/ZWSTool.aps
 ZWSTool/ZWSTool/ZWSTool.vcxproj.user
-Spider.pyc
 order.dangdang.html
 dangdangConfig.xml
-Visitor.pyc
 _books.xlsx
 ~$_books.xlsx
 .vscode/settings.json
 mySQLConfig.sxml
-SQLimport.pyc
+*.pyc

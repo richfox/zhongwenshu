@@ -1,5 +1,5 @@
 ﻿#-*-coding:utf-8-*-
-#＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝网页爬取图片＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝
+#＝＝＝＝＝＝command line＝＝＝＝＝
 #Python 2.7
 #Author: Xiang Fu
 #Email: tech@zhongwenshu.de
@@ -9,6 +9,7 @@ import os
 import Spider
 import Visitor
 import SQLimport
+import SpiderToSQL
 
 
 
@@ -28,7 +29,9 @@ def printUsage():
     print("")
     print('python ${THIS_SCRIPT_NAME}.py {url,id}    Generates a special configuration file, then use it')
     print("")
-    print('python ${THIS_SCRIPT_NAME}.py ${file.sxml}    import to database with settings of the xml file')
+    print('python ${THIS_SCRIPT_NAME}.py ${file.sxml}    import to database with settings of the sxml file')
+    print("")
+    print('python ${THIS_SCRIPT_NAME}.py ${config.xml} ${file.sxml}   use config to search attributes than import to database with settings of the sxml file')
     print("")
 
 
@@ -78,6 +81,20 @@ def main():
             urls = Spider.parseConfigFile("dangdangConfig.xml")
             Spider.spiderStart(urls)
             return True
+        elif Spider.matchConfigFile(sys.argv[1]):
+            if not Spider.matSqlFile(sys.argv[2]):
+                print('Error: sql config file does not exist.')
+                return False
+            else:
+                urls = Spider.parseConfigFile(sys.argv[1])
+                sqls = Spider.parseSqlConfigFile(sys.argv[2])
+                for host,(username,password,dbname,charset) in sqls.items():
+                    for url,tag in urls.items():
+                        if (tag != 0):
+                            del urls[url]
+                    sqls[host] = (username,password,dbname,charset,urls)
+                SpiderToSQL.SpiderToSQL(sqls)
+                return True
 
     printUsage()
     return False
