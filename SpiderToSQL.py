@@ -4,11 +4,12 @@
 #Author: Xiang Fu
 #Email: tech@zhongwenshu.de
 
-
+import io
+import re
 import pymysql
 import requests
-import lxml.etree
-import re
+import xml
+import lxml
 
 
 
@@ -19,7 +20,13 @@ def SpiderToSQL(sqls):
         connection = pymysql.connect(host=host,user=username,password=password,db=dbname,charset=charset)
         try:
             for url,tag in urls.items():
-                html = requests.get(url).text
+                htmltext = requests.get(url).text
+                parser = lxml.html.HTMLParser()
+                htmltree = xml.etree.ElementTree.fromstring(htmltext,parser)
+                #res = lxml.html.tostring(htmltree,pretty_print=True)
+                #print(res)
+
+                
         finally:
             connection.close()
 
