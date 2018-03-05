@@ -26,10 +26,22 @@ def SpiderToSQL(sqls):
                 #res = lxml.html.tostring(htmltree,pretty_print=True)
                 #print(res)
 
-                title = htmltree.xpath('//*[@id="product_info"]/div[1]/h1/@title')
-                print(title[0])
+                #爬取书籍信息
+                treeTitle = htmltree.xpath('//*[@id="product_info"]/div[1]/h1/@title')
+                title = treeTitle[0]
                 sn = 'ABCD0123'
-                author = 'xfu'
+
+                treeAuthor = htmltree.xpath('//*[@id="author"]//text()')
+                author = ''
+                for text in treeAuthor:
+                    author += text
+                
+                press = '吉林大学出版社'
+                isbn = '0123456789'
+                pressdate = '2018-3-5'
+                size = '32开'
+                packing = '平装'
+                attrs = {1:author,2:press,3:isbn,4:pressdate,5:size,7:packing}
 
                 with connection.cursor() as cursor:
                     sql = "INSERT INTO `ecs_test_goods` (`goods_id`, `cat_id`, `goods_sn`,`goods_name`,\
@@ -48,16 +60,19 @@ def SpiderToSQL(sqls):
                     '0', '1', '0', '0', '0', '100',\
                     '0', '0', '1', '0', '0', '0', '0',\
                     '1', '', '-1', '-1', '0', NULL)"
-                    cursor.execute(sql,(sn,title[0]))
+                    cursor.execute(sql,(sn,title))
 
+                    #唯一商品编号
                     sql = "SELECT `goods_id` FROM `ecs_test_goods` WHERE `goods_sn`=%s"
                     cursor.execute(sql,sn)
-                    id = cursor.fetchone()
-                    print(id[0])
+                    goodsid = cursor.fetchone()[0]
+                    print(goodsid)
 
-                    sql = "INSERT INTO `ecs_test_goods_attr` (`goods_attr_id`, `goods_id`, `attr_id`,\
-                    `attr_value`, `attr_price`) VALUES (NULL, %s, '1', %s, '')"
-                    cursor.execute(sql,(id[0],author))
+                    #填入书籍信息
+                    for attrid,attr in attrs.items():
+                        sql = "INSERT INTO `ecs_test_goods_attr` (`goods_attr_id`, `goods_id`, `attr_id`,\
+                        `attr_value`, `attr_price`) VALUES (NULL, %s, %s, %s, '0')"
+                        cursor.execute(sql,(goodsid,attrid,attr))
                     
                 connection.commit()
         finally:
