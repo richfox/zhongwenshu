@@ -27,20 +27,49 @@ def SpiderToSQL(sqls):
                 #print(res)
 
                 #爬取书籍信息
-                treeTitle = htmltree.xpath('//*[@id="product_info"]/div[1]/h1/@title')
-                title = treeTitle[0]
-                sn = 'ABCD0123'
+                titletree = htmltree.xpath('//*[@id="product_info"]/div[1]/h1/@title')
+                title = ''
+                if titletree:
+                    title = titletree[0]
 
-                treeAuthor = htmltree.xpath('//*[@id="author"]//text()')
+                sn = 'ABCD01234'
+
+                authortree = htmltree.xpath('//*[@id="author"]//text()')
                 author = ''
-                for text in treeAuthor:
-                    author += text
-                
-                press = '吉林大学出版社'
-                isbn = '0123456789'
-                pressdate = '2018-3-5'
-                size = '32开'
+                for i,text in enumerate(authortree):
+                    if i == 0:
+                        for res in re.findall('\[.*\]',text):
+                            author += res
+                    else:
+                        author += text
+
+                presstree = htmltree.xpath('//*[@id="product_info"]/div[2]/span[2]/a/text()')
+                press = ''
+                if presstree:
+                    press = presstree[0]
+
+                isbntree = htmltree.xpath('//*[@id="detail_describe"]/ul/li[9]/text()')
+                isbn = ''
+                if isbntree:
+                    for res in re.findall('[0-9]+',isbntree[0]):
+                        isbn += res
+
+                pressdatetree = htmltree.xpath('//*[@id="product_info"]/div[2]/span[3]/text()')
+                pressdate = ''
+                if pressdatetree:
+                    res = re.split(':',pressdatetree[0])
+                    if len(res) > 1:
+                        pressdate = res[1]
+
+                sizetree = htmltree.xpath('//*[@id="detail_describe"]/ul/li[5]/text()')
+                size = ''
+                if sizetree:
+                    for res in re.findall('[0-9]+.*',sizetree[0]):
+                        size += res
+
                 packing = '平装'
+
+                #创建书籍信息字典
                 attrs = {1:author,2:press,3:isbn,4:pressdate,5:size,7:packing}
 
                 with connection.cursor() as cursor:
@@ -53,8 +82,8 @@ def SpiderToSQL(sqls):
                     `is_delete`, `is_best`, `is_new`, `is_hot`, `is_promote`, `bonus_type_id`, `last_update`,\
                     `goods_type`, `seller_note`, `give_integral`, `rank_integral`, `suppliers_id`, `is_check`) \
                     VALUES (NULL, '56', %s, %s,\
-                    '+', '17', '0', '', '0',\
-                    '1.520', '33.34', '', '27.79', '0.00',\
+                    '+', '0', '0', '', '0',\
+                    '0', '0', '', '0', '0.00',\
                     '0', '0', '1', '', '',\
                     '', '', '', '', '1', '',\
                     '0', '1', '0', '0', '0', '100',\
