@@ -27,44 +27,44 @@ def SpiderToSQL(sqls):
                 #print(res)
 
                 #爬取书籍信息
-                titletree = htmltree.xpath('//*[@id="product_info"]/div[1]/h1/@title')
+                titlenode = htmltree.xpath('//*[@id="product_info"]/div[1]/h1/@title')
                 title = ''
-                if titletree:
-                    title = titletree[0]
+                if titlenode:
+                    title = titlenode[0]
 
                 sn = 'ABCD01234'
 
-                authortree = htmltree.xpath('//*[@id="author"]//text()')
+                authornode = htmltree.xpath('//*[@id="author"]//text()')
                 author = ''
-                for i,text in enumerate(authortree):
+                for i,text in enumerate(authornode):
                     if i == 0:
                         for res in re.findall('\[.*\]',text):
                             author += res
                     else:
                         author += text
 
-                presstree = htmltree.xpath('//*[@id="product_info"]/div[2]/span[2]/a/text()')
+                pressnode = htmltree.xpath('//*[@id="product_info"]/div[2]/span[2]/a/text()')
                 press = ''
-                if presstree:
-                    press = presstree[0]
+                if pressnode:
+                    press = pressnode[0]
 
-                isbntree = htmltree.xpath('//*[@id="detail_describe"]/ul/li[9]/text()')
+                isbnnode = htmltree.xpath('//*[@id="detail_describe"]/ul/li[9]/text()')
                 isbn = ''
-                if isbntree:
-                    for res in re.findall('[0-9]+',isbntree[0]):
+                if isbnnode:
+                    for res in re.findall('[0-9]+',isbnnode[0]):
                         isbn += res
 
-                pressdatetree = htmltree.xpath('//*[@id="product_info"]/div[2]/span[3]/text()')
+                pressdatenode = htmltree.xpath('//*[@id="product_info"]/div[2]/span[3]/text()')
                 pressdate = ''
-                if pressdatetree:
-                    res = re.split(':',pressdatetree[0])
+                if pressdatenode:
+                    res = re.split(':',pressdatenode[0])
                     if len(res) > 1:
                         pressdate = res[1]
 
-                sizetree = htmltree.xpath('//*[@id="detail_describe"]/ul/li[5]/text()')
+                sizenode = htmltree.xpath('//*[@id="detail_describe"]/ul/li[5]/text()')
                 size = ''
-                if sizetree:
-                    for res in re.findall('[0-9]+.*',sizetree[0]):
+                if sizenode:
+                    for res in re.findall('[0-9]+.*',sizenode[0]):
                         size += res
 
                 packingnode = htmltree.xpath('//*[@id="detail_describe"]/ul/li[7]/text()')
@@ -77,10 +77,10 @@ def SpiderToSQL(sqls):
                     elif re.match(u'.*盒装',packingnode[0]):
                         packing = '盒装'
 
-                papertree = htmltree.xpath('//*[@id="detail_describe"]/ul/li[6]/text()')
+                papernode = htmltree.xpath('//*[@id="detail_describe"]/ul/li[6]/text()')
                 paper = ''
-                if papertree:
-                    res = re.split(u'：',papertree[0])
+                if papernode:
+                    res = re.split(u'：',papernode[0])
                     if len(res) > 1:
                         paper = res[1]
 
