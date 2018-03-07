@@ -67,10 +67,26 @@ def SpiderToSQL(sqls):
                     for res in re.findall('[0-9]+.*',sizetree[0]):
                         size += res
 
-                packing = '平装'
+                packingnode = htmltree.xpath('//*[@id="detail_describe"]/ul/li[7]/text()')
+                packing = ''
+                if packingnode:
+                    if re.match(u'.*平装',packingnode[0]):
+                        packing = '平装'
+                    elif re.match(u'.*精装',packingnode[0]):
+                        packing = '精装'
+                    elif re.match(u'.*盒装',packingnode[0]):
+                        packing = '盒装'
+
+                papertree = htmltree.xpath('//*[@id="detail_describe"]/ul/li[6]/text()')
+                paper = ''
+                if papertree:
+                    res = re.split(u'：',papertree[0])
+                    if len(res) > 1:
+                        paper = res[1]
+
 
                 #创建书籍信息字典
-                attrs = {1:author,2:press,3:isbn,4:pressdate,5:size,7:packing}
+                attrs = {1:author,2:press,3:isbn,4:pressdate,5:size,7:packing,8:paper}
 
                 with connection.cursor() as cursor:
                     sql = "INSERT INTO `ecs_test_goods` (`goods_id`, `cat_id`, `goods_sn`,`goods_name`,\
