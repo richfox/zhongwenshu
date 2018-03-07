@@ -10,6 +10,7 @@ import pymysql
 import requests
 import xml
 import lxml
+import Spider
 
 
 
@@ -32,7 +33,8 @@ def SpiderToSQL(sqls):
                 if titlenode:
                     title = titlenode[0]
 
-                sn = 'ABCD01234'
+                #唯一商品货号
+                sn = 'ABCD01234__'
 
                 authornode = htmltree.xpath('//*[@id="author"]//text()')
                 author = ''
@@ -84,6 +86,8 @@ def SpiderToSQL(sqls):
                     if len(res) > 1:
                         paper = res[1]
 
+                #商品图片
+                Spider.spider_picture(url)
 
                 #创建书籍信息字典
                 attrs = {1:author,2:press,3:isbn,4:pressdate,5:size,7:packing,8:paper}

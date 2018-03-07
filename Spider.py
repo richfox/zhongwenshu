@@ -298,4 +298,6 @@ def spiderStart(urllist):
     print("\nFinished.")
 
 
-
+def spider_picture(url):
+    spider = Spider(url)
+    spider.searchPicture()
