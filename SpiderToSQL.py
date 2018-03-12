@@ -11,6 +11,25 @@ import requests
 import xml
 import lxml
 import Spider
+import pinyin
+import time
+
+
+def generate_sn(hanzi):
+    #转成拼音
+    res = pinyin.get_initial(hanzi)
+    #转成大写
+    res = res.upper()
+    #只保留数字和字母
+    nondc = re.compile('[^A-Z0-9_]+')
+    res = nondc.sub('',res)
+    #截短
+    if len(res) > 2:
+        res = res[:2]
+    #10位时间戳
+    res += str(int(time.time()))
+
+    return res
 
 
 
@@ -30,11 +49,12 @@ def SpiderToSQL(sqls):
                 #爬取书籍信息
                 titlenode = htmltree.xpath('//*[@id="product_info"]/div[1]/h1/@title')
                 title = ''
+                sn = ''
                 if titlenode:
                     title = titlenode[0]
-
-                #唯一商品货号
-                sn = 'ABCD01234__'
+                    #唯一商品货号
+                    sn = generate_sn(title)
+                    
 
                 authornode = htmltree.xpath('//*[@id="author"]//text()')
                 author = ''
