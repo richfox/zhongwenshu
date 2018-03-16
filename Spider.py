@@ -133,6 +133,10 @@ def matchGenerateSqlConigFile(arg):
     res = scanForMatch(regex,arg)
     return res
 
+def matchTaobao(arg):
+    regex = r"-taobao$|-t$"
+    res = scanForMatch(regex,arg)
+    return res
 
 #命令行参数：解析配置文件
 def matchConfigFile(arg):

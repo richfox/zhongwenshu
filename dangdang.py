@@ -10,7 +10,7 @@ import Spider
 import Visitor
 import SQLimport
 import SpiderToSQL
-
+import taobao
 
 
 def printUsage():
@@ -22,6 +22,8 @@ def printUsage():
     print('python ${THIS_SCRIPT_NAME}.py {-o}   Generates a default order configuration file')
     print("")
     print('python ${THIS_SCRIPT_NAME}.py {-sql}    Generates a default sql configuration file')
+    print("")
+    print('python ${THIS_SCRIPT_NAME}.py {-taobao | -t}    spider taobao.com')
     print("")
     print('python ${THIS_SCRIPT_NAME}.py ${configFile.xml}    Uses all settings of the xml configuration file')
     print("")
@@ -51,6 +53,9 @@ def main():
             return True
         elif Spider.matchGenerateSqlConigFile(sys.argv[1]):
             Spider.generateDefaultSqlConfig()
+            return True
+        elif Spider.matchTaobao(sys.argv[1]):
+            taobao.aptamil()
             return True
         elif Spider.matchConfigFile(sys.argv[1]):
             if not os.path.exists(sys.argv[1]):
