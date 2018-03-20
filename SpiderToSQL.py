@@ -110,7 +110,7 @@ def SpiderToSQL(sqls):
                 Spider.spider_picture(url)
 
                 #创建书籍信息字典
-                attrs = {1:author,2:press,3:isbn,4:pressdate,5:size,7:packing,8:paper}
+                attrs = {1:author,2:press,3:isbn,4:pressdate,5:size,7:packing,10:paper}
 
                 with connection.cursor() as cursor:
                     sql = "INSERT INTO `ecs_test_goods` (`goods_id`, `cat_id`, `goods_sn`,`goods_name`,\
