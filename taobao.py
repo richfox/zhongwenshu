@@ -60,8 +60,10 @@ def load_json(jsonstring):
         print '\\u003d=,\\u0026&...'
         pos = re.findall('Expectingobject:line(\d+)column(\d+)\(char(\d+)\)',str(error).replace(' ',''))
         if pos:
-            if jsonstring[int(pos[0][1])] == u"\u003d":
-                jsonstring[int(pos[0][1])] = '='
+            if jsonstring[int(pos[0][2])] == u"\u003d":
+                jsonstring[int(pos[0][2])] = '='
+            elif jsonstring[int(pos[0][2])] == '}':
+                jsonstring += '}'
             return load_json(jsonstring)
     else:
         return res    
@@ -90,7 +92,7 @@ def aptamil():
                         jsontexts.append(script.text[bpair[0]:bpair[1]])
                         #print(jsontexts[i])
                         jsondata = load_json(jsontexts[i])
-                        #print(jsondata)
+                        print(jsondata)
                 break
     
 
