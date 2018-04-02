@@ -112,8 +112,14 @@ def SpiderToSQL(sqls):
                 #创建书籍信息字典
                 attrs = {1:author,2:press,3:isbn,4:pressdate,5:size,7:packing,10:paper}
 
+                #添加时间戳
+                addtime = str(int(time.time()))
+
+                #先登到准上架分类
+                catid = '134'
+
                 with connection.cursor() as cursor:
-                    sql = "INSERT INTO `ecs_test_goods` (`goods_id`, `cat_id`, `goods_sn`,`goods_name`,\
+                    sql = "INSERT INTO `ecs_goods` (`goods_id`, `cat_id`, `goods_sn`,`goods_name`,\
                     `goods_name_style`, `click_count`, `brand_id`, `provider_name`, `goods_number`,\
                     `goods_weight`, `market_price`, `virtual_sales`, `shop_price`, `promote_price`,\
                     `promote_start_date`, `promote_end_date`, `warn_number`, `keywords`, `goods_brief`,\
@@ -121,30 +127,30 @@ def SpiderToSQL(sqls):
                     `is_on_sale`, `is_alone_sale`, `is_shipping`, `integral`, `add_time`, `sort_order`,\
                     `is_delete`, `is_best`, `is_new`, `is_hot`, `is_promote`, `bonus_type_id`, `last_update`,\
                     `goods_type`, `seller_note`, `give_integral`, `rank_integral`, `suppliers_id`, `is_check`) \
-                    VALUES (NULL, '56', %s, %s,\
+                    VALUES (NULL, %s, %s, %s,\
                     '+', '0', '0', '', '0',\
                     '0', '0', '', '0', '0.00',\
                     '0', '0', '1', '', '',\
                     '', '', '', '', '1', '',\
-                    '0', '1', '0', '0', '0', '100',\
+                    '0', '1', '0', '0', %s, '100',\
                     '0', '0', '1', '0', '0', '0', '0',\
                     '1', '', '-1', '-1', '0', NULL)"
-                    cursor.execute(sql,(sn,title))
+                    cursor.execute(sql,(catid,sn,title,addtime))
 
                     #唯一商品编号
-                    sql = "SELECT `goods_id` FROM `ecs_test_goods` WHERE `goods_sn`=%s"
+                    sql = "SELECT `goods_id` FROM `ecs_goods` WHERE `goods_sn`=%s"
                     cursor.execute(sql,sn)
                     goodsid = cursor.fetchone()[0]
                     print(goodsid)
 
                     #填入书籍信息
                     for attrid,attr in attrs.items():
-                        sql = "INSERT INTO `ecs_test_goods_attr` (`goods_attr_id`, `goods_id`, `attr_id`,\
+                        sql = "INSERT INTO `ecs_goods_attr` (`goods_attr_id`, `goods_id`, `attr_id`,\
                         `attr_value`, `attr_price`) VALUES (NULL, %s, %s, %s, '0')"
                         cursor.execute(sql,(goodsid,attrid,attr))
 
                     #新品到货
-                    sql = "INSERT INTO `ecs_test_goods_cat` (`goods_id`, `cat_id`) VALUES (%s, '65')"
+                    sql = "INSERT INTO `ecs_goods_cat` (`goods_id`, `cat_id`) VALUES (%s, '65')"
                     cursor.execute(sql,goodsid)
                     
                 connection.commit()
