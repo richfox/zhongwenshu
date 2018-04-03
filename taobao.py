@@ -57,13 +57,12 @@ def load_json(jsonstring):
         res = json.loads(jsonstring)
     except Exception as error:
         print error
-        print '\\u003d=,\\u0026&...'
         pos = re.findall('Expectingobject:line(\d+)column(\d+)\(char(\d+)\)',str(error).replace(' ',''))
         if pos:
-            if jsonstring[int(pos[0][2])] == u"\u003d":
-                jsonstring[int(pos[0][2])] = '='
-            elif jsonstring[int(pos[0][2])] == '}':
-                jsonstring += '}'
+            if jsonstring[int(pos[0][2])] == '}':
+                jsonstring += '}' #补齐
+            elif jsonstring[int(pos[0][2])] == '"':
+                jsonstring += '}' #补齐
             return load_json(jsonstring)
     else:
         return res    
@@ -72,17 +71,22 @@ def load_json(jsonstring):
 def aptamil():
     print("Analysing aptamil...\n")
 
-    url = 'https://s.taobao.com/search'
-    payload = {'q':'德语版 老友记','ie':'utf-8'}
-    htmltext = requests.get(url,params=payload).text
-    parser = lxml.html.HTMLParser()
-    htmltree = xml.etree.ElementTree.fromstring(preprocess(htmltext),parser)
-    #print(lxml.html.tostring(htmltree,pretty_print=True))
+    test = True
+    htmltext = ''
+
+    if test:
+        htmltext = open('searchres.txt','r').read()
+        htmltree = lxml.html.document_fromstring(preprocess(htmltext))
+    else:
+        url = 'https://s.taobao.com/search'
+        payload = {'q':'德语版 老友记','ie':'utf-8'}
+        htmltext = requests.get(url,params=payload).text
+        parser = lxml.html.HTMLParser()
+        htmltree = xml.etree.ElementTree.fromstring(preprocess(htmltext),parser)
 
     #获取script标签里的g_page_config变量，该变量是个json字符串
     scripts = htmltree.xpath('//script')
     for script in scripts:
-        #print(script.text)
         if script.text:
             if re.findall('g_page_config',script.text):
                 bpair = search_matched_bracket(script.text,'{}')
@@ -90,7 +94,6 @@ def aptamil():
                 if len(bpair)/2:
                     for i in range(len(bpair)/2):
                         jsontexts.append(script.text[bpair[i*2]:bpair[i*2+1]])
-                        #print(jsontexts[i])
                         jsondata = load_json(jsontexts[i])
                         print(jsondata)
                 break
