@@ -89,7 +89,7 @@ def aptamil():
                 jsontexts = []
                 if len(bpair)/2:
                     for i in range(len(bpair)/2):
-                        jsontexts.append(script.text[bpair[0]:bpair[1]])
+                        jsontexts.append(script.text[bpair[i*2]:bpair[i*2+1]])
                         #print(jsontexts[i])
                         jsondata = load_json(jsontexts[i])
                         print(jsondata)
