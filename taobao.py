@@ -71,7 +71,7 @@ def load_json(jsonstring):
 def aptamil():
     print("Analysing aptamil...\n")
 
-    test = True
+    test = False
     htmltext = ''
 
     if test:
@@ -79,10 +79,16 @@ def aptamil():
         htmltree = lxml.html.document_fromstring(preprocess(htmltext))
     else:
         url = 'https://s.taobao.com/search'
-        payload = {'q':'德语版 老友记','ie':'utf-8'}
+        #payload = {'q':'德语版 老友记'}
+        payload = {'q':'德国爱他美白金二段'}
+        #payload = {'q':'Dermaroller玻尿酸原液'}
         htmltext = requests.get(url,params=payload).text
         parser = lxml.html.HTMLParser()
         htmltree = xml.etree.ElementTree.fromstring(preprocess(htmltext),parser)
+
+    #打开Excel
+    wb = openpyxl.Workbook()
+    ws = wb.active
 
     #获取script标签里的g_page_config变量，该变量是个json字符串
     scripts = htmltree.xpath('//script')
@@ -95,8 +101,22 @@ def aptamil():
                     for i in range(len(bpair)/2):
                         jsontexts.append(script.text[bpair[i*2]:bpair[i*2+1]])
                         jsondata = load_json(jsontexts[i])
-                        print(jsondata)
+                        #print(jsondata)
+                        if i==0:
+                            auctions = jsondata['mods']['itemlist']['data']['auctions']
+                            for j in range(len(auctions)):
+                                title = auctions[j]['raw_title']
+                                url = 'http:' + auctions[j]['detail_url']
+                                price = auctions[j]['view_price']
+                                sales = auctions[j]['view_sales']
+                                nick = auctions[j]['nick']
+                                shop = 'http:' + auctions[j]['shopLink']
+                                ws.cell(row=j+1,column=1,value=title).hyperlink = url
+                                ws.cell(row=j+1,column=2,value=price)
+                                ws.cell(row=j+1,column=3,value=sales)
+                                ws.cell(row=j+1,column=4,value=nick).hyperlink = shop
                 break
     
+    wb.save('_taobao.xlsx')
 
     print("\nFinished.")

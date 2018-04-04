@@ -9,8 +9,7 @@ ZWSTool/ZWSTool/ZWSTool.aps
 ZWSTool/ZWSTool/ZWSTool.vcxproj.user
 order.dangdang.html
 dangdangConfig.xml
-_books.xlsx
-~$_books.xlsx
 .vscode/settings.json
 mySQLConfig.sxml
 *.pyc
+*.xlsx
