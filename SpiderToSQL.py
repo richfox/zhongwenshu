@@ -118,6 +118,9 @@ def SpiderToSQL(sqls):
                 #先登到准上架分类
                 catid = '134'
 
+                #商品大类定义在表ecs_goods_type中
+                gtype = '1'
+
                 with connection.cursor() as cursor:
                     sql = "INSERT INTO `ecs_goods` (`goods_id`, `cat_id`, `goods_sn`,`goods_name`,\
                     `goods_name_style`, `click_count`, `brand_id`, `provider_name`, `goods_number`,\
@@ -134,8 +137,8 @@ def SpiderToSQL(sqls):
                     '', '', '', '', '1', '',\
                     '0', '1', '0', '0', %s, '100',\
                     '0', '0', '1', '0', '0', '0', '0',\
-                    '1', '', '-1', '-1', '0', NULL)"
-                    cursor.execute(sql,(catid,sn,title,addtime))
+                    %s, '', '-1', '-1', '0', NULL)"
+                    cursor.execute(sql,(catid,sn,title,addtime,gtype))
 
                     #唯一商品编号
                     sql = "SELECT `goods_id` FROM `ecs_goods` WHERE `goods_sn`=%s"
