@@ -12,6 +12,7 @@ import openpyxl.workbook
 import re
 import requests
 import json
+import jsonpath
 
 
 def search_matched_bracket(str,bracket):
@@ -79,7 +80,7 @@ def aptamil():
         htmltree = lxml.html.document_fromstring(preprocess(htmltext))
     else:
         url = 'https://s.taobao.com/search'
-        #payload = {'q':'德语版 老友记'}
+        #payload = {'q':'德语版老友记'}
         payload = {'q':'德国爱他美白金二段'}
         #payload = {'q':'Dermaroller玻尿酸原液'}
         htmltext = requests.get(url,params=payload).text
@@ -103,6 +104,7 @@ def aptamil():
                         jsondata = load_json(jsontexts[i])
                         #print(jsondata)
                         if i==0:
+                            #print jsonpath.jsonpath(jsondata, '$..auctions')
                             auctions = jsondata['mods']['itemlist']['data']['auctions']
                             for j in range(len(auctions)):
                                 title = auctions[j]['raw_title']
@@ -115,6 +117,15 @@ def aptamil():
                                 ws.cell(row=j+1,column=2,value=price)
                                 ws.cell(row=j+1,column=3,value=sales)
                                 ws.cell(row=j+1,column=4,value=nick).hyperlink = shop
+                            
+                            #翻页器
+                            pagers = jsonpath.jsonpath(jsondata,'$..pager')
+                            #print pagers
+                            for j in range(len(pagers)):
+                                totalpages = jsonpath.jsonpath(pagers[j],'$.totalPage')
+                                if totalpages:
+                                    totalpage = totalpages[0]
+                                    print totalpage
                 break
     
     wb.save('_taobao.xlsx')
