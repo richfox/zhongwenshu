@@ -102,10 +102,10 @@ def aptamil():
                     for i in range(len(bpair)/2):
                         jsontexts.append(script.text[bpair[i*2]:bpair[i*2+1]])
                         jsondata = load_json(jsontexts[i])
-                        #print(jsondata)
-                        if i==0:
-                            #print jsonpath.jsonpath(jsondata, '$..auctions')
-                            auctions = jsondata['mods']['itemlist']['data']['auctions']
+
+                        auctionses = jsonpath.jsonpath(jsondata, '$..auctions')
+                        if auctionses:
+                            auctions = auctionses[0]
                             for j in range(len(auctions)):
                                 title = auctions[j]['raw_title']
                                 url = 'http:' + auctions[j]['detail_url']
@@ -118,14 +118,11 @@ def aptamil():
                                 ws.cell(row=j+1,column=3,value=sales)
                                 ws.cell(row=j+1,column=4,value=nick).hyperlink = shop
                             
-                            #翻页器
-                            pagers = jsonpath.jsonpath(jsondata,'$..pager')
-                            #print pagers
-                            for j in range(len(pagers)):
-                                totalpages = jsonpath.jsonpath(pagers[j],'$.totalPage')
-                                if totalpages:
-                                    totalpage = totalpages[0]
-                                    print totalpage
+                        #翻页器
+                        totalpages = jsonpath.jsonpath(jsondata,'$..pager.totalPage')
+                        if totalpages:
+                            totalpage = totalpages[0]
+                            print totalpage
                 break
     
     wb.save('_taobao.xlsx')
