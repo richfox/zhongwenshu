@@ -81,7 +81,7 @@ def aptamil():
     else:
         url = 'https://s.taobao.com/search'
         #payload = {'q':'德语版老友记'}
-        payload = {'q':'德国爱他美白金二段'}
+        payload = {'q':'德国爱他美白金二段','s':'0'} #s=44为第二页，88为第三页
         #payload = {'q':'Dermaroller玻尿酸原液'}
         htmltext = requests.get(url,params=payload).text
         parser = lxml.html.HTMLParser()
@@ -118,11 +118,14 @@ def aptamil():
                                 ws.cell(row=j+1,column=3,value=sales)
                                 ws.cell(row=j+1,column=4,value=nick).hyperlink = shop
                             
-                        #翻页器
-                        totalpages = jsonpath.jsonpath(jsondata,'$..pager.totalPage')
-                        if totalpages:
-                            totalpage = totalpages[0]
-                            print totalpage
+                            #翻页器
+                            pagers = jsonpath.jsonpath(jsondata,'$..pager')
+                            #pagers = jsonpath.jsonpath(jsondata,'$..pager',result_type='IPATH')
+                            #print totalpages
+                            if pagers:
+                                print pagers[0]
+
+                            break
                 break
     
     wb.save('_taobao.xlsx')
