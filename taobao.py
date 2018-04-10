@@ -113,19 +113,25 @@ def aptamil():
                                 sales = re.findall('\d+',auctions[j]['view_sales'])[0]
                                 nick = auctions[j]['nick']
                                 shop = 'http:' + auctions[j]['shopLink']
+                                if auctions[j]['shopcard']['isTmall'] == True:
+                                    platform = '天猫'
+                                else:
+                                    platform = '淘宝'
 
                                 if j == 0:
                                     ws.cell(row=1,column=1,value='商品名')
                                     ws.cell(row=1,column=2,value='价格(rmb)')
                                     ws.cell(row=1,column=3,value='销量')
                                     ws.cell(row=1,column=4,value='店铺')
-                                    ws.cell(row=1,column=5,value='销售额(rmb)')
+                                    ws.cell(row=1,column=5,value='平台')
+                                    ws.cell(row=1,column=6,value='销售额(rmb)')
 
                                 ws.cell(row=j+2,column=1,value=title).hyperlink = url
                                 ws.cell(row=j+2,column=2,value=price)
                                 ws.cell(row=j+2,column=3,value=sales)
                                 ws.cell(row=j+2,column=4,value=nick).hyperlink = shop
-                                ws.cell(row=j+2,column=5,value=float(price)*float(sales))
+                                ws.cell(row=j+2,column=5,value=platform)
+                                ws.cell(row=j+2,column=6,value=float(price)*float(sales))
                             
                             #翻页器
                             pagers = jsonpath.jsonpath(jsondata,'$..pager')
