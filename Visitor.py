@@ -7,16 +7,20 @@
 
 
 import sys
+import xml
+import lxml
 import lxml.html
 import openpyxl.workbook
 import re
+import requests
 
 
 class Visitor:
-    def __init__(self,file):
+    def __init__(self,file,tuan):
         htmlstring = open(file,'r').read()
         htmltree = lxml.html.document_fromstring(self.preprocess(htmlstring))
         self._htmltree = htmltree
+        self._tuan = tuan
 
     #预处理，比如先删除一些非法字符
     def preprocess(self,htmlstring):
@@ -31,6 +35,15 @@ class Visitor:
                 return self.preprocess(htmlstring)
         else:
             return res
+
+    def getOriginalPrice(self,url):
+        htmltext = requests.get(url).text
+        parser = lxml.html.HTMLParser()
+        htmltree = xml.etree.ElementTree.fromstring(htmltext,parser)
+        oris = htmltree.xpath('//*[@id="original-price"]/text()')
+        ori = oris[1].replace(' ','')
+        return ori
+
 
     def searchOrderGoods(self):
         basepath = '//*[@id="normalorder"]//*[@class="merch_bord"]//table[@class="tabl_merch"]'
@@ -77,6 +90,10 @@ class Visitor:
             #小计以数字形式保存
             sum = re.findall('\d+.\d+',sums[i].text)[0]
             ws.cell(row=i+j+1,column=5,value=sum)
+
+            #定价
+            if self._tuan:
+                ws.cell(row=i+j+1,column=7,value=self.getOriginalPrice(hrefs[i]))
 
             #换购商品
             res = books[i].xpath('../br')
@@ -137,8 +154,8 @@ class Visitor:
 
 
 
-def visitorStart(file):
+def visitorStart(file,tuan=False):
     print("Starting visitor...\n")
-    visitor = Visitor(file)
+    visitor = Visitor(file,tuan)
     visitor.searchOrderGoods()
     print("\nFinished.")
