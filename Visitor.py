@@ -96,7 +96,7 @@ class Visitor:
             if self._tuan:
                 ws.cell(row=i+j+1,column=7,value=self.getOriginalPrice(hrefs[i]))
                 ws.cell(row=i+j+1,column=8,value=re.findall('\d+',hrefs[i])[0])
-                Spider.spider_picture(hrefs[i])
+                Spider.spider_small_picture(hrefs[i])
 
             #换购商品
             res = books[i].xpath('../br')

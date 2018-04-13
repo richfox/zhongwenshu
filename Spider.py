@@ -48,24 +48,26 @@ class Spider:
     def getPage(self):
         return self._page
 
-    #找图片
-    def searchPicture(self):
-        #大图正则
-        regX = '<img alt=\"\" src=\".*.jpg\" title=\"\" id=\"modalBigImg\">'
-
-        #小图路径
+    #找缩略图
+    def searchSmallPicture(self):
         parser = lxml.html.HTMLParser()
         htmltree = xml.etree.ElementTree.fromstring(self._html,parser)
-        smallpics = htmltree.xpath('//*[@id="largePicDiv"]//*[@id="largePic"]')
+        smallpics = htmltree.xpath('//*[@id="largePic"]/@src')
+        smallpic_urls = re.findall('http://.*.jpg',smallpics[0])
+        if smallpic_urls:
+            webbrowser.open(smallpic_urls[0])
 
+    #找大图
+    def searchPicture(self):
         #找到第一张大图
+        regX = '<img alt=\"\" src=\".*.jpg\" title=\"\" id=\"modalBigImg\">'
         elem_url = re.findall(regX,self._html,re.S)
         for each in elem_url:
             print(each)
             pic_url = re.findall('http://.*.jpg',each,re.S)
             webbrowser.open(pic_url[0])
 
-        #找到共有几张图
+        #找到共有几张大图
         #问号表示非贪婪匹配
         regX = '<ul id=\"mask-small-list-slider\">.*?</ul>'
         elem_url = re.findall(regX,self._html,re.S)
@@ -129,3 +131,7 @@ def spiderStart(urllist):
 def spider_picture(url):
     spider = Spider(url)
     spider.searchPicture()
+
+def spider_small_picture(url):
+    spider = Spider(url)
+    spider.searchSmallPicture()
