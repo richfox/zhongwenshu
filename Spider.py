@@ -50,8 +50,13 @@ class Spider:
 
     #找图片
     def searchPicture(self):
-        # 正则
+        #大图正则
         regX = '<img alt=\"\" src=\".*.jpg\" title=\"\" id=\"modalBigImg\">'
+
+        #小图路径
+        parser = lxml.html.HTMLParser()
+        htmltree = xml.etree.ElementTree.fromstring(self._html,parser)
+        smallpics = htmltree.xpath('//*[@id="largePicDiv"]//*[@id="largePic"]')
 
         #找到第一张大图
         elem_url = re.findall(regX,self._html,re.S)
