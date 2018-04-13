@@ -91,9 +91,10 @@ class Visitor:
             sum = re.findall('\d+.\d+',sums[i].text)[0]
             ws.cell(row=i+j+1,column=5,value=sum)
 
-            #定价
+            #定价,当当编号
             if self._tuan:
                 ws.cell(row=i+j+1,column=7,value=self.getOriginalPrice(hrefs[i]))
+                ws.cell(row=i+j+1,column=8,value=re.findall('\d+',hrefs[i])[0])
 
             #换购商品
             res = books[i].xpath('../br')
