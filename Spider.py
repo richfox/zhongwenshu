@@ -79,6 +79,29 @@ class Spider:
                 numPicture += 1
         print("Here is " + str(numPicture) + " pictures!\n")
 
+
+    #找缩略图和大图
+    def searchSmallAndBigPicture(self):
+        picadress = []
+
+        parser = lxml.html.HTMLParser()
+        htmltree = xml.etree.ElementTree.fromstring(self._html,parser)
+        smallpics = htmltree.xpath('//*[@id="largePic"]/@src')
+        smallpic_urls = re.findall('http://.*.jpg',smallpics[0])
+        if smallpic_urls:
+            picadress.append(smallpic_urls[0])
+
+        regX = '<img alt=\"\" src=\".*.jpg\" title=\"\" id=\"modalBigImg\">'
+        bigpic_paths = re.findall(regX,self._html,re.S)
+        if bigpic_paths:
+            print bigpic_paths[0]
+            bigpic_urls = re.findall('http://.*.jpg',bigpic_paths[0],re.S)
+            if bigpic_urls:
+                picadress.append(bigpic_urls[0])
+
+        return picadress
+
+
     #找书籍信息
     def searchAttr(self):
         _title = re.findall(u'<h1 title=.*?>.*?</h1>',self._html,re.S)[0]
@@ -135,3 +158,7 @@ def spider_picture(url):
 def spider_small_picture(url):
     spider = Spider(url)
     spider.searchSmallPicture()
+
+def spider_small_and_big_picture(url):
+    spider = Spider(url)
+    return spider.searchSmallAndBigPicture()
