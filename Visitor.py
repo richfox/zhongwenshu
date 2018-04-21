@@ -92,13 +92,18 @@ class Visitor:
             sum = re.findall('\d+.\d+',sums[i].text)[0]
             ws.cell(row=i+j+1,column=5,value=sum)
 
-            #定价,当当编号
+            #团购所需图书信息
             if self._tuan:
                 ws.cell(row=i+j+1,column=7,value=self.getOriginalPrice(hrefs[i]))
                 ws.cell(row=i+j+1,column=8,value=re.findall('\d+',hrefs[i])[0])
-                adress = Spider.spider_small_and_big_picture(hrefs[i])
-                ws.cell(row=i+j+1,column=9,value=adress[0])
-                ws.cell(row=i+j+1,column=10,value=adress[1])
+
+                spider = Spider.Spider(hrefs[i])
+                ws.cell(row=i+j+1,column=9,value=spider.searchISBN())
+                ws.cell(row=i+j+1,column=10,value=spider.searchPress())
+
+                adress = spider.searchSmallAndBigPicture()
+                ws.cell(row=i+j+1,column=11,value=adress[0])
+                ws.cell(row=i+j+1,column=12,value=adress[1])
                 
 
             #换购商品

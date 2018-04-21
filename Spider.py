@@ -36,6 +36,8 @@ class Spider:
     def __init__(self,url):
         # 获取网页源代码
         self._html = requests.get(url).text
+        parser = lxml.html.HTMLParser()
+        self._htmltree = xml.etree.ElementTree.fromstring(self._html,parser)
         self._title = u""
         self._page = u""
 
@@ -50,9 +52,7 @@ class Spider:
 
     #找缩略图
     def searchSmallPicture(self):
-        parser = lxml.html.HTMLParser()
-        htmltree = xml.etree.ElementTree.fromstring(self._html,parser)
-        smallpics = htmltree.xpath('//*[@id="largePic"]/@src')
+        smallpics = self._htmltree.xpath('//*[@id="largePic"]/@src')
         smallpic_urls = re.findall('http://.*.jpg',smallpics[0])
         if smallpic_urls:
             webbrowser.open(smallpic_urls[0])
@@ -84,9 +84,7 @@ class Spider:
     def searchSmallAndBigPicture(self):
         picadress = []
 
-        parser = lxml.html.HTMLParser()
-        htmltree = xml.etree.ElementTree.fromstring(self._html,parser)
-        smallpics = htmltree.xpath('//*[@id="largePic"]/@src')
+        smallpics = self._htmltree.xpath('//*[@id="largePic"]/@src')
         smallpic_urls = re.findall('http://.*.jpg',smallpics[0])
         if smallpic_urls:
             picadress.append(smallpic_urls[0])
@@ -100,6 +98,23 @@ class Spider:
                 picadress.append(bigpic_urls[0])
 
         return picadress
+
+    #isbn
+    def searchISBN(self):
+        isbn = ''
+        isbnnode = self._htmltree.xpath('//*[@id="detail_describe"]/ul/li[9]/text()')
+        if isbnnode:
+            for res in re.findall('[0-9]+',isbnnode[0]):
+                isbn += res
+        return isbn
+
+    #出版社
+    def searchPress(self):
+        press = ''
+        pressnode = self._htmltree.xpath('//*[@id="product_info"]/div[2]/span[2]/a/text()')
+        if pressnode:
+            press = pressnode[0]
+        return press
 
 
     #找书籍信息
