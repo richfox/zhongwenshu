@@ -10,6 +10,6 @@ ZWSTool/ZWSTool/ZWSTool.vcxproj.user
 order.dangdang.html
 dangdangConfig.xml
 .vscode/settings.json
-mySQLConfig.sxml
+*.sxml
 *.pyc
 *.xlsx

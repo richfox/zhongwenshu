@@ -28,17 +28,19 @@ def printUsage():
     print("")
     print('python ${THIS_SCRIPT_NAME}.py {-taobao | -t}    spider taobao.com')
     print("")
-    print('python ${THIS_SCRIPT_NAME}.py ${configFile.xml}    Uses all settings of the xml configuration file')
+    print('python ${THIS_SCRIPT_NAME}.py ${config.xml}    Uses all settings of the xml configuration file')
     print("")
-    print('python ${THIS_SCRIPT_NAME}.py ${file.html}    visit the html file')
+    print('python ${THIS_SCRIPT_NAME}.py ${file.html}    visit the html file and write result to _books.xlsx')
     print("")
-    print('python ${THIS_SCRIPT_NAME}.py ${file.html} {-tuan | -tuangou}    visit the html file for groupbuy')
+    print('python ${THIS_SCRIPT_NAME}.py ${file.html} {-tuan | -tuangou}    visit the html file and write result to _books.xlsx for groupbuy')
     print("")
     print('python ${THIS_SCRIPT_NAME}.py {url,id}    Generates a special configuration file, then use it')
     print("")
-    print('python ${THIS_SCRIPT_NAME}.py ${file.sxml}    import to database with settings of the sxml file')
+    print('python ${THIS_SCRIPT_NAME}.py ${sql.sxml}    import to database with settings of the sxml file')
     print("")
-    print('python ${THIS_SCRIPT_NAME}.py ${config.xml} ${file.sxml}   use config to search attributes than import to database with settings of the sxml file')
+    print('python ${THIS_SCRIPT_NAME}.py ${config.xml} ${sql.sxml}   use config to search attributes than import to database with settings of the sxml file')
+    print("")
+    print('python ${THIS_SCRIPT_NAME}.py ${config.xml} {-tuan | -tuangou}   use config to search attributes write result to _books.xlsx for groupbuy')
     print("")
 
 
@@ -294,6 +296,8 @@ def main():
                         del urls[url]
                 sqls[host] = (username,password,dbname,charset,urls)
             SpiderToSQL.SpiderToSQL(sqls)
+            return True
+        elif matchConfigFile(sys.argv[1]) and matchTuangou(sys.argv[2]):
             return True
         elif matchOrderHtmlFile(sys.argv[1]) and matchTuangou(sys.argv[2]):
             if not os.path.exists(sys.argv[1]):
