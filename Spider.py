@@ -99,6 +99,33 @@ class Spider:
 
         return picadress
 
+    #书名
+    def searchTitle(self):
+        title = ''
+        titlenode = self._htmltree.xpath('//*[@id="product_info"]/div[1]/h1')
+        if titlenode:
+            title = titlenode[0]
+        return title
+    
+    #当当价
+    def searchPrice(self):
+        price = ''
+        pricenode = self._htmltree.xpath('//*[@id="dd-price"]/text()')
+        if pricenode:
+            for each in pricenode:
+                price += each
+        zhenode = self._htmltree.xpath('//*[@id="dd-zhe"]/text()')
+        if zhenode:
+            price += zhenode[0]
+        return price
+
+    #定价
+    def searchOriginalPrice(self):
+        oris = self._htmltree.xpath('//*[@id="original-price"]/text()')
+        ori = oris[1].replace(' ','')
+        return ori
+
+
     #isbn
     def searchISBN(self):
         isbn = ''
@@ -177,3 +204,17 @@ def spider_small_picture(url):
 def spider_small_and_big_picture(url):
     spider = Spider(url)
     return spider.searchSmallAndBigPicture()
+
+def spider_to_excel(urllist):
+    print("Starting spider...\n")
+    for url,tag in urllist.items():
+        spider = Spider(url)
+        if tag == 0:
+            spider.searchTitle()
+            spider.searchPrice()
+            spider.searchOriginalPrice()
+            spider.searchISBN()
+            spider.searchPress()
+            spider.searchSmallAndBigPicture()
+    print("books info saved in excel\n")
+    print("Finished")

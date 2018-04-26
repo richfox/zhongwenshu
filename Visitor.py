@@ -38,12 +38,8 @@ class Visitor:
             return res
 
     def getOriginalPrice(self,url):
-        htmltext = requests.get(url).text
-        parser = lxml.html.HTMLParser()
-        htmltree = xml.etree.ElementTree.fromstring(htmltext,parser)
-        oris = htmltree.xpath('//*[@id="original-price"]/text()')
-        ori = oris[1].replace(' ','')
-        return ori
+        spider = Spider.Spider(url)
+        return spider.searchOriginalPrice()
 
 
     def searchOrderGoods(self):

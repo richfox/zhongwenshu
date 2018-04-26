@@ -298,6 +298,11 @@ def main():
             SpiderToSQL.SpiderToSQL(sqls)
             return True
         elif matchConfigFile(sys.argv[1]) and matchTuangou(sys.argv[2]):
+            if not os.path.exists(sys.argv[1]):
+                print('Error: config file does not exist.')
+                return False
+            urls = parseConfigFile(sys.argv[1])
+            Spider.spider_to_excel(urls)
             return True
         elif matchOrderHtmlFile(sys.argv[1]) and matchTuangou(sys.argv[2]):
             if not os.path.exists(sys.argv[1]):
