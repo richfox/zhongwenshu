@@ -1,5 +1,5 @@
 ﻿#-*-coding:utf-8-*-
-#＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝网页爬取图片＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝
+#＝＝＝＝＝＝＝＝网页爬取＝＝＝＝＝＝＝＝
 #Python 2.7
 #Author: Xiang Fu
 #Email: tech@zhongwenshu.de
@@ -7,6 +7,7 @@
 import sys
 import webbrowser
 import xml.etree.ElementTree
+import openpyxl.workbook
 
 # 正则
 import re
@@ -29,6 +30,12 @@ def remove_noise(section):
     for each in re.findall(u'<.*?>',section,re.S):
         res = res.replace(each,u'').replace(u'\r\n',u'')
     return res
+
+#从url提取当当编号
+def split_ddsn(url):
+    res = re.split('/',url)
+    ddsn = re.split('\.',res[len(res)-1])
+    return ddsn[0]
 
 
 #爬虫类
@@ -102,9 +109,12 @@ class Spider:
     #书名
     def searchTitle(self):
         title = ''
-        titlenode = self._htmltree.xpath('//*[@id="product_info"]/div[1]/h1')
+        titlenode = self._htmltree.xpath('//*[@id="product_info"]/div[1]/h1/text()')
         if titlenode:
-            title = titlenode[0]
+            for n in titlenode:
+                if n.strip(' \n\r'):
+                    title = n.strip(' \n\r')
+                    break
         return title
     
     #当当价
@@ -114,6 +124,7 @@ class Spider:
         if pricenode:
             for each in pricenode:
                 price += each
+            price = price.strip(' \n\r')
         zhenode = self._htmltree.xpath('//*[@id="dd-zhe"]/text()')
         if zhenode:
             price += zhenode[0]
@@ -121,8 +132,13 @@ class Spider:
 
     #定价
     def searchOriginalPrice(self):
-        oris = self._htmltree.xpath('//*[@id="original-price"]/text()')
-        ori = oris[1].replace(' ','')
+        ori = ''
+        orinode = self._htmltree.xpath('//*[@id="original-price"]/text()')
+        if orinode:
+            for n in orinode:
+                if n.strip(' \n\r'):
+                    ori = n.strip(' \n\r')
+                    break
         return ori
 
 
@@ -207,14 +223,26 @@ def spider_small_and_big_picture(url):
 
 def spider_to_excel(urllist):
     print("Starting spider...\n")
+    wb = openpyxl.Workbook()
+    ws = wb.active
+
+    i = j = 0
     for url,tag in urllist.items():
         spider = Spider(url)
         if tag == 0:
-            spider.searchTitle()
-            spider.searchPrice()
-            spider.searchOriginalPrice()
-            spider.searchISBN()
-            spider.searchPress()
-            spider.searchSmallAndBigPicture()
-    print("books info saved in excel\n")
+            ws.cell(row=i+1,column=1,value=spider.searchTitle()).hyperlink = url
+            ws.cell(row=i+1,column=2,value=spider.searchPrice())
+            ws.cell(row=i+1,column=3,value=spider.searchOriginalPrice())
+            ws.cell(row=i+1,column=4,value=split_ddsn(url))
+            ws.cell(row=i+1,column=5,value=spider.searchISBN())
+            ws.cell(row=i+1,column=6,value=spider.searchPress())
+            adress = spider.searchSmallAndBigPicture()
+            ws.cell(row=i+1,column=7,value=adress[0])
+            ws.cell(row=i+1,column=8,value=adress[1])
+            i += 1
+        elif tag == 1:
+            j += 1
+
+    wb.save('_books.xlsx')
+    print("\nbooks info saved in excel\n")
     print("Finished")
