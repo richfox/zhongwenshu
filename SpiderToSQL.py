@@ -121,8 +121,21 @@ def SpiderToSQL(sqls):
                 #商品大类定义在表ecs_goods_type中
                 gtype = '1'
 
+                #区分测试和主数据库
+                goodstable = ""
+                goodsattrtable = ""
+                goodscattable = ""
+                if dbname == 'zhongw_test':
+                    goodstable = "ecs_test_goods"
+                    goodsattrtable = "ecs_test_goods_attr"
+                    goodscattable = "ecs_test_goods_cat"
+                elif dbname == 'zhongwenshu_db1':
+                    goodstable = "ecs_goods"
+                    goodsattrtable = "ecs_goods_attr"
+                    goodscattable = "ecs_goods_cat"
+
                 with connection.cursor() as cursor:
-                    sql = "INSERT INTO `ecs_goods` (`goods_id`, `cat_id`, `goods_sn`,`goods_name`,\
+                    sql = "INSERT INTO " + goodstable + " (`goods_id`, `cat_id`, `goods_sn`,`goods_name`,\
                     `goods_name_style`, `click_count`, `brand_id`, `provider_name`, `goods_number`,\
                     `goods_weight`, `market_price`, `virtual_sales`, `shop_price`, `promote_price`,\
                     `promote_start_date`, `promote_end_date`, `warn_number`, `keywords`, `goods_brief`,\
@@ -141,19 +154,19 @@ def SpiderToSQL(sqls):
                     cursor.execute(sql,(catid,sn,title,addtime,gtype))
 
                     #唯一商品编号
-                    sql = "SELECT `goods_id` FROM `ecs_goods` WHERE `goods_sn`=%s"
+                    sql = "SELECT `goods_id` FROM " + goodstable + " WHERE `goods_sn`=%s"
                     cursor.execute(sql,sn)
                     goodsid = cursor.fetchone()[0]
                     print(goodsid)
 
                     #填入书籍信息
                     for attrid,attr in attrs.items():
-                        sql = "INSERT INTO `ecs_goods_attr` (`goods_attr_id`, `goods_id`, `attr_id`,\
+                        sql = "INSERT INTO " + goodsattrtable + " (`goods_attr_id`, `goods_id`, `attr_id`,\
                         `attr_value`, `attr_price`) VALUES (NULL, %s, %s, %s, '0')"
                         cursor.execute(sql,(goodsid,attrid,attr))
 
                     #新品到货
-                    sql = "INSERT INTO `ecs_goods_cat` (`goods_id`, `cat_id`) VALUES (%s, '65')"
+                    sql = "INSERT INTO " + goodscattable + " (`goods_id`, `cat_id`) VALUES (%s, '65')"
                     cursor.execute(sql,goodsid)
                     
                 connection.commit()
