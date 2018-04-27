@@ -174,3 +174,65 @@ def SpiderToSQL(sqls):
             connection.close()
 
     print("Finished.")
+
+
+
+
+def SpiderToSQL_tuangou(sqls):
+    print("Spider to SQL start...\n")
+
+    for host,(username,password,dbname,charset,urls) in sqls.items():
+        connection = pymysql.connect(host=host,user=username,password=password,db=dbname,charset=charset)
+        try:
+            goods = ''
+            for url,tag in urls.items():
+                htmltext = requests.get(url).text
+                parser = lxml.html.HTMLParser()
+                htmltree = xml.etree.ElementTree.fromstring(htmltext,parser)
+                
+                #爬取书籍信息
+                titlenode = htmltree.xpath('//*[@id="product_info"]/div[1]/h1/@title')
+                title = ''
+                sn = ''
+                if titlenode:
+                    title = titlenode[0]
+                    goods += title
+                    goods += '\r\n'
+
+            goods += u'------欧洲境内邮费补差------'
+
+
+            #区分测试和主数据库
+            goodstypetable = ""
+            attrtable = ""
+            if dbname == 'zhongw_test':
+                goodstypetable = "ecs_test_goods_type"
+                attrtable = "ecs_test_attribute"
+            elif dbname == 'zhongwenshu_db1':
+                goodstypetable = "ecs_goods_type"
+                attrtable = "ecs_attribute"
+
+            with connection.cursor() as cursor:
+                #大类里添加某月团
+                catname = 'April'
+
+                sql = "INSERT INTO " + goodstypetable + " (`cat_id`,`cat_name`,`enabled`,`attr_group`) \
+                VALUES (NULL,%s,'1','')"
+                cursor.execute(sql,catname)
+
+                sql = "SELECT `cat_id` FROM " + goodstypetable + " WHERE `cat_name`=%s"
+                cursor.execute(sql,catname)
+                catid = cursor.fetchone()[0]
+                print(catid)
+
+                #团购的多商品属性
+                sql = "INSERT INTO " + attrtable + " (`attr_id`, `cat_id`, `attr_name`, `attr_input_type`,\
+                    `attr_type`, `attr_values`, `attr_index`, `sort_order`, `is_linked`, `attr_group`)\
+                    VALUES (NULL, %s, '团购商品', '1', '2', %s, '0', '0', '0', '0')"
+                cursor.execute(sql,(catid,goods))
+
+                connection.commit()
+        finally:
+            connection.close()
+
+    print("Finished.")

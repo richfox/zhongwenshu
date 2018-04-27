@@ -42,6 +42,8 @@ def printUsage():
     print("")
     print('python ${THIS_SCRIPT_NAME}.py ${config.xml} {-tuan | -tuangou}   use config to search attributes write result to _books.xlsx for groupbuy')
     print("")
+    print('python ${THIS_SCRIPT_NAME}.py ${config.xml} ${sql.sxml} {-tuan | -tuangou}  use config to search attributes than import to database with settings of the sxml file for groupbuy')
+    print("")
 
 
 #匹配命令行参数
@@ -309,6 +311,23 @@ def main():
                 print('Error: config file does not exist.')
                 return False
             Visitor.visitorStart(sys.argv[1],True)
+            return True
+    elif numArgs == 4:
+        if matchConfigFile(sys.argv[1]) and matSqlFile(sys.argv[2]) and matchTuangou(sys.argv[3]):
+            if not os.path.exists(sys.argv[1]):
+                print('Error: config file does not exist.')
+                return False
+            if not os.path.exists(sys.argv[2]):
+                print('Error: sql config file does not exist.')
+                return False
+            urls = parseConfigFile(sys.argv[1])
+            sqls = parseSqlConfigFile(sys.argv[2])
+            for host,(username,password,dbname,charset) in sqls.items():
+                for url,tag in urls.items():
+                    if (tag != 0):
+                        del urls[url]
+                sqls[host] = (username,password,dbname,charset,urls)
+            SpiderToSQL.SpiderToSQL_tuangou(sqls)
             return True
 
     printUsage()
