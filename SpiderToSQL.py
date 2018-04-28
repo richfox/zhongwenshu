@@ -205,12 +205,15 @@ def SpiderToSQL_tuangou(sqls):
             #区分测试和主数据库
             goodstypetable = ""
             attrtable = ""
+            goodsattrtable = ""
             if dbname == 'zhongw_test':
                 goodstypetable = "ecs_test_goods_type"
                 attrtable = "ecs_test_attribute"
+                goodsattrtable = "ecs_test_goods_attr"
             elif dbname == 'zhongwenshu_db1':
                 goodstypetable = "ecs_goods_type"
                 attrtable = "ecs_attribute"
+                goodsattrtable = "ecs_goods_attr"
 
             with connection.cursor() as cursor:
                 #大类里添加某月团
@@ -226,10 +229,23 @@ def SpiderToSQL_tuangou(sqls):
                 print(catid)
 
                 #团购的多商品属性
+                attrname = u'团购商品'
                 sql = "INSERT INTO " + attrtable + " (`attr_id`, `cat_id`, `attr_name`, `attr_input_type`,\
                     `attr_type`, `attr_values`, `attr_index`, `sort_order`, `is_linked`, `attr_group`)\
-                    VALUES (NULL, %s, '团购商品', '1', '2', %s, '0', '0', '0', '0')"
-                cursor.execute(sql,(catid,goods))
+                    VALUES (NULL, %s, %s, '1', '2', %s, '0', '0', '0', '0')"
+                cursor.execute(sql,(catid,attrname,goods))
+
+                sql = "SELECT `attr_id` FROM " + attrtable + " WHERE `cat_id`=%s"
+                cursor.execute(sql,catid)
+                attrid = cursor.fetchone()[0]
+                print(attrid)
+
+                #添加团购商品
+
+                #商品属性
+                sql = "INSERT INTO " + goodsattrtable + " (`goods_attr_id`, `goods_id`, `attr_id`, `attr_value`, `attr_price`) \
+                    VALUES (NULL, '3738', %s, '小猪佩奇', '13.09')"
+                cursor.execute(sql,attrid)
 
                 connection.commit()
         finally:
