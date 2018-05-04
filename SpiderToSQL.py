@@ -264,7 +264,7 @@ def SpiderToSQL_tuangou(sqls):
                     '0', '1', '0', '0', %s, '100',\
                     '0', '0', '1', '0', '0', '0', '0',\
                     %s, '', '-1', '-1', '0', NULL)"
-                    cursor.execute(sql,(catid,sn,goodsname,addtime,goodtype))
+                cursor.execute(sql,(catid,sn,goodsname,addtime,goodtype))
 
                 #商品属性
                 sql = "INSERT INTO " + goodsattrtable + " (`goods_attr_id`, `goods_id`, `attr_id`, `attr_value`, `attr_price`) \
