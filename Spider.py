@@ -57,6 +57,9 @@ class Spider:
     def getPage(self):
         return self._page
 
+    def getHtmltree(self):
+        return self._htmltree
+
     #找缩略图
     def searchSmallPicture(self):
         smallpics = self._htmltree.xpath('//*[@id="largePic"]/@src')
@@ -130,16 +133,6 @@ class Spider:
             price += zhenode[0]
         return price
 
-    #定价
-    def searchOriginalPrice(self):
-        ori = ''
-        orinode = self._htmltree.xpath('//*[@id="original-price"]/text()')
-        if orinode:
-            for n in orinode:
-                if n.strip(' \n\r'):
-                    ori = n.strip(' \n\r')
-                    break
-        return ori
 
 
     #isbn
@@ -208,6 +201,16 @@ def spiderStart(urllist):
             spider.searchOrder()
     print("\nFinished.")
 
+#当当定价
+def searchOriginalPrice(htmltree):
+    ori = ''
+    orinode = htmltree.xpath('//*[@id="original-price"]/text()')
+    if orinode:
+        for n in orinode:
+            if n.strip(' \n\r'):
+                ori = n.strip(' \n\r')
+                break
+    return ori
 
 def spider_picture(url):
     spider = Spider(url)
@@ -232,7 +235,7 @@ def spider_to_excel(urllist):
         if tag == 0:
             ws.cell(row=i+1,column=1,value=spider.searchTitle()).hyperlink = url
             ws.cell(row=i+1,column=2,value=spider.searchPrice())
-            ws.cell(row=i+1,column=3,value=spider.searchOriginalPrice())
+            ws.cell(row=i+1,column=3,value=searchOriginalPrice(spider.getHtmltree()))
             ws.cell(row=i+1,column=4,value=split_ddsn(url))
             ws.cell(row=i+1,column=5,value=spider.searchISBN())
             ws.cell(row=i+1,column=6,value=spider.searchPress())

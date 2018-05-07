@@ -39,7 +39,7 @@ class Visitor:
 
     def getOriginalPrice(self,url):
         spider = Spider.Spider(url)
-        return spider.searchOriginalPrice()
+        return Spider.searchOriginalPrice(spider.getHtmltree())
 
 
     def searchOrderGoods(self):

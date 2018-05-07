@@ -110,15 +110,16 @@ def SpiderToSQL(sqls):
                 Spider.spider_picture(url)
 
                 #创建书籍信息字典
+                #所有商品属性定义在表ecs_attribute中
                 attrs = {1:author,2:press,3:isbn,4:pressdate,5:size,7:packing,10:paper}
 
                 #添加时间戳
                 addtime = str(int(time.time()))
 
-                #先登到准上架分类
+                #商品分类定义在表ecs_category中，先登到准上架分类'134'
                 catid = '134'
 
-                #商品大类定义在表ecs_goods_type中
+                #商品大类定义在表ecs_goods_type中, '1'代表书
                 gtype = '1'
 
                 #区分测试和主数据库
@@ -162,7 +163,7 @@ def SpiderToSQL(sqls):
                     #填入书籍信息
                     for attrid,attr in attrs.items():
                         sql = "INSERT INTO " + goodsattrtable + " (`goods_attr_id`, `goods_id`, `attr_id`,\
-                        `attr_value`, `attr_price`) VALUES (NULL, %s, %s, %s, '0')"
+                            `attr_value`, `attr_price`) VALUES (NULL, %s, %s, %s, '0')"
                         cursor.execute(sql,(goodsid,attrid,attr))
 
                     #新品到货
@@ -184,22 +185,31 @@ def SpiderToSQL_tuangou(sqls):
     for host,(username,password,dbname,charset,urls) in sqls.items():
         connection = pymysql.connect(host=host,user=username,password=password,db=dbname,charset=charset)
         try:
-            goods = ''
+            goodnames = ''
+            goodsdict = {}
             for url,tag in urls.items():
                 htmltext = requests.get(url).text
                 parser = lxml.html.HTMLParser()
                 htmltree = xml.etree.ElementTree.fromstring(htmltext,parser)
                 
-                #爬取书籍信息
+                #dangdang编号
+                sn = Spider.split_ddsn(url)
+
+                #爬取书籍名称和定价
                 titlenode = htmltree.xpath('//*[@id="product_info"]/div[1]/h1/@title')
                 title = ''
-                sn = ''
                 if titlenode:
                     title = titlenode[0]
-                    goods += title
-                    goods += '\r\n'
+                    goodnames += title
+                    goodnames += '\r\n'
+                
+                oriprice = Spider.searchOriginalPrice(htmltree)
+                groupbuyprice = format(float(oriprice) * 0.6 / 7.8,'.2f') #保留两位小数
+                goodsdict[sn] = (title,groupbuyprice)
 
-            goods += u'------欧洲境内邮费补差------'
+            diff = u'------欧洲境内邮费补差------'
+            goodnames += diff
+            goodsdict[u'000000'] = (diff,'5.00')
 
 
             #区分测试和主数据库
@@ -222,7 +232,7 @@ def SpiderToSQL_tuangou(sqls):
                 catname = 'April'
 
                 sql = "INSERT INTO " + goodstypetable + " (`cat_id`,`cat_name`,`enabled`,`attr_group`) \
-                VALUES (NULL,%s,'1','')"
+                    VALUES (NULL,%s,'1','')"
                 cursor.execute(sql,catname)
 
                 sql = "SELECT `cat_id` FROM " + goodstypetable + " WHERE `cat_name`=%s"
@@ -230,12 +240,12 @@ def SpiderToSQL_tuangou(sqls):
                 goodtype = cursor.fetchone()[0]
                 print(goodtype)
 
-                #团购的多商品属性
+                #大类的多商品属性
                 attrname = u'团购商品'
                 sql = "INSERT INTO " + attrtable + " (`attr_id`, `cat_id`, `attr_name`, `attr_input_type`,\
                     `attr_type`, `attr_values`, `attr_index`, `sort_order`, `is_linked`, `attr_group`)\
                     VALUES (NULL, %s, %s, '1', '2', %s, '0', '0', '0', '0')"
-                cursor.execute(sql,(goodtype,attrname,goods))
+                cursor.execute(sql,(goodtype,attrname,goodnames))
 
                 sql = "SELECT `attr_id` FROM " + attrtable + " WHERE `cat_id`=%s"
                 cursor.execute(sql,goodtype)
@@ -245,8 +255,8 @@ def SpiderToSQL_tuangou(sqls):
                 #添加团购商品
                 goodsname = u'5月团'
                 addtime = str(int(time.time()))
-                #先登到准上架分类
-                catid = '134'
+                #登到团购分类
+                catid = '135'
                 sn = generate_sn(goodsname)
                 sql = "INSERT INTO " + goodstable + " (`goods_id`, `cat_id`, `goods_sn`,`goods_name`,\
                     `goods_name_style`, `click_count`, `brand_id`, `provider_name`, `goods_number`,\
@@ -266,10 +276,17 @@ def SpiderToSQL_tuangou(sqls):
                     %s, '', '-1', '-1', '0', NULL)"
                 cursor.execute(sql,(catid,sn,goodsname,addtime,goodtype))
 
-                #商品属性
-                sql = "INSERT INTO " + goodsattrtable + " (`goods_attr_id`, `goods_id`, `attr_id`, `attr_value`, `attr_price`) \
-                    VALUES (NULL, '3738', %s, '小猪佩奇', '13.09')"
-                cursor.execute(sql,attrid)
+                #唯一商品编号
+                sql = "SELECT `goods_id` FROM " + goodstable + " WHERE `goods_sn`=%s"
+                cursor.execute(sql,sn)
+                goodsid = cursor.fetchone()[0]
+                print(goodsid)
+
+                #添加商品属性
+                for sn,(name,price) in goodsdict.items():
+                    sql = "INSERT INTO " + goodsattrtable + " (`goods_attr_id`, `goods_id`, `attr_id`, `attr_value`, `attr_price`) \
+                        VALUES (NULL, %s, %s, %s, %s)"
+                    cursor.execute(sql,(goodsid,attrid,name,price))
 
                 connection.commit()
         finally:
