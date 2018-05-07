@@ -7,9 +7,9 @@ ZWSTool/ipch/
 ZWSTool/x64/
 ZWSTool/ZWSTool/ZWSTool.aps
 ZWSTool/ZWSTool/ZWSTool.vcxproj.user
-order.dangdang.html
-dangdangConfig.xml
-.vscode/settings.json
+*.html
+*.xml
+*.json
 *.sxml
 *.pyc
 *.xlsx

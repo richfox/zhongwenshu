@@ -26,7 +26,9 @@ def printUsage():
     print("")
     print('python ${THIS_SCRIPT_NAME}.py {-sql}    Generates a default sql configuration file')
     print("")
-    print('python ${THIS_SCRIPT_NAME}.py {-taobao | -t}    spider taobao.com')
+    print('python ${THIS_SCRIPT_NAME}.py {-t | -taobao}    spider taobao.com')
+    print("")
+    print('python ${THIS_SCRIPT_NAME}.py {-tuan | -tuangou}    Generates a config file for parameters of grouping buy')
     print("")
     print('python ${THIS_SCRIPT_NAME}.py ${config.xml}    Uses all settings of the xml configuration file')
     print("")
@@ -77,6 +79,11 @@ def matchTaobao(arg):
     return res
 
 def matchTuangou(arg):
+    regex = r"-tuan$|-tuangou$"
+    res = scanForMatch(regex,arg)
+    return res
+
+def matchGenerateGroupbuyConigFile(arg):
     regex = r"-tuan$|-tuangou$"
     res = scanForMatch(regex,arg)
     return res
@@ -156,7 +163,26 @@ def generateDefaultSqlConfig():
     fp.write(content)
     fp.close()
     print('Generated default sql config file: mySQLConfig.sxml')
-    
+
+
+def generateDefaultGroupbuyConfig():
+    fp = open('groupbuyConfig.xml','w')
+
+    content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + \
+            "<config>\n" + \
+            "  <!-- parameter for grouping buy -->\n" + \
+            "  <!-- 团购名称必须独一无二！！！ -->\n" + \
+            "  <name>20180501GBuy</name>\n" + \
+            "  <attr>团购商品</attr>\n" + \
+            "  <goodsname>5月团</goodsname>\n" + \
+            "  <discount>0.6</discount>\n" + \
+            "  <exchange>7.8</exchange>\n" + \
+            "</config>\n"
+
+    fp.write(content)
+    fp.close()
+    print('Generated default grouping buy parameter file: groupbuyConfig.xml')
+
 
 def getNodeText(nodelist):
     text = []
@@ -253,6 +279,9 @@ def main():
             return True
         elif matchTaobao(sys.argv[1]):
             taobao.aptamil()
+            return True
+        elif matchGenerateGroupbuyConigFile(sys.argv[1]):
+            generateDefaultGroupbuyConfig()
             return True
         elif matchConfigFile(sys.argv[1]):
             if not os.path.exists(sys.argv[1]):
