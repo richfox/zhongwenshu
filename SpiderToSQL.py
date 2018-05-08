@@ -205,16 +205,17 @@ def SpiderToSQL_tuangou(sqls,params):
                 title = ''
                 if titlenode:
                     title = titlenode[0]
-                    goodnames += title
+                    titlesn = title + ' [' + sn + ']'
+                    goodnames += titlesn
                     goodnames += '\r\n'
                 
                 oriprice = Spider.searchOriginalPrice(htmltree)
                 groupbuyprice = format(float(oriprice) * rate,'.2f')
-                goodsdict[sn] = (title,groupbuyprice)
+                goodsdict[sn] = (titlesn,groupbuyprice)
 
             diffname = u'------欧洲境内邮费补差------'
             goodnames += diffname
-            goodsdict[u'000000'] = (diffname,diff)
+            goodsdict[u'123456'] = (diffname,diff)
 
 
             #区分测试和主数据库
