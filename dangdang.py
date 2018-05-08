@@ -44,7 +44,7 @@ def printUsage():
     print("")
     print('python ${THIS_SCRIPT_NAME}.py ${config.xml} {-tuan | -tuangou}   use config to search attributes write result to _books.xlsx for groupbuy')
     print("")
-    print('python ${THIS_SCRIPT_NAME}.py ${config.xml} ${sql.sxml} {-tuan | -tuangou}  use config to search attributes than import to database with settings of the sxml file for groupbuy')
+    print('python ${THIS_SCRIPT_NAME}.py ${config.xml} ${sql.sxml} ${groupbuyConfig.xml}  use config to search attributes than import to database with settings of the sxml file for groupbuy')
     print("")
 
 
@@ -104,6 +104,12 @@ def matSqlFile(arg):
     regex = r".*[a-zA-Z0-9_]*\.sxml$"
     res = scanForMatch(regex,arg)
     return res
+
+def matchGroupbuyConfigFile(arg):
+    regex = r".*groupbuyConfig\.xml$"
+    res = scanForMatch(regex,arg)
+    return res
+
 
 #命令行参数：更新配置文件
 def matchUrl(arg):
@@ -248,6 +254,16 @@ def parseSqlConfigFile(configFile):
     return sqls
 
 
+def parseGroupbuyConfigFile(configFile):
+    groupbuyparams = {}
+    tree = xml.dom.minidom.parse(configFile)
+    configNode = tree.getElementsByTagName(u"config")[0]
+    for node in configNode.childNodes:
+        groupbuyparams[node.nodeName] = getNodeText(node.childNodes)
+
+    return groupbuyparams
+
+
 #生成配置文件
 def generateConfig(url,id):
     config = xml.etree.ElementTree.Element("config")
@@ -342,21 +358,25 @@ def main():
             Visitor.visitorStart(sys.argv[1],True)
             return True
     elif numArgs == 4:
-        if matchConfigFile(sys.argv[1]) and matSqlFile(sys.argv[2]) and matchTuangou(sys.argv[3]):
+        if matchConfigFile(sys.argv[1]) and matSqlFile(sys.argv[2]) and matchGroupbuyConfigFile(sys.argv[3]):
             if not os.path.exists(sys.argv[1]):
-                print('Error: config file does not exist.')
+                print('Error: config file does not exist, use -g to generate it')
                 return False
             if not os.path.exists(sys.argv[2]):
-                print('Error: sql config file does not exist.')
+                print('Error: sql config file does not exist, use -sql to generate it')
+                return False
+            if not os.path.exists(sys.argv[3]):
+                print('Error: grouping bug config file does not exist, use -tuan to generate it')
                 return False
             urls = parseConfigFile(sys.argv[1])
             sqls = parseSqlConfigFile(sys.argv[2])
+            params = parseGroupbuyConfigFile(sys.argv[3])
             for host,(username,password,dbname,charset) in sqls.items():
                 for url,tag in urls.items():
                     if (tag != 0):
                         del urls[url]
                 sqls[host] = (username,password,dbname,charset,urls)
-            SpiderToSQL.SpiderToSQL_tuangou(sqls)
+            SpiderToSQL.SpiderToSQL_tuangou(sqls,params)
             return True
 
     printUsage()

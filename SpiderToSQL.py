@@ -179,7 +179,7 @@ def SpiderToSQL(sqls):
 
 
 
-def SpiderToSQL_tuangou(sqls):
+def SpiderToSQL_tuangou(sqls,params):
     print("Spider to SQL start...\n")
 
     for host,(username,password,dbname,charset,urls) in sqls.items():
@@ -204,7 +204,7 @@ def SpiderToSQL_tuangou(sqls):
                     goodnames += '\r\n'
                 
                 oriprice = Spider.searchOriginalPrice(htmltree)
-                groupbuyprice = format(float(oriprice) * 0.6 / 7.8,'.2f') #保留两位小数
+                groupbuyprice = format(float(oriprice) * float(params[u'discount'])/float(params[u'exchange']),'.2f') #保留两位小数
                 goodsdict[sn] = (title,groupbuyprice)
 
             diff = u'------欧洲境内邮费补差------'
@@ -229,7 +229,7 @@ def SpiderToSQL_tuangou(sqls):
 
             with connection.cursor() as cursor:
                 #大类里添加某月团
-                catname = 'April'
+                catname = params[u'name']
 
                 sql = "INSERT INTO " + goodstypetable + " (`cat_id`,`cat_name`,`enabled`,`attr_group`) \
                     VALUES (NULL,%s,'1','')"
@@ -241,7 +241,7 @@ def SpiderToSQL_tuangou(sqls):
                 print(goodtype)
 
                 #大类的多商品属性
-                attrname = u'团购商品'
+                attrname = params[u'attr']
                 sql = "INSERT INTO " + attrtable + " (`attr_id`, `cat_id`, `attr_name`, `attr_input_type`,\
                     `attr_type`, `attr_values`, `attr_index`, `sort_order`, `is_linked`, `attr_group`)\
                     VALUES (NULL, %s, %s, '1', '2', %s, '0', '0', '0', '0')"
@@ -253,7 +253,7 @@ def SpiderToSQL_tuangou(sqls):
                 print(attrid)
 
                 #添加团购商品
-                goodsname = u'5月团'
+                goodsname = params[u'goodsname']
                 addtime = str(int(time.time()))
                 #登到团购分类
                 catid = '135'

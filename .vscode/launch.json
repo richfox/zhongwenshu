@@ -15,7 +15,7 @@
             "_args": ["product.dangdang.com","20771643"],
             "_args": ["dangdangConfig.xml"],
             "__args": ["dangdangConfig.xml","-tuan"],
-            "args": ["dangdangConfig.xml","mySQLConfig.sxml","-tuan"],
+            "args": ["dangdangConfig.xml","mySQLConfig.sxml","groupbuyConfig.xml"],
             "cwd": "${workspaceRoot}",
             "env": {},
             "envFile": "${workspaceRoot}/.env",
