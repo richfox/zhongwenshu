@@ -233,7 +233,8 @@ def spider_to_excel(urllist):
     for url,tag in urllist.items():
         spider = Spider(url)
         if tag == 0:
-            ws.cell(row=i+1,column=1,value=spider.searchTitle()).hyperlink = url
+            titlesn = spider.searchTitle() + ' [' + split_ddsn(url)  + ']'
+            ws.cell(row=i+1,column=1,value=titlesn).hyperlink = url
             ws.cell(row=i+1,column=2,value=spider.searchPrice())
             ws.cell(row=i+1,column=3,value=searchOriginalPrice(spider.getHtmltree()))
             ws.cell(row=i+1,column=4,value=split_ddsn(url))

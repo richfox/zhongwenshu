@@ -90,8 +90,11 @@ class Visitor:
 
             #团购所需图书信息
             if self._tuan:
+                sn = Spider.split_ddsn(hrefs[i])
+                titlesn = ws.cell(row=i+j+1,column=1).value + ' [' + sn  + ']'
+                ws.cell(row=i+j+1,column=1,value=titlesn)
                 ws.cell(row=i+j+1,column=7,value=self.getOriginalPrice(hrefs[i]))
-                ws.cell(row=i+j+1,column=8,value=re.findall('\d+',hrefs[i])[0])
+                ws.cell(row=i+j+1,column=8,value=sn)
 
                 spider = Spider.Spider(hrefs[i])
                 ws.cell(row=i+j+1,column=9,value=spider.searchISBN())
