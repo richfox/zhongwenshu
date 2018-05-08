@@ -177,12 +177,17 @@ def generateDefaultGroupbuyConfig():
     content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + \
             "<config>\n" + \
             "  <!-- parameter for grouping buy -->\n" + \
-            "  <!-- 团购名称必须独一无二！！！ -->\n" + \
+            "  <!-- 团购类型名称，必须独一无二！！！ -->\n" + \
             "  <name>20180501GBuy</name>\n" + \
+            "  <!-- 团购类型属性 -->\n" + \
             "  <attr>团购商品</attr>\n" + \
             "  <goodsname>5月团</goodsname>\n" + \
-            "  <discount>0.6</discount>\n" + \
-            "  <exchange>7.8</exchange>\n" + \
+            "  <discount>0.60</discount>\n" + \
+            "  <multiple>1.40</multiple>\n" + \
+            "  <exchange>7.80</exchange>\n" + \
+            "  <dhl_de>5.00</dhl_de>\n" + \
+            "  <dhl_eu>10.00</dhl_eu>\n" + \
+            "  <packing>3.00</packing>\n" + \
             "</config>\n"
 
     fp.write(content)

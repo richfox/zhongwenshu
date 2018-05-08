@@ -182,6 +182,11 @@ def SpiderToSQL(sqls):
 def SpiderToSQL_tuangou(sqls,params):
     print("Spider to SQL start...\n")
 
+    #calc param
+    rate = float(params[u'discount']) * float(params[u'multiple']) / float(params[u'exchange'])
+    diff = format(float(params[u'dhl_eu']) - float(params[u'dhl_de']),'.2f') #保留两位小数
+    baseprice = format(float(params[u'dhl_de']) + float(params[u'packing']),'.2f')
+
     for host,(username,password,dbname,charset,urls) in sqls.items():
         connection = pymysql.connect(host=host,user=username,password=password,db=dbname,charset=charset)
         try:
@@ -204,12 +209,12 @@ def SpiderToSQL_tuangou(sqls,params):
                     goodnames += '\r\n'
                 
                 oriprice = Spider.searchOriginalPrice(htmltree)
-                groupbuyprice = format(float(oriprice) * float(params[u'discount'])/float(params[u'exchange']),'.2f') #保留两位小数
+                groupbuyprice = format(float(oriprice) * rate,'.2f')
                 goodsdict[sn] = (title,groupbuyprice)
 
-            diff = u'------欧洲境内邮费补差------'
-            goodnames += diff
-            goodsdict[u'000000'] = (diff,'5.00')
+            diffname = u'------欧洲境内邮费补差------'
+            goodnames += diffname
+            goodsdict[u'000000'] = (diffname,diff)
 
 
             #区分测试和主数据库
@@ -267,14 +272,14 @@ def SpiderToSQL_tuangou(sqls,params):
                     `is_delete`, `is_best`, `is_new`, `is_hot`, `is_promote`, `bonus_type_id`, `last_update`,\
                     `goods_type`, `seller_note`, `give_integral`, `rank_integral`, `suppliers_id`, `is_check`) \
                     VALUES (NULL, %s, %s, %s,\
-                    '+', '0', '0', '', '0',\
-                    '0', '0', '', '0', '0.00',\
+                    '+', '0', '0', '', '1000',\
+                    '0', %s, '', %s, '0.00',\
                     '0', '0', '1', '', '',\
                     '', '', '', '', '1', '',\
-                    '0', '1', '0', '0', %s, '100',\
-                    '0', '0', '1', '0', '0', '0', '0',\
+                    '0', '1', '1', '0', %s, '100',\
+                    '0', '1', '1', '1', '0', '0', '0',\
                     %s, '', '-1', '-1', '0', NULL)"
-                cursor.execute(sql,(catid,sn,goodsname,addtime,goodtype))
+                cursor.execute(sql,(catid,sn,goodsname,baseprice,baseprice,addtime,goodtype))
 
                 #唯一商品编号
                 sql = "SELECT `goods_id` FROM " + goodstable + " WHERE `goods_sn`=%s"
