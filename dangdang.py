@@ -45,9 +45,9 @@ def printUsage():
     print("")
     print('python ${THIS_SCRIPT_NAME}.py ${config.xml} {-tuan | -tuangou}   use config to search attributes write result to _books.xlsx for groupbuy')
     print("")
-    print('python ${THIS_SCRIPT_NAME}.py ${_jsform.xlsx} ${sql.sxml} {-tuan | -tuangou}   write jsform data from excel to database with settings of the sxml file for groupbuy')
-    print("")
     print('python ${THIS_SCRIPT_NAME}.py ${config.xml} ${sql.sxml} ${groupbuyConfig.xml}  use config to search attributes than import to database with settings of the sxml file for groupbuy')
+    print("")
+    print('python ${THIS_SCRIPT_NAME}.py ${_jsform.xlsx} ${sql.sxml} ${groupbuyConfig.xml}   write jsform data from excel to database with settings of the sxml file for groupbuy')
     print("")
 
 
@@ -391,15 +391,19 @@ def main():
                 sqls[host] = (username,password,dbname,charset,urls)
             SpiderToSQL.SpiderToSQL_tuangou(sqls,params)
             return True
-        elif matchJsformDataFile(sys.argv[1]) and matSqlFile(sys.argv[2]) and matchTuangou(sys.argv[3]):
+        elif matchJsformDataFile(sys.argv[1]) and matSqlFile(sys.argv[2]) and matchGroupbuyConfigFile(sys.argv[3]):
             if not os.path.exists(sys.argv[1]):
                 print('Error: jsform excel file does not exist, use jsform to export it')
                 return False
             if not os.path.exists(sys.argv[2]):
                 print('Error: sql config file does not exist, use -sql to generate it')
                 return False
+            if not os.path.exists(sys.argv[3]):
+                print('Error: grouping bug config file does not exist, use -tuan to generate it')
+                return False
             sqls = parseSqlConfigFile(sys.argv[2])
-            ExcelToSQL.ExcelToSQLGBuy(sqls)
+            params = parseGroupbuyConfigFile(sys.argv[3])
+            ExcelToSQL.ExcelToSQLGBuy(sqls,params)
             return True
 
     printUsage()

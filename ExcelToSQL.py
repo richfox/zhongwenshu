@@ -12,8 +12,17 @@ import openpyxl.workbook
 
 
 
-def ExcelToSQLGBuy(sqls):
+def ExcelToSQLGBuy(sqls,params):
     print("excel to SQL start...\n")
+
+    #read excel data
+    wb = openpyxl.load_workbook('_jsform.xlsx')
+    ws = wb.active
+    
+    rows = ws.rows
+    for row in rows:
+        for i,cell in enumerate(row):
+            cell.value
 
     for host,(username,password,dbname,charset) in sqls.items():
         connection = pymysql.connect(host=host,user=username,password=password,db=dbname,charset=charset)
