@@ -19,10 +19,24 @@ def ExcelToSQLGBuy(sqls,params):
     wb = openpyxl.load_workbook('_jsform.xlsx')
     ws = wb.active
     
-    rows = ws.rows
-    for row in rows:
-        for i,cell in enumerate(row):
-            cell.value
+    orders = {}
+    books = []
+    for row,cells in enumerate(ws.rows):
+        booknums = []
+        for col,cell in enumerate(cells):
+            if row == 0:
+                ddsn = re.findall(u'\[([0-9]+)\]',cell.value.replace(u' ',u''))
+                if ddsn:
+                    books.append(ddsn[0])
+            else:
+                if col == 0:
+                    orderid = cell.value
+                elif col>0 and col<=len(books):
+                    booknums.append(cell.value)
+                    
+        if row != 0:
+            orders[orderid] = booknums
+
 
     for host,(username,password,dbname,charset) in sqls.items():
         connection = pymysql.connect(host=host,user=username,password=password,db=dbname,charset=charset)
