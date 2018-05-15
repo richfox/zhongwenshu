@@ -9,7 +9,15 @@ import io
 import re
 import pymysql
 import openpyxl.workbook
+import time
 
+
+#生成22位团购订单号
+def generate_tuan_ordernr(jsformnr):
+    ymd = time.strftime("%Y%m%d",time.localtime())
+    stamp = str(int(time.time()))
+    tuan = jsformnr.zfill(4)
+    return ymd + stamp + tuan
 
 
 def ExcelToSQLGBuy(sqls,params):
@@ -35,15 +43,13 @@ def ExcelToSQLGBuy(sqls,params):
                     booknums.append(cell.value)
                     
         if row != 0:
-            orders[orderid] = booknums
+            orders[generate_tuan_ordernr(str(orderid))] = booknums
 
 
     for host,(username,password,dbname,charset) in sqls.items():
         connection = pymysql.connect(host=host,user=username,password=password,db=dbname,charset=charset)
 
         try:
-            ordersn = '2018041908072'
-
             #区分测试和主数据库
             ordertable = ""
             ordergoodstable = ""
@@ -57,55 +63,56 @@ def ExcelToSQLGBuy(sqls,params):
                 ordergoodstable = "ecs_order_goods"
                 orderactiontable = "ecs_order_action"
         
-            with connection.cursor() as cursor:
-                #生成订单
-                sql = "INSERT INTO " + ordertable + " (`order_id`, `order_sn`, `user_id`, `order_status`, `shipping_status`, `pay_status`, \
-                    `consignee`, `country`, `province`, `city`, `district`, `address`, `zipcode`, `tel`, `mobile`, `email`, \
-                    `best_time`, `sign_building`, `postscript`, `shipping_id`, `shipping_name`, `pay_id`, `pay_name`, \
-                    `how_oos`, `how_surplus`, `pack_name`, `card_name`, `card_message`, `inv_payee`, `inv_content`, `goods_amount`, \
-                    `shipping_fee`, `insure_fee`, `pay_fee`, `pack_fee`, `card_fee`, `money_paid`, \
-                    `surplus`, `integral`, `integral_money`, `bonus`, `order_amount`, `from_ad`, `referer`, \
-                    `add_time`, `confirm_time`, `pay_time`, `shipping_time`, `pack_id`, `card_id`, `bonus_id`, `invoice_no`, \
-                    `extension_code`, `extension_id`, `to_buyer`, `pay_note`, `agency_id`, `inv_type`, `tax`, `is_separate`, \
-                    `parent_id`, `discount`, `discount7`, `discount19`, `goods_amount7`, `goods_amount19`) \
-                    VALUES (NULL, %s, '968', '1', '3', '2', \
-                    'Tang Shanqiong', '3409', '0', '0', '0', 'Berliner Str. 40', '38678', '017655505472', '', 'mini_tang@hotmail.com', \
-                    '', 'Clausthal-Zellerfeld', '', '12', 'DHL Paket', '4', 'paypal 第一时间到付', \
-                    '有货商品先发，缺货商品退款', '', '', '', '', '', '', '114.78', \
-                    '0.00', '0.00', '0.00', '0.00', '0.00', '114.78', \
-                    '0.00', '0', '0.00', '0.00', '0.00', '0', '本站', \
-                    '1524138219', '1524138261', '1524138261', '0', '0', '0', '0', '', \
-                    '', '0', '#34', '', '0', '', '0.00', '0', \
-                    '0', '0.00', '0.00', '0.00', '0.00', '114.78')"
-                cursor.execute(sql,ordersn)
+            for ordernr,booknum in orders:
+                with connection.cursor() as cursor:
+                    #生成订单
+                    sql = "INSERT INTO " + ordertable + " (`order_id`, `order_sn`, `user_id`, `order_status`, `shipping_status`, `pay_status`, \
+                        `consignee`, `country`, `province`, `city`, `district`, `address`, `zipcode`, `tel`, `mobile`, `email`, \
+                        `best_time`, `sign_building`, `postscript`, `shipping_id`, `shipping_name`, `pay_id`, `pay_name`, \
+                        `how_oos`, `how_surplus`, `pack_name`, `card_name`, `card_message`, `inv_payee`, `inv_content`, `goods_amount`, \
+                        `shipping_fee`, `insure_fee`, `pay_fee`, `pack_fee`, `card_fee`, `money_paid`, \
+                        `surplus`, `integral`, `integral_money`, `bonus`, `order_amount`, `from_ad`, `referer`, \
+                        `add_time`, `confirm_time`, `pay_time`, `shipping_time`, `pack_id`, `card_id`, `bonus_id`, `invoice_no`, \
+                        `extension_code`, `extension_id`, `to_buyer`, `pay_note`, `agency_id`, `inv_type`, `tax`, `is_separate`, \
+                        `parent_id`, `discount`, `discount7`, `discount19`, `goods_amount7`, `goods_amount19`) \
+                        VALUES (NULL, %s, '968', '1', '3', '2', \
+                        'Tang Shanqiong', '3409', '0', '0', '0', 'Berliner Str. 40', '38678', '017655505472', '', 'mini_tang@hotmail.com', \
+                        '', 'Clausthal-Zellerfeld', '', '12', 'DHL Paket', '4', 'paypal 第一时间到付', \
+                        '有货商品先发，缺货商品退款', '', '', '', '', '', '', '114.78', \
+                        '0.00', '0.00', '0.00', '0.00', '0.00', '114.78', \
+                        '0.00', '0', '0.00', '0.00', '0.00', '0', '本站', \
+                        '1524138219', '1524138261', '1524138261', '0', '0', '0', '0', '', \
+                        '', '0', '#34', '', '0', '', '0.00', '0', \
+                        '0', '0.00', '0.00', '0.00', '0.00', '114.78')"
+                    cursor.execute(sql,ordernr)
 
-                #唯一商品编号
-                sql = "SELECT `order_id` FROM " + ordertable + " WHERE `order_sn`=%s"
-                cursor.execute(sql,ordersn)
-                orderid = cursor.fetchone()[0]
-                print(orderid)
+                    #唯一商品编号
+                    sql = "SELECT `order_id` FROM " + ordertable + " WHERE `order_sn`=%s"
+                    cursor.execute(sql,ordernr)
+                    orderid = cursor.fetchone()[0]
+                    print(orderid)
 
-                #订单商品
-                sql = "INSERT INTO " + ordergoodstable + " (`rec_id`, `order_id`, `goods_id`, `goods_name`, \
-                    `goods_sn`, `product_id`, `goods_number`, `market_price`, `goods_price`, `goods_attr`, \
-                    `send_number`, `is_real`, `extension_code`, `parent_id`, `is_gift`, `goods_attr_id`) \
-                    VALUES (NULL, %s, '3738', '4月团', \
-                    'TUAN0418', '0', '1', '116.38', '114.78', '多商品:汉声中国童话（全12册）[102.11] \r\n多商品:从尿布到约会[4.67] \r\n', \
-                    '0', '1', '', '0', '0', '23010,23017')"
-                cursor.execute(sql,orderid)
+                    #订单商品
+                    sql = "INSERT INTO " + ordergoodstable + " (`rec_id`, `order_id`, `goods_id`, `goods_name`, \
+                        `goods_sn`, `product_id`, `goods_number`, `market_price`, `goods_price`, `goods_attr`, \
+                        `send_number`, `is_real`, `extension_code`, `parent_id`, `is_gift`, `goods_attr_id`) \
+                        VALUES (NULL, %s, '3738', '4月团', \
+                        'TUAN0418', '0', '1', '116.38', '114.78', '多商品:汉声中国童话（全12册）[102.11] \r\n多商品:从尿布到约会[4.67] \r\n', \
+                        '0', '1', '', '0', '0', '23010,23017')"
+                    cursor.execute(sql,orderid)
 
-                #订单状态
-                sql = "INSERT INTO " + orderactiontable + " (`action_id`, `order_id`, `action_user`, \
-                    `order_status`, `shipping_status`, `pay_status`, `action_place`, `action_note`, `log_time`) \
-                    VALUES (NULL, %s, 'zhongwenshu', \
-                    '1', '0', '2', '0', '5ED87113L11792735（paypal 交易号）', '1524138261'); \
-                    INSERT INTO " + orderactiontable + " (`action_id`, `order_id`, `action_user`, \
-                    `order_status`, `shipping_status`, `pay_status`, `action_place`, `action_note`, `log_time`) \
-                    VALUES (NULL, %s, 'zhongwenshu', \
-                    '1', '3', '2', '0', '', '1524668832')"
-                cursor.execute(sql,orderid,orderid)
+                    #订单状态
+                    sql = "INSERT INTO " + orderactiontable + " (`action_id`, `order_id`, `action_user`, \
+                        `order_status`, `shipping_status`, `pay_status`, `action_place`, `action_note`, `log_time`) \
+                        VALUES (NULL, %s, 'zhongwenshu', \
+                        '1', '0', '2', '0', '5ED87113L11792735（paypal 交易号）', '1524138261'); \
+                        INSERT INTO " + orderactiontable + " (`action_id`, `order_id`, `action_user`, \
+                        `order_status`, `shipping_status`, `pay_status`, `action_place`, `action_note`, `log_time`) \
+                        VALUES (NULL, %s, 'zhongwenshu', \
+                        '1', '3', '2', '0', '', '1524668832')"
+                    cursor.execute(sql,orderid,orderid)
 
-            connection.commit()
+                connection.commit()
         finally:
             connection.close()
 
