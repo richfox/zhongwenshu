@@ -75,7 +75,7 @@ def ExcelToSQLGBuy(sqls,params):
                         `add_time`, `confirm_time`, `pay_time`, `shipping_time`, `pack_id`, `card_id`, `bonus_id`, `invoice_no`, \
                         `extension_code`, `extension_id`, `to_buyer`, `pay_note`, `agency_id`, `inv_type`, `tax`, `is_separate`, \
                         `parent_id`, `discount`, `discount7`, `discount19`, `goods_amount7`, `goods_amount19`) \
-                        VALUES (NULL, %s, '968', '1', '3', '2', \
+                        VALUES (NULL, %s, '0', '1', '3', '2', \
                         'Tang Shanqiong', '3409', '0', '0', '0', 'Berliner Str. 40', '38678', '017655505472', '', 'mini_tang@hotmail.com', \
                         '', 'Clausthal-Zellerfeld', '', '12', 'DHL Paket', '4', 'paypal 第一时间到付', \
                         '有货商品先发，缺货商品退款', '', '', '', '', '', '', '114.78', \
@@ -92,24 +92,22 @@ def ExcelToSQLGBuy(sqls,params):
                     orderid = cursor.fetchone()[0]
                     print(orderid)
 
+                    goodattr = params[u'attr'] + u':' + u'汉声中国童话（全12册）[102.11] \r\n多商品:从尿布到约会[4.67] \r\n'
+
                     #订单商品
                     sql = "INSERT INTO " + ordergoodstable + " (`rec_id`, `order_id`, `goods_id`, `goods_name`, \
                         `goods_sn`, `product_id`, `goods_number`, `market_price`, `goods_price`, `goods_attr`, \
                         `send_number`, `is_real`, `extension_code`, `parent_id`, `is_gift`, `goods_attr_id`) \
                         VALUES (NULL, %s, '3738', '4月团', \
-                        'TUAN0418', '0', '1', '116.38', '114.78', '多商品:汉声中国童话（全12册）[102.11] \r\n多商品:从尿布到约会[4.67] \r\n', \
+                        'TUAN0418', '0', '1', '116.38', '114.78', %s, \
                         '0', '1', '', '0', '0', '23010,23017')"
-                    cursor.execute(sql,orderid)
+                    cursor.execute(sql,orderid,goodattr)
 
                     #订单状态
                     sql = "INSERT INTO " + orderactiontable + " (`action_id`, `order_id`, `action_user`, \
                         `order_status`, `shipping_status`, `pay_status`, `action_place`, `action_note`, `log_time`) \
                         VALUES (NULL, %s, 'zhongwenshu', \
-                        '1', '0', '2', '0', '5ED87113L11792735（paypal 交易号）', '1524138261'); \
-                        INSERT INTO " + orderactiontable + " (`action_id`, `order_id`, `action_user`, \
-                        `order_status`, `shipping_status`, `pay_status`, `action_place`, `action_note`, `log_time`) \
-                        VALUES (NULL, %s, 'zhongwenshu', \
-                        '1', '3', '2', '0', '', '1524668832')"
+                        '1', '0', '2', '0', '5ED87113L11792735（paypal 交易号）', '1524138261')"
                     cursor.execute(sql,orderid,orderid)
 
                 connection.commit()
