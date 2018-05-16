@@ -28,22 +28,23 @@ def ExcelToSQLGBuy(sqls,params):
     ws = wb.active
     
     orders = {}
-    books = []
+    sns = []
     for row,cells in enumerate(ws.rows):
-        booknums = []
+        books = {}
         for col,cell in enumerate(cells):
             if row == 0:
                 ddsn = re.findall(u'\[([0-9]+)\]',cell.value.replace(u' ',u''))
                 if ddsn:
-                    books.append(ddsn[0])
+                    sns.append(ddsn[0])
             else:
                 if col == 0:
                     orderid = cell.value
-                elif col>0 and col<=len(books):
-                    booknums.append(cell.value)
+                elif col>0 and col<=len(sns):
+                    if cell.value >= 1:
+                        books[sns[col-1]] = cell.value
                     
         if row != 0:
-            orders[generate_tuan_ordernr(str(orderid))] = booknums
+            orders[generate_tuan_ordernr(str(orderid))] = books
 
 
     for host,(username,password,dbname,charset) in sqls.items():
@@ -51,20 +52,42 @@ def ExcelToSQLGBuy(sqls,params):
 
         try:
             #区分测试和主数据库
+            goodstypetable = ""
+            attrtable = ""
+            goodsattrtable = ""
             ordertable = ""
             ordergoodstable = ""
             orderactiontable = ""
             if dbname == 'zhongw_test':
+                goodstypetable = "ecs_test_goods_type"
+                attrtable = "ecs_test_attribute"
+                goodsattrtable = "ecs_test_goods_attr"
                 ordertable = "ecs_test_order_info"
                 ordergoodstable = "ecs_test_order_goods"
                 orderactiontable = "ecs_test_order_action"
             elif dbname == 'zhongwenshu_db1':
+                goodstypetable = "ecs_goods_type"
+                attrtable = "ecs_attribute"
+                goodsattrtable = "ecs_goods_attr"
                 ordertable = "ecs_order_info"
                 ordergoodstable = "ecs_order_goods"
                 orderactiontable = "ecs_order_action"
         
-            for ordernr,booknum in orders:
+            for ordernr,books in orders.items():
                 with connection.cursor() as cursor:
+                    #找团购商品属性
+                    sql = "SELECT `cat_id` FROM " + goodstypetable + " WHERE `cat_name`=%s"
+                    cursor.execute(sql,params[u'name'])
+                    goodtype = cursor.fetchone()[0]
+
+                    sql = "SELECT `attr_id` FROM " + attrtable + " WHERE `cat_id`=%s"
+                    cursor.execute(sql,goodtype)
+                    attrid = cursor.fetchone()[0]
+
+                    sql = "SELECT `goods_id` FROM " + goodsattrtable + " WHERE `attr_id`=%s"
+                    cursor.execute(sql,attrid)
+                    goodids = cursor.fetchall()
+
                     #生成订单
                     sql = "INSERT INTO " + ordertable + " (`order_id`, `order_sn`, `user_id`, `order_status`, `shipping_status`, `pay_status`, \
                         `consignee`, `country`, `province`, `city`, `district`, `address`, `zipcode`, `tel`, `mobile`, `email`, \
@@ -86,11 +109,12 @@ def ExcelToSQLGBuy(sqls,params):
                         '0', '0.00', '0.00', '0.00', '0.00', '114.78')"
                     cursor.execute(sql,ordernr)
 
-                    #唯一商品编号
+                    #订单编号
                     sql = "SELECT `order_id` FROM " + ordertable + " WHERE `order_sn`=%s"
                     cursor.execute(sql,ordernr)
                     orderid = cursor.fetchone()[0]
                     print(orderid)
+
 
                     goodattr = params[u'attr'] + u':' + u'汉声中国童话（全12册）[102.11] \r\n多商品:从尿布到约会[4.67] \r\n'
 
@@ -100,7 +124,7 @@ def ExcelToSQLGBuy(sqls,params):
                         `send_number`, `is_real`, `extension_code`, `parent_id`, `is_gift`, `goods_attr_id`) \
                         VALUES (NULL, %s, '3738', '4月团', \
                         'TUAN0418', '0', '1', '116.38', '114.78', %s, \
-                        '0', '1', '', '0', '0', '23010,23017')"
+                        '0', '1', '', '0', '0', '23010,23017')" #ecs_goods_attr
                     cursor.execute(sql,orderid,goodattr)
 
                     #订单状态
