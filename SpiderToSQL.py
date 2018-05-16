@@ -236,12 +236,10 @@ def SpiderToSQL_tuangou(sqls,params):
             with connection.cursor() as cursor:
                 #大类里添加某月团，并且只能添加一次
                 catname = params[u'name']
-
                 sql = "SELECT `cat_id` FROM " + goodstypetable + " WHERE `cat_name`=%s"
                 cursor.execute(sql,catname)
-                goodtypes = cursor.fetchone()
-                if goodtypes:
-                    raise Exception, "this goodtype for groupbuy is already inserted in database!" 
+                if cursor.fetchall():
+                    raise Exception, "this goodtype %s for groupbuy is already inserted in database!" %catname
 
                 sql = "INSERT INTO " + goodstypetable + " (`cat_id`,`cat_name`,`enabled`,`attr_group`) \
                     VALUES (NULL,%s,'1','')"
