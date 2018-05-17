@@ -19,6 +19,14 @@ def generate_tuan_ordernr(jsformnr):
     tuan = jsformnr.zfill(4)
     return ymd + stamp + tuan
 
+#提取当当编号
+def get_ddsn(name):
+    ddsn = ""
+    res = re.findall(u'\[([0-9]+)\]',name.replace(u' ',u''))
+    if res:
+        ddsn = res[0]
+    return ddsn
+    
 
 def ExcelToSQLGBuy(sqls,params):
     print("excel to SQL start...\n")
@@ -33,9 +41,9 @@ def ExcelToSQLGBuy(sqls,params):
         books = {}
         for col,cell in enumerate(cells):
             if row == 0:
-                ddsn = re.findall(u'\[([0-9]+)\]',cell.value.replace(u' ',u''))
+                ddsn = get_ddsn(cell.value)
                 if ddsn:
-                    sns.append(ddsn[0])
+                    sns.append(ddsn)
             else:
                 if col == 0:
                     orderid = cell.value
@@ -75,18 +83,52 @@ def ExcelToSQLGBuy(sqls,params):
         
             for ordernr,books in orders.items():
                 with connection.cursor() as cursor:
-                    #找团购商品属性
+                    #找团购大类
                     sql = "SELECT `cat_id` FROM " + goodstypetable + " WHERE `cat_name`=%s"
-                    cursor.execute(sql,params[u'name'])
-                    goodtype = cursor.fetchone()[0]
+                    res = cursor.execute(sql,params[u'name'])
+                    if res:
+                        goodtype = cursor._rows[0][0]
+                        print goodtype
+                    else:
+                        raise Exception, "this goodtype %s for groupbuy is not jet inserted in database!" %params[u'name']
 
+                    #找团购大类的属性
                     sql = "SELECT `attr_id` FROM " + attrtable + " WHERE `cat_id`=%s"
                     cursor.execute(sql,goodtype)
-                    attrid = cursor.fetchone()[0]
+                    attrids = ""
+                    for i,row in enumerate(cursor._rows):
+                        attrids += str(row[0]) + " "
+                    print attrids
+                    attrid = cursor._rows[i][0]
 
-                    sql = "SELECT `goods_id` FROM " + goodsattrtable + " WHERE `attr_id`=%s"
+                    #找团购商品
+                    sql = "SELECT `goods_attr_id`,`goods_id` FROM " + goodsattrtable + " WHERE `attr_id`=%s"
                     cursor.execute(sql,attrid)
-                    goodids = cursor.fetchall()
+                    goodids = ""
+                    for i,row in enumerate(cursor._rows):
+                        goodids += str(row) + " "
+                    print goodids
+                    goodid = cursor._rows[i][1]
+
+                    #找当当编号
+                    ddsns = {}
+                    sql = "SELECT `goods_attr_id`,`attr_value`,`attr_price` FROM " + goodsattrtable + " WHERE `attr_id`=%s AND `goods_id`=%s"
+                    cursor.execute(sql,(attrid,goodid))
+                    for i,row in enumerate(cursor._rows):
+                        ddsns[get_ddsn(row[1])] = (row[0],row[1],row[2])
+
+                    #生成订单商品属性
+                    goodsattr = ""
+                    goodsattrid = ""
+                    for sn,num in orders[ordernr].items():
+                        if num == 1:
+                            goodsattr += params[u'attr'] + u':' + ddsns[sn][1] + u'[' + ddsns[sn][2] + u']' + u'\r\n'
+                            goodsattrid += str(ddsns[sn][0]) + u','
+
+                    if goodsattrid:
+                        goodsattrid = goodsattrid[0:-1]
+                    raise Exception
+
 
                     #生成订单
                     sql = "INSERT INTO " + ordertable + " (`order_id`, `order_sn`, `user_id`, `order_status`, `shipping_status`, `pay_status`, \
@@ -115,17 +157,15 @@ def ExcelToSQLGBuy(sqls,params):
                     orderid = cursor.fetchone()[0]
                     print(orderid)
 
-
-                    goodattr = params[u'attr'] + u':' + u'汉声中国童话（全12册）[102.11] \r\n多商品:从尿布到约会[4.67] \r\n'
-
+                    
                     #订单商品
                     sql = "INSERT INTO " + ordergoodstable + " (`rec_id`, `order_id`, `goods_id`, `goods_name`, \
                         `goods_sn`, `product_id`, `goods_number`, `market_price`, `goods_price`, `goods_attr`, \
                         `send_number`, `is_real`, `extension_code`, `parent_id`, `is_gift`, `goods_attr_id`) \
                         VALUES (NULL, %s, '3738', '4月团', \
                         'TUAN0418', '0', '1', '116.38', '114.78', %s, \
-                        '0', '1', '', '0', '0', '23010,23017')" #ecs_goods_attr
-                    cursor.execute(sql,orderid,goodattr)
+                        '0', '1', '', '0', '0', %s)"
+                    cursor.execute(sql,orderid,goodsattr,goodsattrid)
 
                     #订单状态
                     sql = "INSERT INTO " + orderactiontable + " (`action_id`, `order_id`, `action_user`, \

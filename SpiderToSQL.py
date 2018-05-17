@@ -213,9 +213,10 @@ def SpiderToSQL_tuangou(sqls,params):
                 groupbuyprice = format(float(oriprice) * rate,'.2f')
                 goodsdict[sn] = (titlesn,groupbuyprice)
 
-            diffname = u'------欧洲境内邮费补差------'
+            diffsn = u'666666'
+            diffname = u'------欧洲境内邮费补差------' + ' [' + diffsn + ']'
             goodnames += diffname
-            goodsdict[u'123456'] = (diffname,diff)
+            goodsdict[diffsn] = (diffname,diff)
 
 
             #区分测试和主数据库
@@ -237,8 +238,8 @@ def SpiderToSQL_tuangou(sqls,params):
                 #大类里添加某月团，并且只能添加一次
                 catname = params[u'name']
                 sql = "SELECT `cat_id` FROM " + goodstypetable + " WHERE `cat_name`=%s"
-                cursor.execute(sql,catname)
-                if cursor.fetchall():
+                res = cursor.execute(sql,catname)
+                if res:
                     raise Exception, "this goodtype %s for groupbuy is already inserted in database!" %catname
 
                 sql = "INSERT INTO " + goodstypetable + " (`cat_id`,`cat_name`,`enabled`,`attr_group`) \
