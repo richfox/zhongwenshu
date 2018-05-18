@@ -70,6 +70,7 @@ def ExcelToSQLGBuy(sqls,params):
                 goodstypetable = "ecs_test_goods_type"
                 attrtable = "ecs_test_attribute"
                 goodsattrtable = "ecs_test_goods_attr"
+                goodstable = "ecs_test_goods"
                 ordertable = "ecs_test_order_info"
                 ordergoodstable = "ecs_test_order_goods"
                 orderactiontable = "ecs_test_order_action"
@@ -77,6 +78,7 @@ def ExcelToSQLGBuy(sqls,params):
                 goodstypetable = "ecs_goods_type"
                 attrtable = "ecs_attribute"
                 goodsattrtable = "ecs_goods_attr"
+                goodstable = "ecs_goods"
                 ordertable = "ecs_order_info"
                 ordergoodstable = "ecs_order_goods"
                 orderactiontable = "ecs_order_action"
@@ -110,6 +112,12 @@ def ExcelToSQLGBuy(sqls,params):
                     print goodids
                     goodid = cursor._rows[i][1]
 
+                    #找商品sn号
+                    sql = "SELECT `goods_sn` FROM " + goodstable + " WHERE `goods_id`=%s"
+                    res = cursor.execute(sql,goodid)
+                    if res:
+                        goodsn = cursor._rows[0][0]
+
                     #找当当编号
                     ddsns = {}
                     sql = "SELECT `goods_attr_id`,`attr_value`,`attr_price` FROM " + goodsattrtable + " WHERE `attr_id`=%s AND `goods_id`=%s"
@@ -120,13 +128,19 @@ def ExcelToSQLGBuy(sqls,params):
                     #生成订单商品属性
                     goodsattr = ""
                     goodsattrid = ""
+                    goodsattrprice = 0.00
                     for sn,num in orders[ordernr].items():
                         if num == 1:
                             goodsattr += params[u'attr'] + u':' + ddsns[sn][1] + u'[' + ddsns[sn][2] + u']' + u'\r\n'
                             goodsattrid += str(ddsns[sn][0]) + u','
+                            goodsattrprice += float(ddsns[sn][2])
 
                     if goodsattrid:
                         goodsattrid = goodsattrid[0:-1]
+
+                    baseprice = float(params[u'dhl_de']) + float(params[u'packing'])
+                    goodsprice = format(baseprice + goodsattrprice,'.2f')
+
                     raise Exception
 
 
@@ -162,17 +176,17 @@ def ExcelToSQLGBuy(sqls,params):
                     sql = "INSERT INTO " + ordergoodstable + " (`rec_id`, `order_id`, `goods_id`, `goods_name`, \
                         `goods_sn`, `product_id`, `goods_number`, `market_price`, `goods_price`, `goods_attr`, \
                         `send_number`, `is_real`, `extension_code`, `parent_id`, `is_gift`, `goods_attr_id`) \
-                        VALUES (NULL, %s, '3738', '4月团', \
-                        'TUAN0418', '0', '1', '116.38', '114.78', %s, \
+                        VALUES (NULL, %s, %s, %s, \
+                        %s, '0', '1', %s, %s, %s, \
                         '0', '1', '', '0', '0', %s)"
-                    cursor.execute(sql,orderid,goodsattr,goodsattrid)
+                    cursor.execute(sql,(orderid,goodid,params[u'goodsname'],goodsn,goodsprice,goodsprice,goodsattr,goodsattrid))
 
                     #订单状态
                     sql = "INSERT INTO " + orderactiontable + " (`action_id`, `order_id`, `action_user`, \
                         `order_status`, `shipping_status`, `pay_status`, `action_place`, `action_note`, `log_time`) \
                         VALUES (NULL, %s, 'zhongwenshu', \
                         '1', '0', '2', '0', '5ED87113L11792735（paypal 交易号）', '1524138261')"
-                    cursor.execute(sql,orderid,orderid)
+                    cursor.execute(sql,(orderid,orderid))
 
                 connection.commit()
         finally:
