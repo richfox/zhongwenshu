@@ -106,12 +106,14 @@ def SpiderToSQL(sqls):
                     if len(res) > 1:
                         paper = res[1]
 
+                oriprice = '¥' + Spider.searchOriginalPrice(htmltree)
+
                 #商品图片
                 Spider.spider_picture(url)
 
                 #创建书籍信息字典
                 #所有商品属性定义在表ecs_attribute中
-                attrs = {1:author,2:press,3:isbn,4:pressdate,5:size,7:packing,10:paper}
+                attrs = {1:author,2:press,3:isbn,4:pressdate,5:size,7:packing,10:paper,232:oriprice}
 
                 #添加时间戳
                 addtime = str(int(time.time()))
