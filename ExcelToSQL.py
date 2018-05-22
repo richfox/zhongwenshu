@@ -37,7 +37,8 @@ def ExcelToSQLGBuy(sqls,params):
     
     orders = {}
     sns = []
-    orderinfos = [[]]
+    orderinfos = []
+    orderheads = {}
     endcol = -1 #这列以及这列之后都是jsform保留字段
     for row,cells in enumerate(ws.rows):
         orderbooks = {}
@@ -47,23 +48,52 @@ def ExcelToSQLGBuy(sqls,params):
                 if ddsn:
                     sns.append(ddsn)
                 else:
-                    if cell.value == u'在线支付状态':
+                    if re.match(u'.*id.*',cell.value,re.I):
+                        orderheads[u'id'] = col
+                    elif re.match(u'.*德国境内邮费.*',cell.value):
+                        orderheads[u'dhl'] = col
+                    elif re.match(u'.*欧洲境内邮费.*',cell.value):
+                        orderheads[u'dhlinter'] = col
+                    elif re.match(u'.*打包费.*',cell.value):
+                        orderheads[u'packer'] = col
+                    elif re.match(u'.*wechat.*|.*微信.*',cell.value,re.I):
+                        orderheads[u'wechat'] = col
+                    elif re.match(u'.*email.*|.*电子邮件.*',cell.value,re.I):
+                        orderheads[u'email'] = col
+                    elif re.match(u'.*name.*|.*姓名.*',cell.value,re.I):
+                        orderheads[u'name'] = col
+                    elif re.match(u'.*telephone.*|.*电话.*',cell.value,re.I):
+                        orderheads[u'tel'] = col
+                    elif re.match(u'.*address.*|.*地址.*',cell.value,re.I):
+                        orderheads[u'address'] = col
+                    elif re.match(u'.*postcode.*|.*邮编.*',cell.value,re.I):
+                        orderheads[u'postcode'] = col
+                    elif re.match(u'.*city.*|.*城市.*',cell.value,re.I):
+                        orderheads[u'city'] = col
+                    elif re.match(u'.*country.*|.*国家.*',cell.value,re.I):
+                        orderheads[u'country'] = col
+                    elif re.match(u'.*comment.*|.*留言.*',cell.value,re.I):
+                        orderheads[u'comment'] = col
+                    elif cell.value == u'金额':
+                        orderheads[u'amount'] = col
+                    elif cell.value == u'在线支付状态':
+                        orderheads[u'paystatus'] = col
                         endcol = col
-                    orderinfos[0].append(cell.value)
             else:
                 if col == 0:
                     orderid = cell.value
                     orderinfos.append([])
-                    orderinfos[row].append(cell.value)
+                    orderinfos[row-1].append(cell.value)
                 elif col>0 and col<=len(sns):
                     if cell.value >= 1:
                         orderbooks[sns[col-1]] = cell.value
+                    orderinfos[row-1].append(cell.value)
                 else:
                     if col <= endcol:
-                        orderinfos[row].append(cell.value)
+                        orderinfos[row-1].append(cell.value)
                     
         if row != 0:
-            orders[generate_tuan_ordernr(str(orderid))] = orderbooks
+            orders[generate_tuan_ordernr(str(orderid))] = (orderbooks,orderinfos[row-1])
 
 
     for host,(username,password,dbname,charset) in sqls.items():
@@ -94,7 +124,7 @@ def ExcelToSQLGBuy(sqls,params):
                 ordergoodstable = "ecs_order_goods"
                 orderactiontable = "ecs_order_action"
         
-            for ordernr,books in orders.items():
+            for ordernr,(books,infos) in orders.items():
                 with connection.cursor() as cursor:
                     #找团购大类
                     sql = "SELECT `cat_id` FROM " + goodstypetable + " WHERE `cat_name`=%s"
@@ -166,15 +196,18 @@ def ExcelToSQLGBuy(sqls,params):
                         `extension_code`, `extension_id`, `to_buyer`, `pay_note`, `agency_id`, `inv_type`, `tax`, `is_separate`, \
                         `parent_id`, `discount`, `discount7`, `discount19`, `goods_amount7`, `goods_amount19`) \
                         VALUES (NULL, %s, '0', '1', '3', '2', \
-                        'Tang Shanqiong', '3409', '0', '0', '0', 'Berliner Str. 40', '38678', '017655505472', '', 'mini_tang@hotmail.com', \
-                        '', 'Clausthal-Zellerfeld', '', '12', 'DHL Paket', '4', 'paypal 第一时间到付', \
-                        '有货商品先发，缺货商品退款', '', '', '', '', '', '', '114.78', \
+                        %s, '3409', '0', '0', '0', %s, %s, %s, '', %s, \
+                        %s, %s, '', '12', 'DHL Paket', '4', 'paypal 第一时间到付', \
+                        '有货商品先发，缺货商品退款', '', '', '', '', '', '', %s, \
                         '0.00', '0.00', '0.00', '0.00', '0.00', '114.78', \
-                        '0.00', '0', '0.00', '0.00', '0.00', '0', '本站', \
+                        '0.00', '0', '0.00', '0.00', '0.00', '0', 'jsform', \
                         '1524138219', '1524138261', '1524138261', '0', '0', '0', '0', '', \
-                        '', '0', '#34', '', '0', '', '0.00', '0', \
+                        '', '0', '', '', '0', '', '0.00', '0', \
                         '0', '0.00', '0.00', '0.00', '0.00', '114.78')"
-                    cursor.execute(sql,ordernr)
+                    cursor.execute(sql,(ordernr,
+                                    infos[orderheads[u'name']],infos[orderheads[u'address']],infos[orderheads[u'postcode']],infos[orderheads[u'tel']],infos[orderheads[u'email']],
+                                    infos[orderheads[u'wechat']],infos[orderheads[u'city']],
+                                    infos[orderheads[u'amount']]))
 
                     #订单编号
                     sql = "SELECT `order_id` FROM " + ordertable + " WHERE `order_sn`=%s"
