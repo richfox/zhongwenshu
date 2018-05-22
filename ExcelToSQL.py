@@ -37,22 +37,33 @@ def ExcelToSQLGBuy(sqls,params):
     
     orders = {}
     sns = []
+    orderinfos = [[]]
+    endcol = -1 #这列以及这列之后都是jsform保留字段
     for row,cells in enumerate(ws.rows):
-        books = {}
+        orderbooks = {}
         for col,cell in enumerate(cells):
             if row == 0:
                 ddsn = get_ddsn(cell.value)
                 if ddsn:
                     sns.append(ddsn)
+                else:
+                    if cell.value == u'在线支付状态':
+                        endcol = col
+                    orderinfos[0].append(cell.value)
             else:
                 if col == 0:
                     orderid = cell.value
+                    orderinfos.append([])
+                    orderinfos[row].append(cell.value)
                 elif col>0 and col<=len(sns):
                     if cell.value >= 1:
-                        books[sns[col-1]] = cell.value
+                        orderbooks[sns[col-1]] = cell.value
+                else:
+                    if col <= endcol:
+                        orderinfos[row].append(cell.value)
                     
         if row != 0:
-            orders[generate_tuan_ordernr(str(orderid))] = books
+            orders[generate_tuan_ordernr(str(orderid))] = orderbooks
 
 
     for host,(username,password,dbname,charset) in sqls.items():
@@ -129,7 +140,7 @@ def ExcelToSQLGBuy(sqls,params):
                     goodsattr = ""
                     goodsattrid = ""
                     goodsattrprice = 0.00
-                    for sn,num in orders[ordernr].items():
+                    for sn,num in books.items():
                         if num == 1:
                             goodsattr += params[u'attr'] + u':' + ddsns[sn][1] + u'[' + ddsns[sn][2] + u']' + u'\r\n'
                             goodsattrid += str(ddsns[sn][0]) + u','
