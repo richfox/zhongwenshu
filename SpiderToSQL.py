@@ -270,6 +270,9 @@ def SpiderToSQL_tuangou(sqls,params):
                 addtime = str(int(time.time()))
                 #登到团购分类
                 catid = '135'
+                #商品品牌定义在表ecs_brand中，限定为团购7%增值税
+                brand = '53'
+
                 sn = generate_sn(goodsname)
                 sql = "INSERT INTO " + goodstable + " (`goods_id`, `cat_id`, `goods_sn`,`goods_name`,\
                     `goods_name_style`, `click_count`, `brand_id`, `provider_name`, `goods_number`,\
@@ -280,14 +283,14 @@ def SpiderToSQL_tuangou(sqls,params):
                     `is_delete`, `is_best`, `is_new`, `is_hot`, `is_promote`, `bonus_type_id`, `last_update`,\
                     `goods_type`, `seller_note`, `give_integral`, `rank_integral`, `suppliers_id`, `is_check`) \
                     VALUES (NULL, %s, %s, %s,\
-                    '+', '0', '0', '', '1000',\
+                    '+', '0', %s, '', '1000',\
                     '0', %s, '', %s, '0.00',\
                     '0', '0', '1', '', '',\
                     '', '', '', '', '1', '',\
                     '0', '1', '1', '0', %s, '100',\
                     '0', '1', '1', '1', '0', '0', '0',\
                     %s, '', '-1', '-1', '0', NULL)"
-                cursor.execute(sql,(catid,sn,goodsname,baseprice,baseprice,addtime,goodtype))
+                cursor.execute(sql,(catid,sn,goodsname,brand,baseprice,baseprice,addtime,goodtype))
 
                 #唯一商品编号
                 sql = "SELECT `goods_id` FROM " + goodstable + " WHERE `goods_sn`=%s"
