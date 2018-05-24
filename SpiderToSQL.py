@@ -215,7 +215,7 @@ def SpiderToSQL_tuangou(sqls,params):
                 groupbuyprice = format(float(oriprice) * rate,'.2f')
                 goodsdict[sn] = (titlesn,groupbuyprice)
 
-            diffsn = u'666666'
+            diffsn = params[u'dhl_diff_sn']
             diffname = u'------欧洲境内邮费补差------' + ' [' + diffsn + ']'
             goodnames += diffname
             goodsdict[diffsn] = (diffname,diff)

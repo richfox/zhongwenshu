@@ -196,6 +196,7 @@ def generateDefaultGroupbuyConfig():
             "  <dhl_de>5.00</dhl_de>\n" + \
             "  <dhl_eu>10.00</dhl_eu>\n" + \
             "  <packing>3.00</packing>\n" + \
+            "  <dhl_diff_sn>666666</dhl_diff_sn>\n" + \
             "</config>\n"
 
     fp.write(content)

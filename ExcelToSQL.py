@@ -52,8 +52,8 @@ def ExcelToSQLGBuy(sqls,params):
                         orderheads[u'id'] = col
                     elif re.match(u'.*德国境内邮费.*',cell.value):
                         orderheads[u'dhl'] = col
-                    elif re.match(u'.*欧洲境内邮费.*',cell.value):
-                        orderheads[u'dhlinter'] = col
+                    elif re.match(u'.*欧洲境内邮费补差.*',cell.value):
+                        orderheads[u'diff'] = col
                     elif re.match(u'.*打包费.*',cell.value):
                         orderheads[u'packer'] = col
                     elif re.match(u'.*wechat.*|.*微信.*',cell.value,re.I):
@@ -169,18 +169,18 @@ def ExcelToSQLGBuy(sqls,params):
                     #生成订单商品属性
                     goodsattr = ""
                     goodsattrid = ""
-                    goodsattrprice = 0.00
                     for sn,num in books.items():
                         if num == 1:
                             goodsattr += params[u'attr'] + u':' + ddsns[sn][1] + u'[' + ddsns[sn][2] + u']' + u'\r\n'
                             goodsattrid += str(ddsns[sn][0]) + u','
-                            goodsattrprice += float(ddsns[sn][2])
+                    
+                    if infos[orderheads[u'diff']] == 1:
+                        sn = params[u'dhl_diff_sn']
+                        goodsattr += params[u'attr'] + u':' + ddsns[sn][1] + u'[' + ddsns[sn][2] + u']' + u'\r\n'
+                        goodsattrid += str(ddsns[sn][0]) + u','
 
                     if goodsattrid:
                         goodsattrid = goodsattrid[0:-1]
-
-                    baseprice = float(params[u'dhl_de']) + float(params[u'packing'])
-                    goodsprice = format(baseprice + goodsattrprice,'.2f')
 
                     raise Exception
 
@@ -197,16 +197,16 @@ def ExcelToSQLGBuy(sqls,params):
                         `parent_id`, `discount`, `discount7`, `discount19`, `goods_amount7`, `goods_amount19`) \
                         VALUES (NULL, %s, '0', '1', '3', '2', \
                         %s, '3409', '0', '0', '0', %s, %s, %s, '', %s, \
-                        %s, %s, '', '12', 'DHL Paket', '4', 'paypal 第一时间到付', \
+                        %s, %s, %s, '12', 'DHL Paket', '4', 'paypal 第一时间到付', \
                         '有货商品先发，缺货商品退款', '', '', '', '', '', '', %s, \
                         '0.00', '0.00', '0.00', '0.00', '0.00', '114.78', \
-                        '0.00', '0', '0.00', '0.00', '0.00', '0', 'jsform', \
+                        '0.00', '0', '0.00', '0.00', '0.00', '0', '表单大师', \
                         '1524138219', '1524138261', '1524138261', '0', '0', '0', '0', '', \
                         '', '0', '', '', '0', '', '0.00', '0', \
                         '0', '0.00', '0.00', '0.00', '0.00', '114.78')"
                     cursor.execute(sql,(ordernr,
                                     infos[orderheads[u'name']],infos[orderheads[u'address']],infos[orderheads[u'postcode']],infos[orderheads[u'tel']],infos[orderheads[u'email']],
-                                    infos[orderheads[u'wechat']],infos[orderheads[u'city']],
+                                    infos[orderheads[u'wechat']],infos[orderheads[u'city']],infos[orderheads[u'comment']],
                                     infos[orderheads[u'amount']]))
 
                     #订单编号
@@ -223,7 +223,9 @@ def ExcelToSQLGBuy(sqls,params):
                         VALUES (NULL, %s, %s, %s, \
                         %s, '0', '1', %s, %s, %s, \
                         '0', '1', '', '0', '0', %s)"
-                    cursor.execute(sql,(orderid,goodid,params[u'goodsname'],goodsn,goodsprice,goodsprice,goodsattr,goodsattrid))
+                    cursor.execute(sql,(orderid,goodid,params[u'goodsname'],
+                                    goodsn,infos[orderheads[u'amount']],infos[orderheads[u'amount']],goodsattr,
+                                    goodsattrid))
 
                     #订单状态
                     sql = "INSERT INTO " + orderactiontable + " (`action_id`, `order_id`, `action_user`, \
