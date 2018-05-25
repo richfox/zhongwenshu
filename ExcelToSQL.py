@@ -77,7 +77,7 @@ def ExcelToSQLGBuy(sqls,params):
                     elif cell.value == u'金额':
                         orderheads[u'amount'] = col
                     elif cell.value == u'在线支付状态':
-                        orderheads[u'paystatus'] = col
+                        orderheads[u'pay'] = col
                         endcol = col
             else:
                 if col == 0:
@@ -166,7 +166,7 @@ def ExcelToSQLGBuy(sqls,params):
                     for i,row in enumerate(cursor._rows):
                         ddsns[get_ddsn(row[1])] = (row[0],row[1],row[2])
 
-                    #生成订单商品属性
+                    #订单商品属性
                     goodsattr = ""
                     goodsattrid = ""
                     for sn,num in books.items():
@@ -181,6 +181,18 @@ def ExcelToSQLGBuy(sqls,params):
 
                     if goodsattrid:
                         goodsattrid = goodsattrid[0:-1]
+
+                    #其他订单属性
+                    paid = "0.00"
+                    topay = "0.00"
+                    if infos[orderheads[u'pay']]:
+                        if re.match(u'^b$|^p$|^w$|^a$',infos[orderheads[u'pay']],re.I):
+                            paid = infos[orderheads[u'amount']]
+                        else:
+                            topay = infos[orderheads[u'amount']]
+
+                    
+
 
                     raise Exception
 
@@ -199,14 +211,17 @@ def ExcelToSQLGBuy(sqls,params):
                         %s, '3409', '0', '0', '0', %s, %s, %s, '', %s, \
                         %s, %s, %s, '12', 'DHL Paket', '4', 'paypal 第一时间到付', \
                         '有货商品先发，缺货商品退款', '', '', '', '', '', '', %s, \
-                        '0.00', '0.00', '0.00', '0.00', '0.00', '114.78', \
-                        '0.00', '0', '0.00', '0.00', '0.00', '0', '表单大师', \
+                        '0.00', '0.00', '0.00', '0.00', '0.00', %s, \
+                        '0.00', '0', '0.00', '0.00', %s, '0', '表单大师', \
                         '1524138219', '1524138261', '1524138261', '0', '0', '0', '0', '', \
                         '', '0', '', '', '0', '', '0.00', '0', \
-                        '0', '0.00', '0.00', '0.00', '0.00', '114.78')"
+                        '0', '0.00', '0.00', '0.00', %s, '0.00')"
                     cursor.execute(sql,(ordernr,
                                     infos[orderheads[u'name']],infos[orderheads[u'address']],infos[orderheads[u'postcode']],infos[orderheads[u'tel']],infos[orderheads[u'email']],
                                     infos[orderheads[u'wechat']],infos[orderheads[u'city']],infos[orderheads[u'comment']],
+                                    infos[orderheads[u'amount']],
+                                    paid,
+                                    topay,
                                     infos[orderheads[u'amount']]))
 
                     #订单编号
