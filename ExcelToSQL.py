@@ -186,13 +186,22 @@ def ExcelToSQLGBuy(sqls,params):
                     paid = "0.00"
                     topay = "0.00"
                     if infos[orderheads[u'pay']]:
-                        if re.match(u'^b$|^p$|^w$|^a$',infos[orderheads[u'pay']],re.I):
+                        if re.match(u'^a|b|p|w$',infos[orderheads[u'pay']],re.I):
                             paid = infos[orderheads[u'amount']]
                         else:
                             topay = infos[orderheads[u'amount']]
 
-                    
-
+                    countrys = {u'.*Deutschland.*|.*德国.*':3409,
+                                u'.*Frankreich.*|.*法国.*':3410,
+                                u'.*Belgien.*|.*比利时.*':0,
+                                u'.*Türkei.*|.*土耳其.*':0}
+                    country = ''
+                    if infos[orderheads[u'country']]:
+                        for regex,code in countrys.items():
+                            if re.match(regex,infos[orderheads[u'country']]):
+                                country = str(code)
+                                break
+                        
 
                     raise Exception
 
