@@ -12,6 +12,45 @@ import openpyxl.workbook
 import time
 
 
+#国家定义在表ecs_region中
+countrys = {u'.*Deutschland.*|.*德国.*':3409,
+            u'.*Frankreich.*|.*法国.*':3410,
+            u'.*Belgien.*|.*比利时.*':3411,
+            u'.*Italien.*|.*意大利.*':3412,
+            u'.*Niederlande.*|.*荷兰.*':3413,
+            u'.*Spanien.*|.*西班牙.*':3414,
+            u'.*Tschechien.*|.*捷克.*':3415,
+            u'.*Luxemburg.*|.*卢森堡.*':3416,
+            u'.*Dänemark.*|.*丹麦.*':3417,
+            u'.*Finnland.*|.*芬兰.*':3418,
+            u'.*Island.*|.*冰岛.*':3419,
+            u'.*Schweden.*|.*瑞典.*':3420,
+            u'.*Schweiz.*|.*瑞士.*':3421,
+            u'.*Lettland.*|.*拉脱维亚.*':3422,
+            u'.*Österreich.*|.*奥地利.*':3423,
+            u'.*Polen.*|.*波兰.*':3424,
+            u'.*Kroatien.*|.*克罗地亚.*':3425,
+            u'.*Portugal.*|.*葡萄牙.*':3426,
+            u'.*Ungarn.*|.*匈牙利.*':3427,
+            u'.*Griechenland.*|.*希腊.*':3428,
+            u'.*Bulgarien.*|.*保加利亚.*':3429,
+            u'.*Slowakei.*|.*斯洛伐克.*':3430,
+            u'.*Serbien.*|.*塞尔维亚.*':3431,
+            u'.*Albanien.*|.*阿尔巴尼亚.*':3432,
+            u'.*Großbritannien.*|.*英国.*':3433,
+            u'.*Slowenien.*|.*斯洛文尼亚.*':3434,
+            u'.*Irland.*|.*爱尔兰.*':3435,
+            u'.*Estland.*|.*爱沙尼亚.*':3436,
+            u'.*Litauen.*|.*立陶宛.*':3437,
+            u'.*Norwegen.*|.*挪威.*':3438,
+            u'.*Rumänien.*|.*罗马尼亚.*':3439,
+            u'.*Malta.*|.*马耳他.*':3441,
+            u'.*Taiwan.*|.*台湾.*':3443,
+            u'.*China.*|.*中国.*':3444,
+            u'.*Türkei.*|.*土耳其.*':3445}
+
+
+
 #生成22位团购订单号
 def generate_tuan_ordernr(jsformnr):
     ymd = time.strftime("%Y%m%d",time.localtime())
@@ -107,6 +146,7 @@ def ExcelToSQLGBuy(sqls,params):
             ordertable = ""
             ordergoodstable = ""
             orderactiontable = ""
+            shippingareatable = ""
             if dbname == 'zhongw_test':
                 goodstypetable = "ecs_test_goods_type"
                 attrtable = "ecs_test_attribute"
@@ -115,6 +155,9 @@ def ExcelToSQLGBuy(sqls,params):
                 ordertable = "ecs_test_order_info"
                 ordergoodstable = "ecs_test_order_goods"
                 orderactiontable = "ecs_test_order_action"
+                areatable = "ecs_test_area_region"
+                shippingareatable = "ecs_test_shipping_area"
+                shippingtable = "ecs_test_shipping"
             elif dbname == 'zhongwenshu_db1':
                 goodstypetable = "ecs_goods_type"
                 attrtable = "ecs_attribute"
@@ -123,6 +166,9 @@ def ExcelToSQLGBuy(sqls,params):
                 ordertable = "ecs_order_info"
                 ordergoodstable = "ecs_order_goods"
                 orderactiontable = "ecs_order_action"
+                areatable = "ecs_area_region"
+                shippingareatable = "ecs_shipping_area"
+                shippingtable = "ecs_shipping"
         
             for ordernr,(books,infos) in orders.items():
                 with connection.cursor() as cursor:
@@ -182,7 +228,8 @@ def ExcelToSQLGBuy(sqls,params):
                     if goodsattrid:
                         goodsattrid = goodsattrid[0:-1]
 
-                    #其他订单属性
+                    #----------其他订单属性----------#
+                    #支付金额
                     paid = "0.00"
                     topay = "0.00"
                     if infos[orderheads[u'pay']]:
@@ -190,18 +237,43 @@ def ExcelToSQLGBuy(sqls,params):
                             paid = infos[orderheads[u'amount']]
                         else:
                             topay = infos[orderheads[u'amount']]
-
-                    countrys = {u'.*Deutschland.*|.*德国.*':3409,
-                                u'.*Frankreich.*|.*法国.*':3410,
-                                u'.*Belgien.*|.*比利时.*':0,
-                                u'.*Türkei.*|.*土耳其.*':0}
-                    country = ''
+               
+                    #国家
+                    country = 0
                     if infos[orderheads[u'country']]:
-                        for regex,code in countrys.items():
-                            if re.match(regex,infos[orderheads[u'country']]):
-                                country = str(code)
-                                break
-                        
+                        #绝大多数是德国订单
+                        if re.match(u'.*Deutschland.*|.*德国.*',infos[orderheads[u'country']]):
+                                country = 3409
+                        else:
+                            for regex,code in countrys.items():
+                                if re.match(regex,infos[orderheads[u'country']]):
+                                    country = code
+                                    break
+
+                    #配送地区
+                    area = 0
+                    if country > 0:
+                        sql = "SELECT `shipping_area_id` FROM " + areatable + " WHERE `region_id`=%s"
+                        res = cursor.execute(sql,country)
+                        if res:
+                            area = cursor._rows[0][0]
+                    
+
+                    #配送方式
+                    shipping = 0
+                    if area > 0:
+                        sql = "SELECT `shipping_id` FROM " + shippingareatable + " WHERE `shipping_area_id`=%s"
+                        res = cursor.execute(sql,area)
+                        if res:
+                            shipping = cursor._rows[0][0]
+
+                    shippingname = ""
+                    if shipping > 0:
+                        sql = "SELECT `shipping_name` FROM " + shippingtable + " WHERE `shipping_id`=%s"
+                        res = cursor.execute(sql,shipping)
+                        if res:
+                            shippingname = cursor._rows[0][0]
+                    
 
                     raise Exception
 
@@ -217,8 +289,8 @@ def ExcelToSQLGBuy(sqls,params):
                         `extension_code`, `extension_id`, `to_buyer`, `pay_note`, `agency_id`, `inv_type`, `tax`, `is_separate`, \
                         `parent_id`, `discount`, `discount7`, `discount19`, `goods_amount7`, `goods_amount19`) \
                         VALUES (NULL, %s, '0', '1', '3', '2', \
-                        %s, '3409', '0', '0', '0', %s, %s, %s, '', %s, \
-                        %s, %s, %s, '12', 'DHL Paket', '4', 'paypal 第一时间到付', \
+                        %s, %s, '0', '0', '0', %s, %s, %s, '', %s, \
+                        %s, %s, %s, %s, %s, '4', 'paypal 第一时间到付', \
                         '有货商品先发，缺货商品退款', '', '', '', '', '', '', %s, \
                         '0.00', '0.00', '0.00', '0.00', '0.00', %s, \
                         '0.00', '0', '0.00', '0.00', %s, '0', '表单大师', \
@@ -226,8 +298,8 @@ def ExcelToSQLGBuy(sqls,params):
                         '', '0', '', '', '0', '', '0.00', '0', \
                         '0', '0.00', '0.00', '0.00', %s, '0.00')"
                     cursor.execute(sql,(ordernr,
-                                    infos[orderheads[u'name']],infos[orderheads[u'address']],infos[orderheads[u'postcode']],infos[orderheads[u'tel']],infos[orderheads[u'email']],
-                                    infos[orderheads[u'wechat']],infos[orderheads[u'city']],infos[orderheads[u'comment']],
+                                    infos[orderheads[u'name']],str(country),infos[orderheads[u'address']],infos[orderheads[u'postcode']],infos[orderheads[u'tel']],infos[orderheads[u'email']],
+                                    infos[orderheads[u'wechat']],infos[orderheads[u'city']],infos[orderheads[u'comment']],str(shipping),shippingname,
                                     infos[orderheads[u'amount']],
                                     paid,
                                     topay,
