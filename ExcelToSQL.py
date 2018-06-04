@@ -158,6 +158,7 @@ def ExcelToSQLGBuy(sqls,params):
                 areatable = "ecs_test_area_region"
                 shippingareatable = "ecs_test_shipping_area"
                 shippingtable = "ecs_test_shipping"
+                paymenttable = "ecs_test_payment"
             elif dbname == 'zhongwenshu_db1':
                 goodstypetable = "ecs_goods_type"
                 attrtable = "ecs_attribute"
@@ -169,6 +170,7 @@ def ExcelToSQLGBuy(sqls,params):
                 areatable = "ecs_area_region"
                 shippingareatable = "ecs_shipping_area"
                 shippingtable = "ecs_shipping"
+                paymenttable = "ecs_payment"
         
             for ordernr,(books,infos) in orders.items():
                 with connection.cursor() as cursor:
@@ -274,6 +276,29 @@ def ExcelToSQLGBuy(sqls,params):
                         if res:
                             shippingname = cursor._rows[0][0]
                     
+                    #支付方式
+                    paycode = ""
+                    paynote = ""
+                    if infos[orderheads[u'pay']]:
+                        if infos[orderheads[u'pay']].lower() == u'p':
+                            paycode = "paypal"
+                        elif infos[orderheads[u'pay']].lower() == u'b':
+                            paycode = "bank"
+                        elif infos[orderheads[u'pay']].lower() == u'a':
+                            paycode = "bank"
+                            paynote = u"支付宝"
+                        elif infos[orderheads[u'pay']].lower() == u'w':
+                            paycode = "bank"
+                            paynote = u"微信支付"
+
+                    payid = 0
+                    payname = ""
+                    if paycode:
+                        sql = "SELECT `pay_id`,`pay_name` FROM " + paymenttable + " WHERE `pay_code`=%s"
+                        res = cursor.execute(sql,paycode)
+                        if res:
+                            payid = cursor._rows[0][0]
+                            payname = cursor._rows[0][1]
 
                     raise Exception
 
@@ -290,19 +315,20 @@ def ExcelToSQLGBuy(sqls,params):
                         `parent_id`, `discount`, `discount7`, `discount19`, `goods_amount7`, `goods_amount19`) \
                         VALUES (NULL, %s, '0', '1', '3', '2', \
                         %s, %s, '0', '0', '0', %s, %s, %s, '', %s, \
-                        %s, %s, %s, %s, %s, '4', 'paypal 第一时间到付', \
+                        %s, %s, %s, %s, %s, %s, %s, \
                         '有货商品先发，缺货商品退款', '', '', '', '', '', '', %s, \
                         '0.00', '0.00', '0.00', '0.00', '0.00', %s, \
                         '0.00', '0', '0.00', '0.00', %s, '0', '表单大师', \
                         '1524138219', '1524138261', '1524138261', '0', '0', '0', '0', '', \
-                        '', '0', '', '', '0', '', '0.00', '0', \
+                        '', '0', '', %s, '0', '', '0.00', '0', \
                         '0', '0.00', '0.00', '0.00', %s, '0.00')"
                     cursor.execute(sql,(ordernr,
                                     infos[orderheads[u'name']],str(country),infos[orderheads[u'address']],infos[orderheads[u'postcode']],infos[orderheads[u'tel']],infos[orderheads[u'email']],
-                                    infos[orderheads[u'wechat']],infos[orderheads[u'city']],infos[orderheads[u'comment']],str(shipping),shippingname,
+                                    infos[orderheads[u'wechat']],infos[orderheads[u'city']],infos[orderheads[u'comment']],shipping,shippingname,payid,payname,
                                     infos[orderheads[u'amount']],
                                     paid,
                                     topay,
+                                    paynote,
                                     infos[orderheads[u'amount']]))
 
                     #订单编号
