@@ -82,10 +82,11 @@ def aptamil():
         url = 'https://s.taobao.com/search'
         #payload = {'q':'德语版老友记'}
         #payload = {'q':'德国爱他美白金二段','s':'0'} #s=0为第一页，s=44为第二页，以此类推
-        payload = {'q':'玻尿酸','s':'0'}
-        #payload = {'q':'万宝龙 Mont blanc','s':'0'}
+        #payload = {'q':'玻尿酸','s':'0'}
+        payload = {'q':'万宝龙 Mont blanc','s':'0'}
         #payload = {'q':'安娜柏林','s':'0'}
         #payload = {'q':'lamy 凌美','s':'0'}
+        #payload = {'q':'施华洛世奇','s':'0'}
         htmltext = requests.get(url,params=payload).text
         parser = lxml.html.HTMLParser()
         htmltree = xml.etree.ElementTree.fromstring(preprocess(htmltext),parser)
