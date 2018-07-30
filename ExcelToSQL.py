@@ -247,8 +247,8 @@ def ExcelToSQLGBuy(sqls,params):
                         else:
                             topay = infos[orderheads[u'amount']]
                
-                    #国家
-                    country = 0
+                    #国家，excel表格里必须有国家作为单独一列
+                    country = 3409
                     if infos[orderheads[u'country']]:
                         #绝大多数是德国订单
                         if re.match(u'.*Deutschland.*|.*德国.*',infos[orderheads[u'country']]):
@@ -331,7 +331,7 @@ def ExcelToSQLGBuy(sqls,params):
                         '0', '0.00', '0.00', '0.00', %s, '0.00')"
                     cursor.execute(sql,(ordernr,
                                     infos[orderheads[u'name']],str(country),infos[orderheads[u'address']],infos[orderheads[u'postcode']],infos[orderheads[u'tel']],infos[orderheads[u'email']],
-                                    infos[orderheads[u'wechat']],infos[orderheads[u'postcode']],infos[orderheads[u'comment']],shipping,shippingname,payid,payname,
+                                    infos[orderheads[u'wechat']],infos[orderheads[u'postcode']],ordercomment,shipping,shippingname,payid,payname,
                                     infos[orderheads[u'amount']],
                                     paid,
                                     topay,
