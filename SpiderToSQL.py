@@ -251,7 +251,7 @@ def SpiderToSQL_tuangou(sqls,params):
                 sql = "SELECT `cat_id` FROM " + goodstypetable + " WHERE `cat_name`=%s"
                 cursor.execute(sql,catname)
                 goodtype = cursor.fetchone()[0]
-                print(goodtype)
+                print(goodstypetable + ": " + str(goodtype))
 
                 #大类的多商品属性
                 attrname = params[u'attr']
@@ -263,12 +263,12 @@ def SpiderToSQL_tuangou(sqls,params):
                 sql = "SELECT `attr_id` FROM " + attrtable + " WHERE `cat_id`=%s"
                 cursor.execute(sql,goodtype)
                 attrid = cursor.fetchone()[0]
-                print(attrid)
+                print(attrtable + ":" + str(attrid))
 
                 #添加团购商品
                 goodsname = params[u'goodsname']
                 addtime = str(int(time.time()))
-                #登到团购分类
+                #登到团购分类，定义在表ecs_category中
                 catid = '135'
                 #商品品牌定义在表ecs_brand中，限定为团购7%增值税
                 brand = '53'
@@ -296,7 +296,7 @@ def SpiderToSQL_tuangou(sqls,params):
                 sql = "SELECT `goods_id` FROM " + goodstable + " WHERE `goods_sn`=%s"
                 cursor.execute(sql,sn)
                 goodsid = cursor.fetchone()[0]
-                print(goodsid)
+                print(goodstable + ":" + str(goodsid))
 
                 #添加商品属性
                 for sn,(name,price) in goodsdict.items():

@@ -12,11 +12,11 @@ import openpyxl.workbook
 import time
 
 
-#生成22位团购订单号
+#生成20位团购订单号
 def generate_tuan_ordernr(jsformnr):
     ymd = time.strftime("%Y%m%d",time.localtime())
     stamp = str(int(time.time()))
-    tuan = jsformnr.zfill(4)
+    tuan = jsformnr.zfill(2)
     return ymd + stamp + tuan
 
 #提取当当编号
@@ -64,7 +64,7 @@ def ExcelToSQLGBuy(sqls,params):
                         orderheads[u'name'] = col
                     elif re.match(u'.*telephone.*|.*电话.*',cell.value,re.I):
                         orderheads[u'tel'] = col
-                    elif re.match(u'.*address.*|.*地址.*',cell.value,re.I):
+                    elif re.match(u'.*详细地址.*',cell.value,re.I):
                         orderheads[u'address'] = col
                     elif re.match(u'.*postcode.*|.*邮编.*',cell.value,re.I):
                         orderheads[u'postcode'] = col
@@ -74,9 +74,9 @@ def ExcelToSQLGBuy(sqls,params):
                         orderheads[u'country'] = col
                     elif re.match(u'.*comment.*|.*留言.*',cell.value,re.I):
                         orderheads[u'comment'] = col
-                    elif cell.value == u'金额':
+                    elif re.match(u'.*金额.*',cell.value,re.I):
                         orderheads[u'amount'] = col
-                    elif cell.value == u'在线支付状态':
+                    elif re.match(u'.*支付状态.*',cell.value,re.I):
                         orderheads[u'paystatus'] = col
                         endcol = col
             else:
@@ -131,7 +131,7 @@ def ExcelToSQLGBuy(sqls,params):
                     res = cursor.execute(sql,params[u'name'])
                     if res:
                         goodtype = cursor._rows[0][0]
-                        print goodtype
+                        print(goodstypetable + ": " + str(goodtype))
                     else:
                         raise Exception, "this goodtype %s for groupbuy is not jet inserted in database!" %params[u'name']
 
@@ -141,7 +141,7 @@ def ExcelToSQLGBuy(sqls,params):
                     attrids = ""
                     for i,row in enumerate(cursor._rows):
                         attrids += str(row[0]) + " "
-                    print attrids
+                    print(attrtable + ": " + attrids)
                     attrid = cursor._rows[i][0]
 
                     #找团购商品
@@ -150,7 +150,7 @@ def ExcelToSQLGBuy(sqls,params):
                     goodids = ""
                     for i,row in enumerate(cursor._rows):
                         goodids += str(row) + " "
-                    print goodids
+                    print(goodsattrtable + ": " + goodids)
                     goodid = cursor._rows[i][1]
 
                     #找商品sn号
@@ -182,8 +182,13 @@ def ExcelToSQLGBuy(sqls,params):
                     if goodsattrid:
                         goodsattrid = goodsattrid[0:-1]
 
-                    raise Exception
+                    #订单留言
+                    ordercomment = ""
+                    if infos[orderheads[u'comment']]:
+                        ordercomment = infos[orderheads[u'comment']]
 
+                    #10位时间戳
+                    stamp = str(int(time.time()))
 
                     #生成订单
                     sql = "INSERT INTO " + ordertable + " (`order_id`, `order_sn`, `user_id`, `order_status`, `shipping_status`, `pay_status`, \
@@ -199,21 +204,27 @@ def ExcelToSQLGBuy(sqls,params):
                         %s, '3409', '0', '0', '0', %s, %s, %s, '', %s, \
                         %s, %s, %s, '12', 'DHL Paket', '4', 'paypal 第一时间到付', \
                         '有货商品先发，缺货商品退款', '', '', '', '', '', '', %s, \
-                        '0.00', '0.00', '0.00', '0.00', '0.00', '114.78', \
+                        '0.00', '0.00', '0.00', '0.00', '0.00', %s, \
                         '0.00', '0', '0.00', '0.00', '0.00', '0', '表单大师', \
-                        '1524138219', '1524138261', '1524138261', '0', '0', '0', '0', '', \
+                        %s, %s, '0', '0', '0', '0', '0', '', \
                         '', '0', '', '', '0', '', '0.00', '0', \
-                        '0', '0.00', '0.00', '0.00', '0.00', '114.78')"
+                        '0', '0.00', '0.00', '0.00', %s, '0.00')"
                     cursor.execute(sql,(ordernr,
                                     infos[orderheads[u'name']],infos[orderheads[u'address']],infos[orderheads[u'postcode']],infos[orderheads[u'tel']],infos[orderheads[u'email']],
-                                    infos[orderheads[u'wechat']],infos[orderheads[u'city']],infos[orderheads[u'comment']],
+                                    infos[orderheads[u'wechat']],infos[orderheads[u'postcode']],ordercomment,
+                                    infos[orderheads[u'amount']],
+                                    infos[orderheads[u'amount']],
+                                    stamp,stamp,
                                     infos[orderheads[u'amount']]))
 
                     #订单编号
                     sql = "SELECT `order_id` FROM " + ordertable + " WHERE `order_sn`=%s"
-                    cursor.execute(sql,ordernr)
-                    orderid = cursor.fetchone()[0]
-                    print(orderid)
+                    res = cursor.execute(sql,ordernr)
+                    if res:
+                        orderid = cursor._rows[0][0]
+                        print(ordertable + ": " + str(orderid))
+                    else:
+                        raise Exception, "this ordernr %s for groupbuy is not jet inserted in database!" %ordernr                    
 
                     
                     #订单商品
@@ -231,8 +242,8 @@ def ExcelToSQLGBuy(sqls,params):
                     sql = "INSERT INTO " + orderactiontable + " (`action_id`, `order_id`, `action_user`, \
                         `order_status`, `shipping_status`, `pay_status`, `action_place`, `action_note`, `log_time`) \
                         VALUES (NULL, %s, 'zhongwenshu', \
-                        '1', '0', '2', '0', '5ED87113L11792735（paypal 交易号）', '1524138261')"
-                    cursor.execute(sql,(orderid,orderid))
+                        '1', '0', '2', '0', '', '0')"
+                    cursor.execute(sql,(orderid))
 
                 connection.commit()
         finally:
