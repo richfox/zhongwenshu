@@ -52,7 +52,7 @@ class Visitor:
         amounts = self._htmltree.xpath(basepath + '//*[@class="tab_w6"]')
         sums = self._htmltree.xpath(basepath + '//*[@class="tab_w4"]')
 
-        #换购商品
+        #换购商品或分册信息
         subbooks = self._htmltree.xpath(basepath + '//*[@class="tab_w1"]/*[@class="present"]')
 
         ordernr = self._htmltree.xpath('//*[@id="normalorder"]//div[@id="divorderhead"][@class="order_news"]/p/text()')
@@ -105,9 +105,9 @@ class Visitor:
                 ws.cell(row=i+j+1,column=12,value=adress[1])
                 
 
-            #换购商品
+            #换购商品或分册信息
             res = books[i].xpath('../br')
-            if len(res) != 0: #有换购
+            if len(res) != 0:
                 j += 1
                 hgtitle = books[i].xpath('../a[2]/@title')
                 hghref = books[i].xpath('../a[2]/@href')
@@ -115,14 +115,18 @@ class Visitor:
                 hgamount = amounts[i].xpath('./text()[2]')
                 hgsum = sums[i].xpath('./text()[2]')
                 
-                ws.cell(row=i+j+1,column=1,value='[HG] ' + hgtitle[0]).hyperlink = hghref[0]
+                restext = books[i].xpath('../span[@class="present"]/text()')
+                if re.match(u'.*换购',restext[0]):  #有换购
+                    ws.cell(row=i+j+1,column=1,value='[HG] ' + hgtitle[0]).hyperlink = hghref[0]
+                else: #有分册信息
+                    ws.cell(row=i+j+1,column=1,value='[FC] ' + hgtitle[0]).hyperlink = hghref[0]
+
                 if len(hgprice) != 0:
                     ws.cell(row=i+j+1,column=2,value=hgprice[0])
                 if len(hgamount) != 0:
                     ws.cell(row=i+j+1,column=4,value=hgamount[0])
                 if len(hgsum) != 0:
                     ws.cell(row=i+j+1,column=5,value=re.findall('\d+.\d+',hgsum[0])[0])
-
 
         lastrow = len(books) + len(subbooks)
 
