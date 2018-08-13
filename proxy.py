@@ -9,8 +9,9 @@
 #requests.get('http://product.dangdang.com/20771648.html',timeout=5,headers=get_http_headers(),proxies=get_http_proxies())
 
 
+import sys
 import random
-#import requests
+import requests
 
 
 USER_AGENTS = ["Opera/9.80 (X11; Linux i686; Ubuntu/14.10) Presto/2.12.388 Version/12.16",
@@ -38,4 +39,39 @@ def get_http_headers():
 #https://proxy.mimvp.com/
 #https://www.baibianip.com/api/doc.html
 def get_http_proxies():
-    return {'http':'http://117.127.0.203:80','https':'http://223.68.190.130:8181'}
+    proxies = []
+    #todo
+    proxies.append({'http':'http://139.224.24.26:8888','https':'http://139.224.24.26:8888'})
+    proxies.append({'http':'http://219.141.153.11:8080','https':'http://219.141.153.11:8080'})
+    return proxies
+
+
+def get_html_text_with_proxy(url):
+    text = ""
+    for proxy in get_http_proxies():
+        try:
+            res = requests.get(url,timeout=5,headers=get_http_headers(),proxies=proxy)
+            if res.ok:
+                print(proxy + " fetched successfully!")
+                text = res.text
+                break
+        except:
+            continue
+    return text
+
+
+def get_html_text(url):
+    text = ""
+    try:
+        text = requests.get(url).text
+    except requests.exceptions.ConnectTimeout:
+        print("timeout, try with another IP...")
+        text = get_html_text_with_proxy(url)
+    except requests.exceptions.ConnectionError:
+        print("connection failed, try with another IP...")
+        text = get_html_text_with_proxy(url)
+    except:
+        print("unexpected error:",sys.exc_info()[0])
+    else:
+        print(url + " fetched successfully!")
+    return text
