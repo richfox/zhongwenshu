@@ -52,7 +52,7 @@ def get_html_text_with_proxy(url):
         try:
             res = requests.get(url,timeout=5,headers=get_http_headers(),proxies=proxy)
             if res.ok:
-                print(proxy + " fetched successfully!")
+                print(proxy['http'] + " fetched successfully!")
                 text = res.text
                 break
         except:
