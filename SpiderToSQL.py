@@ -35,37 +35,38 @@ def generate_sn(hanzi):
 
 
 
-def get_html_texts(urls):
+def get_html_text(url):
     text = ""
-    for url,tag in urls.items():
-        try:
-            text = requests.get(url).text
-        except requests.exceptions.ConnectTimeout:
-            print("timeout, try with another IP...")
-            text = proxy.get_html_text_with_proxy(url)
-        except requests.exceptions.ConnectionError:
-            print("connection failed, try with another IP...")
-            text = proxy.get_html_text_with_proxy(url)
-        except:
-            print("unexpected error: {0} {1}".format(sys.exc_info()[0],"try with another IP..."))
-            text = proxy.get_html_text_with_proxy(url)
-        else:
-            print(url + " fetched successfully!")
+    try:
+        text = requests.get(url).text
+    except requests.exceptions.ConnectTimeout:
+        print("timeout, try with another IP...")
+        text = proxy.get_html_text_with_proxy(url)
+    except requests.exceptions.ConnectionError:
+        print("connection failed, try with another IP...")
+        text = proxy.get_html_text_with_proxy(url)
+    except:
+        print("unexpected error: {0} {1}".format(sys.exc_info()[0],"try with another IP..."))
+        text = proxy.get_html_text_with_proxy(url)
+    else:
+        print(url + " fetched successfully!")
 
     return text
 
 
 def SpiderToSQL(sqls):
     print("Spider to SQL start...\n")
+    ignored = []
 
     for host,(username,password,dbname,charset,urls) in sqls.items():
         connection = pymysql.connect(host=host,user=username,password=password,db=dbname,charset=charset)
         try:
             for url,tag in urls.items():
                 #htmltext = requests.get(url).text
-                #htmltext = get_html_text(url)
-                htmltext = get_html_texts(urls)
+                htmltext = get_html_text(url)
+                #htmltext = get_html_texts(urls)
                 if not htmltext:
+                    ignored.append(url)
                     continue
 
                 parser = lxml.html.HTMLParser()
@@ -202,6 +203,9 @@ def SpiderToSQL(sqls):
                 connection.commit()
         finally:
             connection.close()
+
+    for url in ignored:
+        print(url + " ignored!\n")
 
     print("Finished.")
 
