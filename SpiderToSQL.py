@@ -91,14 +91,17 @@ def SpiderToSQL(sqls):
                 if not htmltext:
                     ignored.append(url)
                     continue
-                else:
-                    webbrowser.open(url)
-
 
                 parser = lxml.html.HTMLParser()
                 htmltree = xml.etree.ElementTree.fromstring(htmltext,parser)
-                #res = lxml.html.tostring(htmltree,pretty_print=True)
-                #print(res)
+                
+                headtitlenode = htmltree.xpath('/html/head/title/text()')
+                if not headtitlenode:
+                    print(url + " not exist!")
+                    ignored.append(url)
+                    continue
+                else:
+                    webbrowser.open(url)
 
                 #爬取书籍信息
                 attrnames = [u'开本',u'纸张',u'包装',u'ISBN']
