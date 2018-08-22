@@ -55,6 +55,28 @@ def get_html_text(url):
     return text
 
 
+def get_xpath_index(tree,path,attr,separator):
+    index = -1
+    nodes = tree.xpath(path)
+    for i,node in enumerate(nodes):
+        name = re.split(separator,node.text)[0]
+        if re.match(u'.*'+attr,name.replace(' ','')):
+            index = i
+            break
+    return index+1
+
+def get_xpath_indexs(tree,path,attrs,separator):
+    indexs = {}
+    nodes = tree.xpath(path)
+    for attr in attrs:
+        for i,node in enumerate(nodes):
+            name = re.split(separator,node.text)[0]
+            if re.match(u'.*'+attr,name.replace(' ','')):
+                indexs[attr] = i+1
+                break
+    return indexs
+
+
 def SpiderToSQL(sqls):
     print("Spider to SQL start...\n")
     ignored = []
@@ -79,6 +101,10 @@ def SpiderToSQL(sqls):
                 #print(res)
 
                 #爬取书籍信息
+                attrnames = [u'开本',u'纸张',u'包装',u'ISBN']
+                attrpath = '//*[@id="detail_describe"]/ul/li'
+                attrindexs = get_xpath_indexs(htmltree,attrpath,attrnames,u'：')
+
                 titlenode = htmltree.xpath('//*[@id="product_info"]/div[1]/h1/@title')
                 title = ''
                 sn = ''
@@ -102,11 +128,12 @@ def SpiderToSQL(sqls):
                 if pressnode:
                     press = pressnode[0]
 
-                isbnnode = htmltree.xpath('//*[@id="detail_describe"]/ul/li[9]/text()')
-                isbn = ''
-                if isbnnode:
-                    for res in re.findall('[0-9]+',isbnnode[0]):
-                        isbn += res
+                if attrindexs.has_key(u'ISBN'):
+                    isbnnode = htmltree.xpath(attrpath + '[' + str(attrindexs[u'ISBN']) + ']' + '/text()')
+                    isbn = ''
+                    if isbnnode:
+                        for res in re.findall('[0-9]+',isbnnode[0]):
+                            isbn += res
 
                 pressdatenode = htmltree.xpath('//*[@id="product_info"]/div[2]/span[3]/text()')
                 pressdate = ''
@@ -115,28 +142,31 @@ def SpiderToSQL(sqls):
                     if len(res) > 1:
                         pressdate = res[1]
 
-                sizenode = htmltree.xpath('//*[@id="detail_describe"]/ul/li[5]/text()')
-                size = ''
-                if sizenode:
-                    for res in re.findall('[0-9]+.*',sizenode[0]):
-                        size += res
+                if attrindexs.has_key(u'开本'):
+                    sizenode = htmltree.xpath(attrpath + '[' + str(attrindexs[u'开本']) + ']' + '/text()')
+                    size = ''
+                    if sizenode:
+                        for res in re.findall('[0-9]+.*',sizenode[0]):
+                            size += res
 
-                packingnode = htmltree.xpath('//*[@id="detail_describe"]/ul/li[3]/text()')
-                packing = ''
-                if packingnode:
-                    if re.match(u'.*平装',packingnode[0]):
-                        packing = '平装'
-                    elif re.match(u'.*精装',packingnode[0]):
-                        packing = '精装'
-                    elif re.match(u'.*盒装',packingnode[0]):
-                        packing = '盒装'
+                if attrindexs.has_key(u'包装'):
+                    packingnode = htmltree.xpath(attrpath + '[' + str(attrindexs[u'包装']) + ']' + '/text()')
+                    packing = ''
+                    if packingnode:
+                        if re.match(u'.*平装',packingnode[0]):
+                            packing = '平装'
+                        elif re.match(u'.*精装',packingnode[0]):
+                            packing = '精装'
+                        elif re.match(u'.*盒装',packingnode[0]):
+                            packing = '盒装'
 
-                papernode = htmltree.xpath('//*[@id="detail_describe"]/ul/li[2]/text()')
-                paper = ''
-                if papernode:
-                    res = re.split(u'：',papernode[0])
-                    if len(res) > 1:
-                        paper = res[1]
+                if attrindexs.has_key(u'纸张'):
+                    papernode = htmltree.xpath(attrpath + '[' + str(attrindexs[u'纸张']) + ']' + '/text()')
+                    paper = ''
+                    if papernode:
+                        res = re.split(u'：',papernode[0])
+                        if len(res) > 1:
+                            paper = res[1]
 
                 oriprice = '¥' + Spider.searchOriginalPrice(htmltree)
 
