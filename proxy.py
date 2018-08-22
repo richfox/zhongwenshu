@@ -38,11 +38,14 @@ def get_http_headers():
 #实时代理IP抓取
 #https://proxy.mimvp.com/
 #https://www.baibianip.com/api/doc.html
+#http://ip.jiangxianli.com/
 def get_http_proxies():
     proxies = []
     #todo
     proxies.append({'http':'http://139.224.24.26:8888','https':'http://139.224.24.26:8888'})
     proxies.append({'http':'http://219.141.153.11:8080','https':'http://219.141.153.11:8080'})
+    proxies.append({'http':'http://223.93.172.248:3128','https':'http://223.93.172.248:3128'})
+    proxies.append({'http':'http://117.27.144.248:8088','https':'http://117.27.144.248:8088'})
     return proxies
 
 
@@ -50,7 +53,7 @@ def get_html_text_with_proxy(url):
     text = ""
     for proxy in get_http_proxies():
         try:
-            res = requests.get(url,timeout=5,headers=get_http_headers(),proxies=proxy)
+            res = requests.get(url,timeout=6,headers=get_http_headers(),proxies=proxy)
             if res.ok:
                 print(proxy['http'] + " fetched successfully!")
                 text = res.text

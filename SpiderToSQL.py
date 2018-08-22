@@ -15,6 +15,7 @@ import pinyin
 import time
 import sys
 import proxy
+import webbrowser
 
 
 def generate_sn(hanzi):
@@ -68,6 +69,9 @@ def SpiderToSQL(sqls):
                 if not htmltext:
                     ignored.append(url)
                     continue
+                else:
+                    webbrowser.open(url)
+
 
                 parser = lxml.html.HTMLParser()
                 htmltree = xml.etree.ElementTree.fromstring(htmltext,parser)
@@ -117,7 +121,7 @@ def SpiderToSQL(sqls):
                     for res in re.findall('[0-9]+.*',sizenode[0]):
                         size += res
 
-                packingnode = htmltree.xpath('//*[@id="detail_describe"]/ul/li[7]/text()')
+                packingnode = htmltree.xpath('//*[@id="detail_describe"]/ul/li[3]/text()')
                 packing = ''
                 if packingnode:
                     if re.match(u'.*平装',packingnode[0]):
@@ -127,7 +131,7 @@ def SpiderToSQL(sqls):
                     elif re.match(u'.*盒装',packingnode[0]):
                         packing = '盒装'
 
-                papernode = htmltree.xpath('//*[@id="detail_describe"]/ul/li[6]/text()')
+                papernode = htmltree.xpath('//*[@id="detail_describe"]/ul/li[2]/text()')
                 paper = ''
                 if papernode:
                     res = re.split(u'：',papernode[0])

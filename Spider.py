@@ -73,7 +73,7 @@ class Spider:
         regX = '<img alt=\"\" src=\".*.jpg\" title=\"\" id=\"modalBigImg\">'
         elem_url = re.findall(regX,self._html,re.S)
         for each in elem_url:
-            print(each)
+            #print(each)
             pic_url = re.findall('http://.*.jpg',each,re.S)
             webbrowser.open(pic_url[0])
 
