@@ -88,9 +88,12 @@ class Visitor:
             sum = re.findall('\d+.\d+',sums[i].text)[0]
             ws.cell(row=i+j+1,column=5,value=sum)
 
+            #当当编号
+            sn = Spider.split_ddsn(hrefs[i])
+
             #团购所需图书信息
-            if self._tuan:
-                sn = Spider.split_ddsn(hrefs[i])
+            #团购表和采购表从第7行开始有区别
+            if self._tuan:    
                 titlesn = ws.cell(row=i+j+1,column=1).value + ' [' + sn  + ']'
                 ws.cell(row=i+j+1,column=1,value=titlesn)
                 ws.cell(row=i+j+1,column=7,value=self.getOriginalPrice(hrefs[i]))
@@ -103,6 +106,8 @@ class Visitor:
                 adress = spider.searchSmallAndBigPicture()
                 ws.cell(row=i+j+1,column=11,value=adress[0])
                 ws.cell(row=i+j+1,column=12,value=adress[1])
+            else:
+                ws.cell(row=i+j+1,column=7,value=sn)
                 
 
             #换购商品或分册信息
