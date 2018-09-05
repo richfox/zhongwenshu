@@ -14,6 +14,7 @@ import taobao
 import re
 import xml.dom.minidom
 import ExcelToSQL
+import json
 
 
 
@@ -137,6 +138,11 @@ def generateDefaultConfig():
             "    <url>product.dangdang.com</url>\n" + \
             "    <productID>20771643</productID>\n" + \
             "  </http>\n" + \
+            "  <excel>\n" + \
+            "    <col index=\"title dprice bonus quantity sum total sn rprice price weight\">\n" + \
+            "      <row>test	¥87.60		1	87.6		23295770	25.03	13.51	1670</row>\n" + \
+            "    </col>\n" + \
+            "  </excel>\n" + \
             "</config>\n"
 
     fp.write(content)
@@ -214,13 +220,13 @@ def getNodeText(nodelist):
 
 #解析配置文件
 def parseConfigFile(configFile):
-    urls = {}
+    values = {}
+    tag = -1
     tree = xml.dom.minidom.parse(configFile)
     configNode = tree.getElementsByTagName(u"config")[0]
     for node in configNode.childNodes:
         if node.nodeName == 'http':
             fullurl = "http://"
-            tag = -1
             for http in node.childNodes:
                 if http.nodeName == 'url':
                     url = getNodeText(http.childNodes)
@@ -234,11 +240,24 @@ def parseConfigFile(configFile):
                     orderID = getNodeText(http.childNodes)
                     fullurl += "orderdetails.aspx?orderid=" + orderID
                     tag = 1
-
             print(fullurl)
-            urls[fullurl] = tag
+            values[fullurl] = tag
+        elif node.nodeName == 'excel':
+            for column in node.childNodes:
+                if column.nodeName == 'col':
+                    idx = column.getAttribute("index").split(' ')
+                    print(idx)
+                    for row in column.childNodes:
+                        if row.nodeName == 'row':
+                            cells = getNodeText(row.childNodes).split('\t')
+                            tag = 2
+                            print(cells)
+                            data = {}
+                            for i,cell in enumerate(cells):
+                                data[idx[i]] = cell
+                            values[json.dumps(data)] = tag
 
-    return urls
+    return values
 
 
 def parseSqlConfigFile(configFile):
@@ -353,7 +372,7 @@ def main():
             sqls = parseSqlConfigFile(sys.argv[2])
             for host,(username,password,dbname,charset) in sqls.items():
                 for url,tag in urls.items():
-                    if (tag != 0):
+                    if (tag == 1):
                         del urls[url]
                 sqls[host] = (username,password,dbname,charset,urls)
             SpiderToSQL.SpiderToSQL(sqls)
@@ -387,7 +406,7 @@ def main():
             params = parseGroupbuyConfigFile(sys.argv[3])
             for host,(username,password,dbname,charset) in sqls.items():
                 for url,tag in urls.items():
-                    if (tag != 0):
+                    if (tag == 1):
                         del urls[url]
                 sqls[host] = (username,password,dbname,charset,urls)
             SpiderToSQL.SpiderToSQL_tuangou(sqls,params)

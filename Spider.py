@@ -17,6 +17,7 @@ import os
 import requests
 # XPath
 import lxml.etree
+import json
 
 import codecs
 sys.stdout = codecs.getwriter('utf8')(sys.stdout)
@@ -190,15 +191,22 @@ class Spider:
 
 
 
-def spiderStart(urllist):
+def spiderStart(slist):
     print("Starting spider...\n")
-    for url, tag in urllist.items():
-        spider = Spider(url)
+    for string,tag in slist.items():  
         if tag == 0:
+            spider = Spider(string)
             spider.searchPicture()
-            spider.searchAttr()
+            #spider.searchAttr()
         elif tag == 1:
+            spider = Spider(string)
             spider.searchOrder()
+        elif tag == 2:
+            data = json.loads(string)
+            sn = data[u'sn']
+            url = "http://product.dangdang.com/" + sn + ".html"
+            spider = Spider(url)
+            spider.searchPicture()
     print("\nFinished.")
 
 #当当定价

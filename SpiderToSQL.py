@@ -16,6 +16,7 @@ import time
 import sys
 import proxy
 import webbrowser
+import json
 
 
 def generate_sn(hanzi):
@@ -85,9 +86,15 @@ def SpiderToSQL(sqls):
         connection = pymysql.connect(host=host,user=username,password=password,db=dbname,charset=charset)
         try:
             for url,tag in urls.items():
-                #htmltext = requests.get(url).text
-                htmltext = get_html_text(url)
-                #htmltext = get_html_texts(urls)
+                htmltext = ""
+                if tag == 0:
+                    htmltext = get_html_text(url)
+                elif tag == 2:
+                    tabledata = json.loads(url)
+                    ddsn = tabledata[u'sn']
+                    url = "http://product.dangdang.com/" + ddsn + ".html"
+                    htmltext = get_html_text(url)
+
                 if not htmltext:
                     ignored.append(url)
                     continue
@@ -108,12 +115,17 @@ def SpiderToSQL(sqls):
                 attrpath = '//*[@id="detail_describe"]/ul/li'
                 attrindexs = get_xpath_indexs(htmltree,attrpath,attrnames,u'：')
 
-                titlenode = htmltree.xpath('//*[@id="product_info"]/div[1]/h1/@title')
                 title = ''
+                if tag == 0:
+                    titlenode = htmltree.xpath('//*[@id="product_info"]/div[1]/h1/@title')
+                    if titlenode:
+                        title = titlenode[0]
+                elif tag == 2:
+                    title = tabledata[u'title']
+                    
+                #唯一商品货号
                 sn = ''
-                if titlenode:
-                    title = titlenode[0]
-                    #唯一商品货号
+                if title:
                     sn = generate_sn(title)
                     
 
@@ -263,7 +275,14 @@ def SpiderToSQL_tuangou(sqls,params):
             goodnames = ''
             goodsdict = {}
             for url,tag in urls.items():
-                htmltext = requests.get(url).text
+                if tag == 0:
+                    htmltext = get_html_text(url)
+                elif tag == 2:
+                    data = json.loads(url)
+                    ddsn = data[u'sn']
+                    url = "http://product.dangdang.com/" + ddsn + ".html"
+                    htmltext = get_html_text(url)
+
                 parser = lxml.html.HTMLParser()
                 htmltree = xml.etree.ElementTree.fromstring(htmltext,parser)
                 
