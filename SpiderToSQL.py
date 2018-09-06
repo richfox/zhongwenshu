@@ -121,13 +121,36 @@ def SpiderToSQL(sqls):
                     if titlenode:
                         title = titlenode[0]
                 elif tag == 2:
-                    title = tabledata[u'title']
+                    if tabledata.has_key(u'title'):
+                        title = tabledata[u'title']
                     
                 #唯一商品货号
                 sn = ''
                 if title:
                     sn = generate_sn(title)
                     
+                #数量
+                goodsnumber = '0'
+                if tag == 2:
+                    if tabledata.has_key(u'quantity'):
+                        goodsnumber = tabledata[u'quantity']
+
+                #重量kg
+                goodsweight = '0.000'
+                if tag == 2:
+                    if tabledata.has_key(u'weight'):
+                        goodsweight = u"%.3f" % (float(tabledata[u'weight'])/1000)
+                
+                #价格
+                shopprice = '0.00'
+                marketprice = '0.00'
+                if tag == 2:
+                    if tabledata.has_key(u'price'):
+                        shopprice = tabledata[u'price']
+                        marketprice = u"%.2f" % (float(shopprice)*1.2)
+                    elif tabledata.has_key(u'rprice'):
+                        shopprice = tabledata[u'rprice']
+                        marketprice = u"%.2f" % (float(shopprice)*1.2)
 
                 authornode = htmltree.xpath('//*[@id="author"]//text()')
                 author = ''
@@ -224,14 +247,14 @@ def SpiderToSQL(sqls):
                         `is_delete`, `is_best`, `is_new`, `is_hot`, `is_promote`, `bonus_type_id`, `last_update`,\
                         `goods_type`, `seller_note`, `give_integral`, `rank_integral`, `suppliers_id`, `is_check`) \
                         VALUES (NULL, %s, %s, %s,\
-                        '+', '0', '0', '', '0',\
-                        '0', '0', '', '0', '0.00',\
+                        '+', '0', '0', '', %s,\
+                        %s, %s, '', %s, '0.00',\
                         '0', '0', '1', '', '',\
                         '', '', '', '', '1', '',\
                         '0', '1', '0', '0', %s, '100',\
                         '0', '0', '1', '0', '0', '0', '0',\
                         %s, '', '-1', '-1', '0', NULL)"
-                    cursor.execute(sql,(catid,sn,title,addtime,gtype))
+                    cursor.execute(sql,(catid,sn,title,goodsnumber,goodsweight,marketprice,shopprice,addtime,gtype))
 
                     #唯一商品编号
                     sql = "SELECT `goods_id` FROM " + goodstable + " WHERE `goods_sn`=%s"
