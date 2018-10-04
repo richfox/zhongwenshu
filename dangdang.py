@@ -135,8 +135,10 @@ def generateDefaultConfig():
             "<config>\n" + \
             "  <!-- Exmaple for catch picture from dangdang: http://product.dangdang.com/20771643.html -->\n" + \
             "  <http>\n" + \
-            "    <url>product.dangdang.com</url>\n" + \
-            "    <productID>20771643</productID>\n" + \
+            "    <url domain=\"product.dangdang.com\">\n" + \
+            "      <productID>20771643</productID>\n" + \
+            "      <productID>21022011</productID>\n" + \
+            "    </url>\n" + \
             "  </http>\n" + \
             "  <excel>\n" + \
             "    <col index=\"title dprice bonus quantity sum total sn rprice price weight\">\n" + \
@@ -225,23 +227,25 @@ def parseConfigFile(configFile):
     tree = xml.dom.minidom.parse(configFile)
     configNode = tree.getElementsByTagName(u"config")[0]
     for node in configNode.childNodes:
-        if node.nodeName == 'http':
-            fullurl = "http://"
-            for http in node.childNodes:
-                if http.nodeName == 'url':
-                    url = getNodeText(http.childNodes)
-                    fullurl += url + "/"
-                elif http.nodeName == 'productID':
-                    productID = getNodeText(http.childNodes)
-                    fullurl += productID
-                    fullurl += ".html"
-                    tag = 0
-                elif http.nodeName == 'orderID':
-                    orderID = getNodeText(http.childNodes)
-                    fullurl += "orderdetails.aspx?orderid=" + orderID
-                    tag = 1
-            print(fullurl)
-            values[fullurl] = tag
+        if node.nodeName == "http":
+            protocol = "http://"
+            for locator in node.childNodes:
+                if locator.nodeName == "url":
+                    domain = locator.getAttribute("domain")
+                    url = protocol + domain + "/"
+                    for id in locator.childNodes:
+                        if id.nodeName == "productID":
+                            productID = getNodeText(id.childNodes)
+                            fullurl = url + productID + ".html"
+                            tag = 0
+                            print(fullurl)
+                            values[fullurl] = tag
+                        elif id.nodeName == "orderID":
+                            orderID = getNodeText(id.childNodes)
+                            fullurl = url + "orderdetails.aspx?orderid=" + orderID
+                            tag = 1
+                            print(fullurl)
+                            values[fullurl] = tag
         elif node.nodeName == 'excel':
             for column in node.childNodes:
                 if column.nodeName == 'col':
