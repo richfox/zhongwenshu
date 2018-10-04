@@ -307,6 +307,19 @@ def ExcelToSQLGBuy(sqls,params):
                             payid = cursor._rows[0][0]
                             payname = cursor._rows[0][1]
 
+                    #联系方式
+                    telefon = ""
+                    if infos[orderheads[u"tel"]]:
+                        telefon = infos[orderheads[u"tel"]]
+                    
+                    email = ""
+                    if infos[orderheads[u"email"]]:
+                        email = infos[orderheads[u"email"]]
+
+                    wechat = ""
+                    if infos[orderheads[u"wechat"]]:
+                        telefon = infos[orderheads[u"wechat"]]
+
                     #10位时间戳
                     stamp = str(int(time.time()))
 
@@ -330,8 +343,8 @@ def ExcelToSQLGBuy(sqls,params):
                         '', '0', '', %s, '0', '', '0.00', '0', \
                         '0', '0.00', '0.00', '0.00', %s, '0.00')"
                     cursor.execute(sql,(ordernr,
-                                    infos[orderheads[u'name']],str(country),infos[orderheads[u'address']],infos[orderheads[u'postcode']],infos[orderheads[u'tel']],infos[orderheads[u'email']],
-                                    infos[orderheads[u'wechat']],infos[orderheads[u'postcode']],ordercomment,shipping,shippingname,payid,payname,
+                                    infos[orderheads[u'name']],str(country),infos[orderheads[u'address']],infos[orderheads[u'postcode']],telefon,email,
+                                    wechat,infos[orderheads[u'postcode']],ordercomment,shipping,shippingname,payid,payname,
                                     infos[orderheads[u'amount']],
                                     paid,
                                     topay,
