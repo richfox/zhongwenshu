@@ -132,6 +132,8 @@ class Visitor:
                     ws.cell(row=i+j+1,column=4,value=hgamount[0])
                 if len(hgsum) != 0:
                     ws.cell(row=i+j+1,column=5,value=re.findall('\d+.\d+',hgsum[0])[0])
+                if len(hghref) != 0:
+                    ws.cell(row=i+j+1,column=7,value=Spider.split_ddsn(hghref[0]))
 
         lastrow = len(books) + len(subbooks)
 
