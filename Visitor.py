@@ -14,6 +14,19 @@ import openpyxl.workbook
 import re
 import requests
 import Spider
+import json
+
+
+def get_transports_info():
+    res = {}
+    jsonstring = open(".\\Globconfig.json",'r').read()
+    allinfo = json.loads(jsonstring)
+    for config in allinfo["configurations"]:
+        if config.has_key("transport"):
+            for trans in config["transport"]:
+                res[trans["type"]] = trans["consignee"]
+            break
+    return res
 
 
 class Visitor:
@@ -61,6 +74,15 @@ class Visitor:
         others = self._htmltree.xpath('//*[@id="normalorder"]//div[@class="ditail_frame_notop"]/table[@class="tabl_other"]')
         endprice = self._htmltree.xpath('//*[@id="normalorder"]//div[@class="price_total"]/span[1]')
         payment = self._htmltree.xpath('//*[@id="normalorder"]//*[@class="order_detail_frame"]/ul[position()=4]/li')
+        
+        #物流信息
+        transport = ""
+        consignee = self._htmltree.xpath('//*[@id="label_name"]')[0].text
+        for type,pattern in get_transports_info().items():
+            if re.match(pattern,consignee):
+                transport = "[" + type + "]"
+                break
+        
 
         wb = openpyxl.Workbook()
         ws = wb.active
@@ -145,11 +167,11 @@ class Visitor:
                     nr = n.strip(' \n\t')
                     break
             if len(ordertime) == 0:
-                ws.cell(row=lastrow+1,column=1,value=nr+payment[0].text)
+                ws.cell(row=lastrow+1,column=1,value=transport+nr+payment[0].text)
             elif len(ordertime) == 1:
-                ws.cell(row=lastrow+1,column=1,value=nr+ordertime[0].text+payment[0].text)
+                ws.cell(row=lastrow+1,column=1,value=transport+nr+ordertime[0].text+payment[0].text)
             elif len(ordertime) == 2:
-                ws.cell(row=lastrow+1,column=1,value=nr+ordertime[0].text+ordertime[1].text+payment[0].text)
+                ws.cell(row=lastrow+1,column=1,value=transport+nr+ordertime[0].text+ordertime[1].text+payment[0].text)
             #最终价
             ws.cell(row=lastrow+1,column=6,value=endprice[0].text)
             #优惠

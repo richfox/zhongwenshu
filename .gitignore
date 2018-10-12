@@ -9,7 +9,7 @@ ZWSTool/ZWSTool/ZWSTool.aps
 ZWSTool/ZWSTool/ZWSTool.vcxproj.user
 *.html
 *.xml
-*.json
 *.sxml
 *.pyc
 *.xlsx
+.vscode/launch.json
