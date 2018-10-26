@@ -3,9 +3,9 @@
     "configurations": [
         {
             "transport": [
-                {"type": "海","consignee": "黄琰*"},
-                {"type": "陆","consignee": "K523*"},
-                {"type": "空","consignee": "李沐阳*"}
+                {"type": "海","consignee": "*黄琰*"},
+                {"type": "陆","consignee": "*李明松*"},
+                {"type": "空","consignee": "*李沐阳*"}
             ]
         },
         {}
