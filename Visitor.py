@@ -80,7 +80,7 @@ class Visitor:
         consignee = self._htmltree.xpath('//*[@id="label_name"]')[0].text
         for type,pattern in get_transports_info().items():
             if re.match(pattern,consignee):
-                transport = "[" + type + "]"
+                transport = u"【" + type + u"】"
                 break
         
 
