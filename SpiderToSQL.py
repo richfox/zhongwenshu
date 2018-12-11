@@ -152,6 +152,9 @@ def SpiderToSQL(sqls):
                         shopprice = tabledata[u'rprice']
                         marketprice = u"%.2f" % (float(shopprice)*1.2)
 
+                oriprice = '¥' + Spider.searchOriginalPrice(htmltree)
+
+                #作者
                 authornode = htmltree.xpath('//*[@id="author"]//text()')
                 author = ''
                 for i,text in enumerate(authornode):
@@ -161,11 +164,13 @@ def SpiderToSQL(sqls):
                     else:
                         author += text
 
+                #出版社
                 pressnode = htmltree.xpath('//*[@id="product_info"]/div[2]/span[2]/a/text()')
                 press = ''
                 if pressnode:
                     press = pressnode[0]
 
+                #ISBN
                 if attrindexs.has_key(u'ISBN'):
                     isbnnode = htmltree.xpath(attrpath + '[' + str(attrindexs[u'ISBN']) + ']' + '/text()')
                     isbn = ''
@@ -173,6 +178,7 @@ def SpiderToSQL(sqls):
                         for res in re.findall('[0-9]+',isbnnode[0]):
                             isbn += res
 
+                #出版时间
                 pressdatenode = htmltree.xpath('//*[@id="product_info"]/div[2]/span[3]/text()')
                 pressdate = ''
                 if pressdatenode:
@@ -180,6 +186,7 @@ def SpiderToSQL(sqls):
                     if len(res) > 1:
                         pressdate = res[1]
 
+                #开本
                 if attrindexs.has_key(u'开本'):
                     sizenode = htmltree.xpath(attrpath + '[' + str(attrindexs[u'开本']) + ']' + '/text()')
                     size = ''
@@ -187,6 +194,7 @@ def SpiderToSQL(sqls):
                         for res in re.findall('[0-9]+.*',sizenode[0]):
                             size += res
 
+                #包装
                 if attrindexs.has_key(u'包装'):
                     packingnode = htmltree.xpath(attrpath + '[' + str(attrindexs[u'包装']) + ']' + '/text()')
                     packing = ''
@@ -198,6 +206,7 @@ def SpiderToSQL(sqls):
                         elif re.match(u'.*盒装',packingnode[0]):
                             packing = '盒装'
 
+                #纸张
                 if attrindexs.has_key(u'纸张'):
                     papernode = htmltree.xpath(attrpath + '[' + str(attrindexs[u'纸张']) + ']' + '/text()')
                     paper = ''
@@ -205,8 +214,6 @@ def SpiderToSQL(sqls):
                         res = re.split(u'：',papernode[0])
                         if len(res) > 1:
                             paper = res[1]
-
-                oriprice = '¥' + Spider.searchOriginalPrice(htmltree)
 
                 #商品图片
                 Spider.spider_picture(url)
