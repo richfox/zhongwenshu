@@ -62,19 +62,3 @@ def get_html_text_with_proxy(url):
             continue
     return text
 
-
-def get_html_text(url):
-    text = ""
-    try:
-        text = requests.get(url).text
-    except requests.exceptions.ConnectTimeout:
-        print("timeout, try with another IP...")
-        text = get_html_text_with_proxy(url)
-    except requests.exceptions.ConnectionError:
-        print("connection failed, try with another IP...")
-        text = get_html_text_with_proxy(url)
-    except:
-        print("unexpected error:",sys.exc_info()[0])
-    else:
-        print(url + " fetched successfully!")
-    return text
