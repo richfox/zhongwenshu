@@ -102,7 +102,9 @@ def SpiderToSQL(sqls):
         try:
             for url,tag in urls.items():
                 htmltext = ""
+                ddsn = ""
                 if tag == 0:
+                    ddsn = Spider.split_ddsn(url)
                     htmltext = get_html_text(url)
                 elif tag == 2:
                     tabledata = json.loads(url)
@@ -236,11 +238,20 @@ def SpiderToSQL(sqls):
                 #商品标志
                 psstr = get_prodSpuInfo(htmltext)
                 psdata = json.loads(psstr)
-                dascmap = psdata["describeMap"]
+
                 shopid = psdata["shopId"]
                 catpath = psdata["categoryPath"]
+                descmap = psdata["describeMap"]
+                if descmap:
+                    lastmap = descmap.split(',')[-1]
+                    descmap = lastmap.split(':')[0] + "%3A" + lastmap.split(':')[1]
 
                 #商品详情Ajax请求
+                ajaxbaseurl = "http://product.dangdang.com/index.php?r=callback%2Fdetail&productId={id}&templateType=publish&describeMap={descmap}&shopId={shopid}&categoryPath={catpath}"
+                ajaxurl = ajaxbaseurl.format(id=ddsn,descmap=descmap,shopid=shopid,catpath=catpath)
+                ajaxtext = get_html_text(ajaxurl)
+                ajaxdata = json.loads(ajaxtext)
+                ajaxhtmltree = utility.get_html_tree(ajaxdata["data"]["html"])
 
                 #创建书籍信息字典
                 #所有商品属性定义在表ecs_attribute中

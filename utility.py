@@ -34,16 +34,20 @@ def get_html_text(url):
     return htmltext
 
 
+def get_html_tree(text):
+    parser = lxml.html.HTMLParser()
+    htmltree = xml.etree.ElementTree.fromstring(text,parser)
+
+    return htmltree
+
+
 #语法分析html，返回语法树
 def parser_html(url):
     htmltext = get_html_text(url)
     if not htmltext:
         raise Exception("html text is empty!")
 
-    parser = lxml.html.HTMLParser()
-    htmltree = xml.etree.ElementTree.fromstring(htmltext,parser)
-
-    return htmltree
+    return get_html_tree(htmltext)
 
 
 #在text中start位置开始找到第一个，字符串charset中的任何一个字符
