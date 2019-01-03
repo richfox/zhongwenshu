@@ -34,6 +34,7 @@ def get_html_text(url):
     return htmltext
 
 
+#语法分析html，返回语法树
 def parser_html(url):
     htmltext = get_html_text(url)
     if not htmltext:
@@ -43,3 +44,41 @@ def parser_html(url):
     htmltree = xml.etree.ElementTree.fromstring(htmltext,parser)
 
     return htmltree
+
+
+#在text中start位置开始找到第一个，字符串charset中的任何一个字符
+#类似std::string.find_first_of()
+def find_first_of(text,charset,start):
+    pos = -1
+    while start < len(text):
+        if text[start] in charset:
+            pos = start
+            break
+        start += 1
+    return pos
+
+
+#找到匹配的括号
+#bpair输入格式{'(':')'}
+def search_close_bracket(text,posopen,bpair):
+    posclose = -1
+    openstack = []
+    start = posopen + 1
+
+    charopen = bpair.keys()[0]
+    charclose = bpair[charopen]
+    charset = charopen + charclose
+    pos = find_first_of(text,charset,start)
+    while pos != -1:
+        if text[pos] == charopen:
+            openstack.append(charopen)
+        elif text[pos] == charclose:
+            if len(openstack) == 0:
+                posclose = pos
+                break
+            else:
+                openstack.pop()
+        start = pos + 1
+        pos = find_first_of(text,charset,start)
+
+    return posclose

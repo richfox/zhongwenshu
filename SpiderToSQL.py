@@ -17,6 +17,7 @@ import sys
 import proxy
 import webbrowser
 import json
+import utility
 
 
 def generate_sn(hanzi):
@@ -54,6 +55,20 @@ def get_html_text(url):
         print(url + " fetched successfully!")
 
     return text
+
+
+def get_prodSpuInfo(text):
+    info = ""
+    bpair = {'{':'}'}
+    idx = text.find("prodSpuInfo")
+    jsonstart = text.find("{",idx)
+    jsonend = -1
+    if jsonstart != -1:
+        jsonend = utility.search_close_bracket(text,jsonstart,bpair)
+        if jsonend != -1:
+            info = text[jsonstart:jsonend+1]
+
+    return info
 
 
 def get_xpath_index(tree,path,attr,separator):
@@ -217,6 +232,15 @@ def SpiderToSQL(sqls):
 
                 #商品图片
                 Spider.spider_picture(url)
+
+                #商品标志
+                psstr = get_prodSpuInfo(htmltext)
+                psdata = json.loads(psstr)
+                dascmap = psdata["describeMap"]
+                shopid = psdata["shopId"]
+                catpath = psdata["categoryPath"]
+
+                #商品详情Ajax请求
 
                 #创建书籍信息字典
                 #所有商品属性定义在表ecs_attribute中
