@@ -251,7 +251,8 @@ def SpiderToSQL(sqls):
                 ajaxurl = ajaxbaseurl.format(id=ddsn,descmap=descmap,shopid=shopid,catpath=catpath)
                 ajaxtext = get_html_text(ajaxurl)
                 ajaxdata = json.loads(ajaxtext)
-                ajaxhtmltree = utility.get_html_tree(ajaxdata["data"]["html"])
+                ajaxhtmltext = ajaxdata["data"]["html"]
+                zwsprodtext = u"<zws-product>" + ajaxhtmltext + u"</zws-product>"
 
                 #创建书籍信息字典
                 #所有商品属性定义在表ecs_attribute中
@@ -292,11 +293,11 @@ def SpiderToSQL(sqls):
                         '+', '0', '0', '', %s,\
                         %s, %s, '', %s, '0.00',\
                         '0', '0', '1', '', '',\
-                        '', '', '', '', '1', '',\
+                        %s, '', '', '', '1', '',\
                         '0', '1', '0', '0', %s, '100',\
                         '0', '0', '1', '0', '0', '0', '0',\
                         %s, '', '-1', '-1', '0', NULL)"
-                    cursor.execute(sql,(catid,sn,title,goodsnumber,goodsweight,marketprice,shopprice,addtime,gtype))
+                    cursor.execute(sql,(catid,sn,title,goodsnumber,goodsweight,marketprice,shopprice,zwsprodtext,addtime,gtype))
 
                     #唯一商品编号
                     sql = "SELECT `goods_id` FROM " + goodstable + " WHERE `goods_sn`=%s"
