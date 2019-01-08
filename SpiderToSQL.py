@@ -252,7 +252,7 @@ def SpiderToSQL(sqls):
                 ajaxtext = get_html_text(ajaxurl)
                 ajaxdata = json.loads(ajaxtext)
                 ajaxhtmltext = ajaxdata["data"]["html"]
-                zwsprodtext = u"<zws-product>" + ajaxhtmltext + u"</zws-product>"
+                zwsprodtext = u"<div><zws-product>" + ajaxhtmltext + u"</zws-product></div>"
 
                 #创建书籍信息字典
                 #所有商品属性定义在表ecs_attribute中
