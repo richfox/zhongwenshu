@@ -252,7 +252,23 @@ def SpiderToSQL(sqls):
                 ajaxtext = get_html_text(ajaxurl)
                 ajaxdata = json.loads(ajaxtext)
                 ajaxhtmltext = ajaxdata["data"]["html"]
-                zwsprodtext = u"<div><zws-product>" + ajaxhtmltext + u"</zws-product></div>"
+                
+                #目录和插图显示全部
+                ajaxhtmltree = utility.get_html_tree(ajaxhtmltext)
+                shownode = ajaxhtmltree.xpath('//*[@id="attachImage"]//*[@id="attachImage-show"]')
+                showallnode = ajaxhtmltree.xpath('//*[@id="attachImage"]//*[@id="attachImage-show-all"]')
+                areanode = ajaxhtmltree.xpath('//*[@id="attachImage"]//*[@id="attachImage-textarea"]')
+                areachildren = ajaxhtmltree.xpath('//*[@id="attachImage"]//*[@id="attachImage-textarea"]/node()')
+                if showallnode:
+                    for child in areachildren:
+                        showallnode[0].append(child)
+                areatext = ""
+                for item in ajaxhtmltree.body:
+                    areatext += xml.etree.ElementTree.tostring(item)
+
+                zwsprodtext = u"<div><zws-product>" + areatext + u"</zws-product></div>"
+
+
 
                 #创建书籍信息字典
                 #所有商品属性定义在表ecs_attribute中
