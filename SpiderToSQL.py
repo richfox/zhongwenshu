@@ -255,18 +255,32 @@ def SpiderToSQL(sqls):
                 
                 #目录和插图显示全部
                 ajaxhtmltree = utility.get_html_tree(ajaxhtmltext)
-                shownode = ajaxhtmltree.xpath('//*[@id="attachImage"]//*[@id="attachImage-show"]')
                 showallnode = ajaxhtmltree.xpath('//*[@id="attachImage"]//*[@id="attachImage-show-all"]')
                 areanode = ajaxhtmltree.xpath('//*[@id="attachImage"]//*[@id="attachImage-textarea"]')
-                areachildren = ajaxhtmltree.xpath('//*[@id="attachImage"]//*[@id="attachImage-textarea"]/node()')
-                if showallnode:
-                    for child in areachildren:
-                        showallnode[0].append(child)
-                areatext = ""
-                for item in ajaxhtmltree.body:
-                    areatext += xml.etree.ElementTree.tostring(item)
+                if areanode:
+                    if showallnode:
+                        showallnode[0].set('style','display: inline;')
+                        #添加所有areanode子节点
+                        for node in areanode[0].xpath('child::node()'):
+                            if node.xpath('/img'):
+                                imgnode = node.xpath('/img')[0]
+                                data = imgnode.get('data-original')
+                                alternativ = imgnode.get('alt')
+                                newimgnode = imgnode.clear()
+                                newimgnode.set('src',data)
+                                newimgnode.set('alt',alternativ)
+                                newimgnode.set('style','display: block;')
+                                node.remove(imgnode)
+                                node.append(newimgnode)
+                            showallnode[0].append(node)
+                    #从父节点删除areanode
+                    areanode[0].xpath('..')[0].remove(areanode[0])
 
-                zwsprodtext = u"<div><zws-product>" + areatext + u"</zws-product></div>"
+                #商品描述
+                producttext = ""
+                for item in ajaxhtmltree.body:
+                    producttext += xml.etree.ElementTree.tostring(item)
+                zwsprodtext = u"<div><zws-product>" + producttext + u"</zws-product></div>"
 
 
 
