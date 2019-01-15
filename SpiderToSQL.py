@@ -93,6 +93,36 @@ def get_xpath_indexs(tree,path,attrs,separator):
     return indexs
 
 
+def show_all(tree,key):
+    shownode = tree.xpath('//*[@id="%s"]//*[@id="%s-show"]' % (key,key))
+    if shownode:
+        shownode[0].set('style','display: none;')
+    showallnode = tree.xpath('//*[@id="%s"]//*[@id="%s-show-all"]' % (key,key))
+    areanode = tree.xpath('//*[@id="%s"]//*[@id="%s-textarea"]' % (key,key))
+    if areanode:
+        if showallnode:
+            showallnode[0].set('style','display: inline;')
+            #添加所有areanode子节点
+            for child in areanode[0].xpath('child::node()'):
+                if child.xpath('./img'):
+                    imgnode = child.xpath('./img')[0]
+                    data = imgnode.get('data-original')
+                    alternativ = imgnode.get('alt')
+                    child.remove(imgnode)
+                    imgnode.clear()
+                    imgnode.set('src',data)
+                    imgnode.set('alt',alternativ)
+                    imgnode.set('style','display: block;')
+                    child.append(imgnode)
+                showallnode[0].append(child)
+        #从父节点删除areanode
+        areanode[0].xpath('..')[0].remove(areanode[0])
+    showmorenode = tree.xpath('//*[@id="%s"]//*[@class="section_show_more"]' % key)
+    if showmorenode:
+        showmorenode[0].clear()
+        showmorenode[0].set('class','section_show_more')
+
+
 def SpiderToSQL(sqls):
     print("Spider to SQL start...\n")
     ignored = []
@@ -252,36 +282,11 @@ def SpiderToSQL(sqls):
                 ajaxtext = get_html_text(ajaxurl)
                 ajaxdata = json.loads(ajaxtext)
                 ajaxhtmltext = ajaxdata["data"]["html"]
-                
-                #目录和插图显示全部
                 ajaxhtmltree = utility.get_html_tree(ajaxhtmltext)
-                shownode = ajaxhtmltree.xpath('//*[@id="attachImage"]//*[@id="attachImage-show"]')
-                if shownode:
-                    shownode[0].set('style','display: none;')
-                showallnode = ajaxhtmltree.xpath('//*[@id="attachImage"]//*[@id="attachImage-show-all"]')
-                areanode = ajaxhtmltree.xpath('//*[@id="attachImage"]//*[@id="attachImage-textarea"]')
-                if areanode:
-                    if showallnode:
-                        showallnode[0].set('style','display: inline;')
-                        #添加所有areanode子节点
-                        for child in areanode[0].xpath('child::node()'):
-                            if child.xpath('./img'):
-                                imgnode = child.xpath('./img')[0]
-                                data = imgnode.get('data-original')
-                                alternativ = imgnode.get('alt')
-                                child.remove(imgnode)
-                                imgnode.clear()
-                                imgnode.set('src',data)
-                                imgnode.set('alt',alternativ)
-                                imgnode.set('style','display: block;')
-                                child.append(imgnode)
-                            showallnode[0].append(child)
-                    #从父节点删除areanode
-                    areanode[0].xpath('..')[0].remove(areanode[0])
-                showmorenode = ajaxhtmltree.xpath('//*[@id="attachImage"]//*[@class="section_show_more"]')
-                if showmorenode:
-                    showmorenode[0].clear()
-                    showmorenode[0].set('class','section_show_more')
+                
+                #插图目录显示全部
+                show_all(ajaxhtmltree,"attachImage")
+                show_all(ajaxhtmltree,"catalog")
 
                 #商品描述
                 producttext = ""
