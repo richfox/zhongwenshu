@@ -9,6 +9,7 @@ import io
 import re
 import xml.etree.ElementTree
 import lxml.html
+import lxml.etree
 import json
 import sys
 import requests

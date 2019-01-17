@@ -104,17 +104,24 @@ def show_all(tree,key):
             showallnode[0].set('style','display: inline;')
             #添加所有areanode子节点
             for child in areanode[0].xpath('child::node()'):
-                if child.xpath('./img'):
-                    imgnode = child.xpath('./img')[0]
-                    data = imgnode.get('data-original')
-                    alternativ = imgnode.get('alt')
-                    child.remove(imgnode)
-                    imgnode.clear()
-                    imgnode.set('src',data)
-                    imgnode.set('alt',alternativ)
-                    imgnode.set('style','display: block;')
-                    child.append(imgnode)
-                showallnode[0].append(child)
+                if lxml.etree.iselement(child):
+                    if child.tag == 'div':
+                        if child.xpath('./img'):
+                            imgnode = child.xpath('./img')[0]
+                            data = imgnode.get('data-original')
+                            alternativ = imgnode.get('alt')
+                            child.remove(imgnode)
+                            imgnode.clear()
+                            imgnode.set('src',data)
+                            imgnode.set('alt',alternativ)
+                            imgnode.set('style','display: block;')
+                            imgnode.set('width','716') #匹配网页宽度
+                            child.append(imgnode)
+                    elif child.tag == 'br':
+                        child.tail = '' #去掉尾巴
+                    showallnode[0].append(child)
+                else:
+                    lxml.etree.SubElement(showallnode[0],'span').text = child
         #从父节点删除areanode
         areanode[0].xpath('..')[0].remove(areanode[0])
     showmorenode = tree.xpath('//*[@id="%s"]//*[@class="section_show_more"]' % key)
