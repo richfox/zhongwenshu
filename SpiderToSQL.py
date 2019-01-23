@@ -298,7 +298,10 @@ def SpiderToSQL(sqls):
                 #商品描述
                 producttext = ""
                 for item in ajaxhtmltree.body:
-                    producttext += xml.etree.ElementTree.tostring(item)
+                    try:
+                        producttext += xml.etree.ElementTree.tostring(item)
+                    except:
+                        print("item \"%s\" ignored!" % item.attrib["id"])
                 zwsprodtext = u"<div><zws-product>" + producttext + u"</zws-product></div>"
 
 
