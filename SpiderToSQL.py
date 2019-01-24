@@ -295,6 +295,11 @@ def SpiderToSQL(sqls):
                 show_all(ajaxhtmltree,"attachImage")
                 show_all(ajaxhtmltree,"catalog")
 
+                #产品特色图片匹配
+                imgnode = ajaxhtmltree.xpath('//*[@id="feature"]//img')
+                if imgnode:
+                    imgnode[0].set('width','716')
+
                 #商品描述
                 producttext = ""
                 for item in ajaxhtmltree.body:
