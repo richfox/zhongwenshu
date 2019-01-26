@@ -22,7 +22,7 @@ import json
 import codecs
 sys.stdout = codecs.getwriter('utf8')(sys.stdout)
 
-
+import utility
 
 
 #辅助函数
@@ -43,7 +43,7 @@ def split_ddsn(url):
 class Spider:
     def __init__(self,url):
         # 获取网页源代码
-        self._html = requests.get(url).text
+        self._html = utility.get_html_text(url) #requests.get(url).text
         parser = lxml.html.HTMLParser()
         self._htmltree = xml.etree.ElementTree.fromstring(self._html,parser)
         self._title = u""

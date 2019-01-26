@@ -42,10 +42,12 @@ def get_http_headers():
 def get_http_proxies():
     proxies = []
     #todo
-    proxies.append({'http':'http://139.224.24.26:8888','https':'http://139.224.24.26:8888'})
-    proxies.append({'http':'http://219.141.153.11:8080','https':'http://219.141.153.11:8080'})
-    proxies.append({'http':'http://223.93.172.248:3128','https':'http://223.93.172.248:3128'})
-    proxies.append({'http':'http://117.27.144.248:8088','https':'http://117.27.144.248:8088'})
+    proxies.append({'http':'http://58.48.168.166:51430','https':'https://58.48.168.166:51430'})
+    proxies.append({'http':'http://115.151.4.74:9999','https':'https://115.151.4.74:9999'})
+    proxies.append({'http':'http://47.52.114.248:8088','https':'https://47.52.114.248:8088'})
+    proxies.append({'http':'http://139.224.24.26:8888','https':'https://139.224.24.26:8888'})
+    proxies.append({'http':'http://219.141.153.11:8080','https':'https://219.141.153.11:8080'})
+    proxies.append({'http':'http://223.93.172.248:3128','https':'https://223.93.172.248:3128'})
     return proxies
 
 
