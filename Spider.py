@@ -43,7 +43,7 @@ def split_ddsn(url):
 class Spider:
     def __init__(self,url):
         # 获取网页源代码
-        self._html = utility.get_html_text(url) #requests.get(url).text
+        self._html = utility.get_html_text(url)
         parser = lxml.html.HTMLParser()
         self._htmltree = xml.etree.ElementTree.fromstring(self._html,parser)
         self._title = u""

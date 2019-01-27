@@ -18,7 +18,7 @@ import proxy
 def get_html_text(url):
     htmltext = ""
     try:
-        htmltext = requests.get(url).text
+        htmltext = requests.get(url,headers=proxy.get_http_headers()).text
     except requests.exceptions.ConnectTimeout:
         print("timeout, try with another IP...")
         htmltext = proxy.get_html_text_with_proxy(url)

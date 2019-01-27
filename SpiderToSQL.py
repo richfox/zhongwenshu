@@ -38,24 +38,6 @@ def generate_sn(hanzi):
 
 
 
-def get_html_text(url):
-    text = ""
-    try:
-        text = requests.get(url).text
-    except requests.exceptions.ConnectTimeout:
-        print("timeout, try with another IP...")
-        text = proxy.get_html_text_with_proxy(url)
-    except requests.exceptions.ConnectionError:
-        print("connection failed, try with another IP...")
-        text = proxy.get_html_text_with_proxy(url)
-    except:
-        print("unexpected error: {0} {1}".format(sys.exc_info()[0],"try with another IP..."))
-        text = proxy.get_html_text_with_proxy(url)
-    else:
-        print(url + " fetched successfully!")
-
-    return text
-
 
 def get_prodSpuInfo(text):
     info = ""
@@ -142,12 +124,12 @@ def SpiderToSQL(sqls):
                 ddsn = ""
                 if tag == 0:
                     ddsn = Spider.split_ddsn(url)
-                    htmltext = get_html_text(url)
+                    htmltext = utility.get_html_text(url)
                 elif tag == 2:
                     tabledata = json.loads(url)
                     ddsn = tabledata[u'sn']
                     url = "http://product.dangdang.com/" + ddsn + ".html"
-                    htmltext = get_html_text(url)
+                    htmltext = utility.get_html_text(url)
 
                 if not htmltext:
                     ignored.append(url)
@@ -286,7 +268,7 @@ def SpiderToSQL(sqls):
                 #商品详情Ajax请求
                 ajaxbaseurl = "http://product.dangdang.com/index.php?r=callback%2Fdetail&productId={id}&templateType=publish&describeMap={descmap}&shopId={shopid}&categoryPath={catpath}"
                 ajaxurl = ajaxbaseurl.format(id=ddsn,descmap=descmap,shopid=shopid,catpath=catpath)
-                ajaxtext = get_html_text(ajaxurl)
+                ajaxtext = utility.get_html_text(ajaxurl)
                 ajaxdata = json.loads(ajaxtext)
                 ajaxhtmltext = ajaxdata["data"]["html"]
                 ajaxhtmltree = utility.get_html_tree(ajaxhtmltext)
@@ -399,12 +381,12 @@ def SpiderToSQL_tuangou(sqls,params):
             goodsdict = {}
             for url,tag in urls.items():
                 if tag == 0:
-                    htmltext = get_html_text(url)
+                    htmltext = utility.get_html_text(url)
                 elif tag == 2:
                     data = json.loads(url)
                     ddsn = data[u'sn']
                     url = "http://product.dangdang.com/" + ddsn + ".html"
-                    htmltext = get_html_text(url)
+                    htmltext = utility.get_html_text(url)
 
                 parser = lxml.html.HTMLParser()
                 htmltree = xml.etree.ElementTree.fromstring(htmltext,parser)
