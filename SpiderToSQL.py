@@ -271,26 +271,29 @@ def SpiderToSQL(sqls):
                 ajaxtext = utility.get_html_text(ajaxurl)
                 ajaxdata = json.loads(ajaxtext)
                 ajaxhtmltext = ajaxdata["data"]["html"]
-                ajaxhtmltree = utility.get_html_tree(ajaxhtmltext)
-                
-                #插图目录显示全部
-                show_all(ajaxhtmltree,"attachImage")
-                show_all(ajaxhtmltree,"catalog")
+                zwsprodtext = u""
+                if ajaxhtmltext:
+                    ajaxhtmltree = utility.get_html_tree(ajaxhtmltext)
+                    
+                    #插图目录显示全部
+                    show_all(ajaxhtmltree,"attachImage")
+                    show_all(ajaxhtmltree,"catalog")
 
-                #产品特色图片匹配
-                imgnode = ajaxhtmltree.xpath('//*[@id="feature"]//img')
-                if imgnode:
-                    imgnode[0].set('width','716')
+                    #产品特色图片匹配
+                    imgnode = ajaxhtmltree.xpath('//*[@id="feature"]//img')
+                    if imgnode:
+                        imgnode[0].set('width','716')
 
-                #商品描述
-                producttext = ""
-                for item in ajaxhtmltree.body:
-                    try:
-                        producttext += xml.etree.ElementTree.tostring(item)
-                    except:
-                        print("item \"%s\" ignored!" % item.attrib["id"])
-                zwsprodtext = u"<div><zws-product>" + producttext + u"</zws-product></div>"
-
+                    #商品描述
+                    producttext = ""
+                    for item in ajaxhtmltree.body:
+                        try:
+                            producttext += xml.etree.ElementTree.tostring(item)
+                        except:
+                            print("item \"%s\" ignored!" % item.attrib["id"])
+                    zwsprodtext = u"<div><zws-product>" + producttext + u"</zws-product></div>"
+                else:
+                    zwsprodtext = u"<p>本商品暂无详情。</p>"
 
 
                 #创建书籍信息字典
