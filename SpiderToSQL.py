@@ -399,7 +399,7 @@ def SpiderToSQL_tuangou(sqls,params):
 
                 #爬取书籍名称和定价
                 titlenode = htmltree.xpath('//*[@id="product_info"]/div[1]/h1/@title')
-                title = ''
+                titlesn = ''
                 if titlenode:
                     title = titlenode[0]
                     titlesn = title + ' [' + sn + ']'
@@ -407,7 +407,10 @@ def SpiderToSQL_tuangou(sqls,params):
                     goodnames += '\r\n'
                 
                 oriprice = Spider.searchOriginalPrice(htmltree)
-                groupbuyprice = format(float(oriprice) * rate,'.2f')
+                groupbuyprice = 0.0
+                if oriprice:
+                    groupbuyprice = format(float(oriprice) * rate,'.2f')
+
                 goodsdict[sn] = (titlesn,groupbuyprice)
 
             diffsn = params[u'dhl_diff_sn']
