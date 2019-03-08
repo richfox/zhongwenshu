@@ -3,9 +3,27 @@
     "configurations": [
         {
             "transport": [
-                {"type": "海","consignee": ".*黄琰.*"},
+                {"type": "海","consignee": ".*董然.*"},
                 {"type": "陆","consignee": ".*李明松.*"},
                 {"type": "空","consignee": ".*李沐阳.*"}
+            ]
+        },
+        {
+            "winxuan": [
+                {
+                    "type": "formal",
+                    "http": "http://gw.api.winxuan.com/router/rest",
+                    "key": "???",
+                    "secret": "??????",
+                    "accesstoken": "??????"
+                },
+                {
+                    "type": "sandbox",
+                    "http": "http://sandbox.api.winxuan.com/router/rest",
+                    "key": "100032",
+                    "secret": "de781560f2bb683141430b42565357a5",
+                    "accesstoken": "2d90eed6ed5cdf63c235581db56807ed"
+                }
             ]
         },
         {}

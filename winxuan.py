@@ -7,16 +7,29 @@
 import sys
 import os
 import hashlib
+import json
 
 
-def get_sign(params,appSecret):
+def get_authorization():
+    res = {}
+    jsonstring = open(".\\Globconfig.json",'r').read()
+    allinfo = json.loads(jsonstring)
+    for config in allinfo["configurations"]:
+        if config.has_key("winxuan"):
+            for wx in config["winxuan"]:
+                res[wx["type"]] = (wx["key"],wx["secret"],wx["accesstoken"])
+            break
+    return res
+
+
+def get_sign(params,secret):
     sign = ""
     if params:
-        sign = appSecret
+        sign = secret
         for key in sorted(params.keys()):
             if params[key]:
                 sign += key + params[key]
-        sign += appSecret
+        sign += secret
         return HEXSHA1(sign)
     return sign
 
