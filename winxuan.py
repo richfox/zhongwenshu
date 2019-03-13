@@ -17,9 +17,20 @@ def get_authorization():
     for config in allinfo["configurations"]:
         if config.has_key("winxuan"):
             for wx in config["winxuan"]:
-                res[wx["type"]] = (wx["key"],wx["secret"],wx["accesstoken"])
+                res[wx["type"]] = (wx["address"],wx["key"],wx["secret"],wx["accesstoken"])
             break
     return res
+
+
+def build_http_request(httpaddress,cparams,bparams,sign):
+    hreq = httpaddress + "?"
+    for ckey,cvalue in cparams:
+        hreq += "&" + ckey + "=" + cvalue
+    for bkey,bvalue in bparams:
+        hreq += "&" + bkey + "=" + bvalue
+    hreq += "&appSign=" + sign
+    return hreq
+
 
 
 def get_sign(params,secret):
