@@ -11,6 +11,7 @@ import Visitor
 import SQLimport
 import SpiderToSQL
 import taobao
+import winxuan
 import re
 import xml.dom.minidom
 import ExcelToSQL
@@ -29,6 +30,8 @@ def printUsage():
     print('python ${THIS_SCRIPT_NAME}.py {-sql}    Generates a default sql configuration file')
     print("")
     print('python ${THIS_SCRIPT_NAME}.py {-t | -taobao}    spider taobao.com')
+    print("")
+    print('python ${THIS_SCRIPT_NAME}.py {-wx}   interface for winxuan.com')
     print("")
     print('python ${THIS_SCRIPT_NAME}.py {-tuan | -tuangou}    Generates a config file for parameters of grouping buy')
     print("")
@@ -79,6 +82,11 @@ def matchGenerateSqlConigFile(arg):
 
 def matchTaobao(arg):
     regex = r"-taobao$|-t$"
+    res = scanForMatch(regex,arg)
+    return res
+
+def matchWinxuan(arg):
+    regex = r"-wx$"
     res = scanForMatch(regex,arg)
     return res
 
@@ -332,6 +340,9 @@ def main():
             return True
         elif matchTaobao(sys.argv[1]):
             taobao.aptamil()
+            return True
+        elif matchWinxuan(sys.argv[1]):
+            winxuan.get_shop_items()
             return True
         elif matchGenerateGroupbuyConigFile(sys.argv[1]):
             generateDefaultGroupbuyConfig()

@@ -66,4 +66,5 @@ def byte2hex(barray):
 
 def get_shop_items():
     respond = ""
+    (address,key,secret,accesstoken) = get_authorization()["sandbox"]
     return respond
