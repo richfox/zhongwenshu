@@ -26,22 +26,25 @@ def get_authorization():
 
 def build_http_request(httpaddress,cparams,bparams,sign):
     hreq = httpaddress + "?"
-    for ckey,cvalue in cparams:
+    for ckey,cvalue in cparams.items():
         hreq += "&" + ckey + "=" + cvalue
-    for bkey,bvalue in bparams:
+    for bkey,bvalue in bparams.items():
         hreq += "&" + bkey + "=" + bvalue
     hreq += "&appSign=" + sign
     return hreq
 
 
 
-def get_sign(params,secret):
+def get_sign(cparams,bparams,secret):
     sign = ""
-    if params:
+    if cparams or bparams:
         sign = secret
-        for key in sorted(params.keys()):
-            if params[key]:
-                sign += key + params[key]
+        allparams = cparams
+        for bkey,bvalue in bparams.items():
+            allparams[bkey] = bvalue
+        for key,value in sorted(allparams.items()):
+            if value:
+                sign += key + value
         sign += secret
         return HEXSHA1(sign)
     return sign
@@ -68,7 +71,26 @@ def byte2hex(barray):
 
 def get_shop_items():
     respond = ""
+    
     (address,key,secret,accesstoken,version,format) = get_authorization()["sandbox"]
     method = "winxuan.shop.items.get"
     timestamp = str(int(time.time()*1000))
+
+    #公共参数
+    cparams = {"timeStamp":timestamp,
+               "method":method,
+               "v":version,
+               "format":format,
+               "appKey":key,
+               "accessToken":accesstoken}
+
+    #业务参数
+    bparams = {"itemIds":"10000349"}
+
+    #生成签名
+    sign = get_sign(cparams,bparams,secret)
+
+    #组装HTTP请求
+    hreq = build_http_request(address,cparams,bparams,sign)
+
     return respond

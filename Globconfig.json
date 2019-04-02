@@ -11,7 +11,7 @@
         {
             "winxuan": [
                 {
-                    "type": "formal",
+                    "type": "gw",
                     "address": "http://gw.api.winxuan.com/router/rest",
                     "key": "???",
                     "secret": "??????",
