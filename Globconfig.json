@@ -15,14 +15,18 @@
                     "address": "http://gw.api.winxuan.com/router/rest",
                     "key": "???",
                     "secret": "??????",
-                    "accesstoken": "??????"
+                    "accesstoken": "??????",
+                    "version": "1.0",
+                    "format": "json"
                 },
                 {
                     "type": "sandbox",
                     "address": "http://sandbox.api.winxuan.com/router/rest",
                     "key": "100032",
                     "secret": "de781560f2bb683141430b42565357a5",
-                    "accesstoken": "2d90eed6ed5cdf63c235581db56807ed"
+                    "accesstoken": "2d90eed6ed5cdf63c235581db56807ed",
+                    "version": "1.0",
+                    "format": "json"
                 }
             ]
         },

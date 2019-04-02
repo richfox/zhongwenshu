@@ -8,6 +8,8 @@ import sys
 import os
 import hashlib
 import json
+import time
+
 
 
 def get_authorization():
@@ -17,7 +19,7 @@ def get_authorization():
     for config in allinfo["configurations"]:
         if config.has_key("winxuan"):
             for wx in config["winxuan"]:
-                res[wx["type"]] = (wx["address"],wx["key"],wx["secret"],wx["accesstoken"])
+                res[wx["type"]] = (wx["address"],wx["key"],wx["secret"],wx["accesstoken"],wx["version"],wx["format"])
             break
     return res
 
@@ -66,5 +68,7 @@ def byte2hex(barray):
 
 def get_shop_items():
     respond = ""
-    (address,key,secret,accesstoken) = get_authorization()["sandbox"]
+    (address,key,secret,accesstoken,version,format) = get_authorization()["sandbox"]
+    method = "winxuan.shop.items.get"
+    timestamp = str(int(time.time()*1000))
     return respond
