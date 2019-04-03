@@ -150,7 +150,7 @@ def import_winxuan_to_sql(sqls):
                     goodsnumber = data["shop_items"][0]["stock"]
 
                 #重量kg
-                goodsweight = "0.000"
+                goodsweight = 0.000
 
                 #价格
                 shopprice = 0.00
@@ -187,7 +187,7 @@ def import_winxuan_to_sql(sqls):
                         '0', '0', '1', '', '',\
                         %s, '', '', '', '1', '',\
                         '0', '1', '0', '0', %s, '100',\
-                        '0', '0', '1', '0', '0', '0', '0',\
+                        '0', '0', '0', '0', '0', '0', '0',\
                         %s, '', '-1', '-1', '0', NULL)"
                     cursor.execute(sql,(catid,sn,title,goodsnumber,goodsweight,marketprice,shopprice,zwsprodtext,addtime,gtype))
 
