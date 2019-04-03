@@ -31,8 +31,6 @@ def printUsage():
     print("")
     print('python ${THIS_SCRIPT_NAME}.py {-t | -taobao}    spider taobao.com')
     print("")
-    print('python ${THIS_SCRIPT_NAME}.py {-wx}   interface for winxuan.com')
-    print("")
     print('python ${THIS_SCRIPT_NAME}.py {-tuan | -tuangou}    Generates a config file for parameters of grouping buy')
     print("")
     print('python ${THIS_SCRIPT_NAME}.py ${config.xml}    Uses all settings of the xml configuration file')
@@ -46,6 +44,8 @@ def printUsage():
     print('python ${THIS_SCRIPT_NAME}.py ${sql.sxml}    import to database with settings of the sxml file')
     print("")
     print('python ${THIS_SCRIPT_NAME}.py ${config.xml} ${sql.sxml}   use config to search attributes than import to database with settings of the sxml file')
+    print("")
+    print('python ${THIS_SCRIPT_NAME}.py {-wx} ${sql.sxml}  call api of winxuan.com and import to database with settings of the sxml file')
     print("")
     print('python ${THIS_SCRIPT_NAME}.py ${config.xml} {-tuan | -tuangou}   use config to search attributes write result to _books.xlsx for groupbuy')
     print("")
@@ -341,9 +341,6 @@ def main():
         elif matchTaobao(sys.argv[1]):
             taobao.aptamil()
             return True
-        elif matchWinxuan(sys.argv[1]):
-            winxuan.get_shop_items()
-            return True
         elif matchGenerateGroupbuyConigFile(sys.argv[1]):
             generateDefaultGroupbuyConfig()
             return True
@@ -404,6 +401,15 @@ def main():
                 print('Error: config file does not exist.')
                 return False
             Visitor.visitorStart(sys.argv[1],True)
+            return True
+        elif matchWinxuan(sys.argv[1]) and matSqlFile(sys.argv[2]):
+            if not os.path.exists(sys.argv[2]):
+                print('Error: sql config file does not exist.')
+            sqls = parseSqlConfigFile(sys.argv[2])
+            urls = winxuan.get_shop_items()
+            for host,(username,password,dbname,charset) in sqls.items():
+                sqls[host] = (username,password,dbname,charset,urls)
+            winxuan.import_winxuan_to_sql(sqls)
             return True
     elif numArgs == 4:
         if matchConfigFile(sys.argv[1]) and matSqlFile(sys.argv[2]) and matchGroupbuyConfigFile(sys.argv[3]):
