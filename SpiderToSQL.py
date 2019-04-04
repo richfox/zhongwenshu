@@ -291,6 +291,8 @@ def SpiderToSQL(sqls):
                             producttext += xml.etree.ElementTree.tostring(item)
                         except:
                             print("item \"%s\" ignored!" % item.attrib["id"])
+
+                    #自定义样式
                     zwsprodtext = u"<div><zws-product>" + producttext + u"</zws-product></div>"
                 else:
                     zwsprodtext = u"<p>本商品暂无详情。</p>"

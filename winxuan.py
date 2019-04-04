@@ -141,30 +141,83 @@ def import_winxuan_to_sql(sqls):
                 title = ""
                 if data["shop_items"][0].has_key("title"):
                     title = data["shop_items"][0]["title"]
-                    if title:
-                        sn = SpiderToSQL.generate_sn(data["shop_items"][0]["title"])
+                if title:
+                    sn = SpiderToSQL.generate_sn(data["shop_items"][0]["title"])
                 
                 #数量
                 goodsnumber = 0
                 if data["shop_items"][0].has_key("stock"):
                     goodsnumber = data["shop_items"][0]["stock"]
+                
+                #ISBN
+                isbn = ""
+                if data["shop_items"][0].has_key("barcode"):
+                    isbn = data["shop_items"][0]["barcode"]
+
+                #价格
+                oriprice = "0.00"
+                shopprice = 0.00
+                marketprice = "0.00"
+                if data["shop_items"][0].has_key("list_price"):
+                    oriprice = u"%s%.2f" % (u"¥",data["shop_items"][0]["list_price"])
+                    shopprice = data["shop_items"][0]["list_price"]*2/7
+                    marketprice = u"%.2f" % (data["shop_items"][0]["list_price"]*1.2)
 
                 #重量kg
                 goodsweight = 0.000
 
-                #价格
-                shopprice = 0.00
-                marketprice = "0.00"
-                if data["shop_items"][0].has_key("shop_item_price"):
-                    if data["shop_items"][0]["shop_item_price"].has_key("sell_price"):
-                        shopprice = data["shop_items"][0]["shop_item_price"]["sell_price"]
-                        marketprice = u"%.2f" % (float(shopprice)*1.2)
-                elif data["shop_items"][0].has_key("shop_item_price.sell_price"):
-                    shopprice = data["shop_items"][0]["shop_item_price.sell_price"]
-                    marketprice = u"%.2f" % (float(shopprice)*1.2)
+                #商品图片
+                homeimgUrl = ""
+                largeimgUrls = {}
+                if data["shop_items"][0].has_key("shop_item_images"):
+                    for image in data["shop_items"][0]["shop_item_images"]:
+                        if image["image_type"] == "HOME_IMAGE":
+                            homeimgUrl = image["winxuan_image_url"]
+                        elif image["image_type"] == "LARGE_IMAGE":
+                            largeimgUrls[image["index"]] = image["winxuan_image_url"]
 
                 #商品详情
-                zwsprodtext = u"<p>本商品暂无详情。</p>"
+                fields = ["feature","editor_recommendation","content_introduce","author_introduce","catalog","preface","media_comment"]
+                sections = {"feature":{"id":u"feature","title":u"产品特色"},
+                            "editor_recommendation":{"id":u"abstract","title":u"编辑推荐"},
+                            "content_introduce":{"id":u"content","title":u"内容简介"},
+                            "author_introduce":{"id":u"authorIntroduction","title":u"作者简介"},
+                            "catalog":{"id":u"catalog","title":u"目　　录"},
+                            "preface":{"id":u"preface","title":u"在线试读"},
+                            "media_comment":{"id":u"media","title":u"媒体评论"}}
+                
+                prodtext = u""
+                if data["shop_items"][0].has_key("shop_item_attribute"):
+                    for field in fields:
+                        sectiontext = u''
+                        if data["shop_items"][0]["shop_item_attribute"].has_key(field):
+                            sectiontext += u'<div class="section" id="' + sections[field]["id"] + '">\
+                                    <div class="title"><span>' + sections[field]["title"] + '</span></div>\
+                                    <div class="descrip">'
+                            sectiontext += data["shop_items"][0]["shop_item_attribute"][field]
+                            sectiontext += u'<div>&nbsp;</div></div></div>'
+                        else:
+                            if field == "feature":
+                                if largeimgUrls:
+                                    sectiontext += u'<div class="section" id="' + sections[field]["id"] + '">\
+                                                <div class="title"><span>' + sections[field]["title"] + '</span></div>\
+                                                <div class="descrip">'
+                                    for url in largeimgUrls.values():
+                                        sectiontext += '<img alt="" src="' + url + '" />'
+                                    sectiontext += u'<div>&nbsp;</div></div></div>'
+                        prodtext += sectiontext
+
+                if prodtext:
+                    zwsprodtext = u"<div><zws-product>" + prodtext + u"</zws-product></div>"
+                else:
+                    zwsprodtext = u"<p>本商品暂无详情。</p>"
+
+                #作者 出版社 出版时间 开本 包装 ISBN 定价
+                attrs = {"author":"","publish_house":"","publish_date":"","size":"","binding":""}
+                if data["shop_items"][0].has_key("shop_item_attribute"):
+                    for key in attrs:
+                        if data["shop_items"][0]["shop_item_attribute"].has_key(key):
+                            attrs[key] = data["shop_items"][0]["shop_item_attribute"][key]
 
                 #时间戳
                 addtime = str(int(time.time()))
@@ -190,6 +243,22 @@ def import_winxuan_to_sql(sqls):
                         '0', '0', '0', '0', '0', '0', '0',\
                         %s, '', '-1', '-1', '0', NULL)"
                     cursor.execute(sql,(catid,sn,title,goodsnumber,goodsweight,marketprice,shopprice,zwsprodtext,addtime,gtype))
+
+                    #创建书籍信息字典
+                    #所有商品属性定义在表ecs_attribute中
+                    attridx = {1:attrs["author"],2:attrs["publish_house"],3:isbn,4:attrs["publish_date"],5:attrs["size"],7:attrs["binding"],232:oriprice}
+
+                    #唯一商品编号
+                    sql = "SELECT `goods_id` FROM " + goodstable + " WHERE `goods_sn`=%s"
+                    cursor.execute(sql,sn)
+                    goodsid = cursor.fetchone()[0]
+                    print(goodsid)
+
+                    #填入书籍信息
+                    for attrid,attr in attridx.items():
+                        sql = "INSERT INTO " + goodsattrtable + " (`goods_attr_id`, `goods_id`, `attr_id`,\
+                            `attr_value`, `attr_price`) VALUES (NULL, %s, %s, %s, '0')"
+                        cursor.execute(sql,(goodsid,attrid,attr))
 
                 connection.commit()
         finally:
