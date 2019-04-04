@@ -28,12 +28,11 @@ def get_authorization():
 
 
 def build_http_request(httpaddress,cparams,bparams,sign):
-    hreq = httpaddress + "?"
+    hreq = httpaddress + "?appSign=" + sign
     for ckey,cvalue in cparams.items():
         hreq += "&" + ckey + "=" + cvalue
     for bkey,bvalue in bparams.items():
         hreq += "&" + bkey + "=" + bvalue
-    hreq += "&appSign=" + sign
     return hreq
 
 
