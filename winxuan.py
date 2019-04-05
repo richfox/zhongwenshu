@@ -109,7 +109,7 @@ def import_winxuan_to_sql(sqls):
         connection = pymysql.connect(host=host,user=username,password=password,db=dbname,charset=charset)
         try:
             for url,tag in urls.items():
-                text = utility.get_html_text(url)
+                text = utility.post_html_text(url)
 
                 if not text:
                     ignored.append(url)

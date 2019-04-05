@@ -34,6 +34,25 @@ def get_html_text(url):
         print(url + " fetched successfully!")
     return htmltext
 
+def post_html_text(url):
+    htmltext = ""
+    try:
+        htmltext = requests.post(url,headers=proxy.get_http_headers()).text
+    except requests.exceptions.ConnectTimeout:
+        print("timeout, try with another IP...")
+        htmltext = proxy.post_html_text_with_proxy(url)
+    except requests.exceptions.ConnectionError:
+        print("connection failed, try with another IP...")
+        htmltext = proxy.post_html_text_with_proxy(url)
+    except requests.exceptions.InvalidURL:
+        print("invalid url")
+    except:
+        print("unexpected error: {0} {1}".format(sys.exc_info()[0],"try with another IP..."))
+        htmltext = proxy.post_html_text_with_proxy(url)
+    else:
+        print(url + " fetched successfully!")
+    return htmltext
+
 
 def get_html_tree(text):
     parser = lxml.html.HTMLParser()

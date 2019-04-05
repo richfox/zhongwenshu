@@ -64,3 +64,16 @@ def get_html_text_with_proxy(url):
             continue
     return text
 
+
+def post_html_text_with_proxy(url):
+    text = ""
+    for proxy in get_http_proxies():
+        try:
+            res = requests.post(url,timeout=6,headers=get_http_headers(),proxies=proxy)
+            if res.ok:
+                print(proxy['http'] + " fetched successfully!")
+                text = res.text
+                break
+        except:
+            continue
+    return text
