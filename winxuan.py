@@ -12,7 +12,8 @@ import time
 import utility
 import pymysql
 import SpiderToSQL
-
+import ftplib
+import ImageProcess
 
 
 def get_authorization():
@@ -87,7 +88,7 @@ def get_shop_items():
                "accessToken":accesstoken}
 
     #业务参数
-    bparams = {"itemIds":"10000349"}
+    bparams = {"itemIds":"10000001"}
 
     #生成签名
     sign = get_sign(cparams,bparams,secret)
@@ -107,6 +108,7 @@ def import_winxuan_to_sql(sqls):
 
     for host,(username,password,dbname,charset,urls) in sqls.items():
         connection = pymysql.connect(host=host,user=username,password=password,db=dbname,charset=charset)
+        fconn = ftplib.FTP("www198.your-server.de","zhongw_0","ixMy1Niq04GaIUuu")
         try:
             for url,tag in urls.items():
                 text = utility.post_html_text(url)
@@ -168,12 +170,53 @@ def import_winxuan_to_sql(sqls):
                 #商品图片
                 homeimgUrl = ""
                 largeimgUrls = {}
+                img = ImageProcess.Processor("")
                 if data["shop_items"][0].has_key("shop_item_images"):
                     for image in data["shop_items"][0]["shop_item_images"]:
                         if image["image_type"] == "HOME_IMAGE":
                             homeimgUrl = image["winxuan_image_url"]
+                            img = ImageProcess.Processor(homeimgUrl)
                         elif image["image_type"] == "LARGE_IMAGE":
                             largeimgUrls[image["index"]] = image["winxuan_image_url"]
+             
+                oriImg = ""
+                goodsImg = ""
+                thumbImg = "" 
+                if img.Loaded():
+                    fconn.cwd("test/images/winxuan")
+                    src = img.Save("./temp",sn,img.Format())
+                    target = img.Upload(fconn,src,"source_img",sn,img.Format())
+                    if target:
+                        oriImg = "images/winxuan" + "/" + target
+
+                    if img.Width()>230 and img.Height()>230:
+                        img.Thumb(230,230)
+                        src = img.Save("./temp",sn+"_G",img.Format())
+                        target = img.Upload(fconn,src,"goods_img",sn+"_G",img.Format())
+                        if target:
+                            goodsImg = "images/winxuan" + "/" + target
+
+                        img.Thumb(100,100)
+                        src = img.Save("./temp",sn+"_T",img.Format())
+                        target = img.Upload(fconn,src,"thumb_img",sn+"_T",img.Format())
+                        if target:
+                            thumbImg = "images/winxuan" + "/" + target
+                    else:
+                        target = img.Upload(fconn,src,"goods_img",sn+"_G",img.Format())
+                        if target:
+                            goodsImg = "images/winxuan" + "/" + target
+
+                        if img.Width()>100 and img.Height()>100:
+                            img.Thumb(100,100)
+                            src = img.Save("./temp",sn+"_T",img.Format())
+                            target = img.Upload(fconn,src,"thumb_img",sn+"_T",img.Format())
+                            if target:
+                                humbImg = "images/winxuan" + "/" + target
+                        else:
+                            target = img.Upload(fconn,src,"thumb_img",sn+"_T",img.Format())
+                            if target:
+                                thumbImg = "images/winxuan" + "/" + target
+                    
 
                 #商品详情
                 fields = ["feature","editor_recommendation","content_introduce","author_introduce","catalog","preface","media_comment"]
@@ -237,11 +280,16 @@ def import_winxuan_to_sql(sqls):
                         '+', '0', '0', '', %s,\
                         %s, %s, '', %s, '0.00',\
                         '0', '0', '1', '', '',\
-                        %s, '', '', '', '1', '',\
-                        '0', '1', '0', '0', %s, '100',\
+                        %s, %s, %s, %s, '1', '',\
+                        '1', '1', '0', '0', %s, '100',\
                         '0', '0', '0', '0', '0', '0', '0',\
                         %s, '', '-1', '-1', '0', NULL)"
-                    cursor.execute(sql,(catid,sn,title,goodsnumber,goodsweight,marketprice,shopprice,zwsprodtext,addtime,gtype))
+                    cursor.execute(sql,(catid,sn,title,
+                                        goodsnumber,
+                                        goodsweight,marketprice,shopprice,
+                                        zwsprodtext,thumbImg,goodsImg,oriImg,
+                                        addtime,
+                                        gtype))
 
                     #创建书籍信息字典
                     #所有商品属性定义在表ecs_attribute中
@@ -262,6 +310,7 @@ def import_winxuan_to_sql(sqls):
                 connection.commit()
         finally:
             connection.close()
+            fconn.quit()
 
     for url in ignored:
         print(url + " ignored!\n")

@@ -8,25 +8,49 @@
 import io
 import PIL.Image
 import requests
+import ftplib
 
 
-
-class ImgProcessor:
+class Processor:
     def __init__(self,url):
-        res = requests.get(url)
-        self._image = PIL.Image.open(io.BytesIO(res.content))
+        self._loaded = False
+        if url:
+            res = requests.get(url)
+            self._image = PIL.Image.open(io.BytesIO(res.content))
+            self._loaded = True
+
+    def Loaded(self):
+        return self._loaded
 
     def Show(self):
         self._image.show()
 
-    def Save(self,path,ext):
-        self._image.save(path,ext)
+    def Save(self,path,name,ext):
+        target = path + "/" + name + "." + ext
+        self._image.save(target)
+        return target
 
-    def Thumb(self,x,y):
-        self._image.thumbnail((x,y))
+    def Upload(self,conn,source,path,name,ext):
+        file = open(source,"rb")
+        target = path + "/" + name + "." + ext
+        conn.storbinary("STOR " + target,file)
+        file.close()
+        return target
 
-    def Size(self):
-        return self._image.size
+    def Thumb(self,width,height):
+        self._image.thumbnail((width,height))
+
+    def Width(self):
+        return self._image.size[0]
+
+    def Height(self):
+        return self._image.size[1]
 
     def Format(self):
         return self._image.format
+
+    def Mode(self):
+        return self._image.mode
+
+    def Info(self):
+        return self._image.Info
