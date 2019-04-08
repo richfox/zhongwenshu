@@ -57,6 +57,13 @@ class Visitor:
 
     def searchOrderGoods(self):
         basepath = '//*[@id="normalorder"]//*[@class="merch_bord"]//table[@class="tabl_merch"]'
+
+        #包件信息
+        subpath = '//*[@id="normalorder"]//*[@class="merch_bord"]//*[@class="sort_package_list"]/table'
+        packages = self._htmltree.xpath(subpath)
+        if len(packages) > 0:
+            basepath = subpath
+
         books = self._htmltree.xpath(basepath + '//*[@class="tab_w1"]/*[@name="productname"]')
         titles = self._htmltree.xpath(basepath + '//*[@class="tab_w1"]/*[@name="productname"]/@title')
         hrefs = self._htmltree.xpath(basepath + '//*[@class="tab_w1"]/*[@name="productname"]/@href')
@@ -64,7 +71,7 @@ class Visitor:
         bonuses = self._htmltree.xpath(basepath + '//*[@class="tab_w2"]')
         amounts = self._htmltree.xpath(basepath + '//*[@class="tab_w6"]')
         sums = self._htmltree.xpath(basepath + '//*[@class="tab_w4"]')
-
+        
         #换购商品或分册信息
         subbooks = self._htmltree.xpath(basepath + '//*[@class="tab_w1"]/*[@class="present"]')
 
