@@ -299,6 +299,46 @@ def parseSqlConfigFile(configFile):
     return sqls
 
 
+def parseServerConfigFile(configFile):
+    server = {}
+    tree = xml.dom.minidom.parse(configFile)
+    configNode = tree.getElementsByTagName("config")[0]
+    for node in configNode.childNodes:
+        if node.nodeName == "mysql":
+            host = ""
+            username = ""
+            password = ""
+            dbname = ""
+            charset = ""
+            for mysql in node.childNodes:
+                if mysql.nodeName == 'host':
+                    host = getNodeText(mysql.childNodes)
+                elif mysql.nodeName == 'user':
+                    username = getNodeText(mysql.childNodes)
+                elif mysql.nodeName == 'password':
+                    password = getNodeText(mysql.childNodes)
+                elif mysql.nodeName == 'db':
+                    dbname = getNodeText(mysql.childNodes)
+                elif mysql.nodeName == 'charset':
+                    charset = getNodeText(mysql.childNodes)
+            server["mysql"] = (host,username,password,dbname,charset)
+        elif node.nodeName == "ftp":
+            host = ""
+            username = ""
+            password = ""
+            uploadpath = ""
+            for ftp in node.childNodes:
+                if ftp.nodeName == 'host':
+                    host = getNodeText(ftp.childNodes)
+                elif ftp.nodeName == 'user':
+                    username = getNodeText(ftp.childNodes)
+                elif ftp.nodeName == 'password':
+                    password = getNodeText(ftp.childNodes)
+                elif ftp.nodeName == 'uploadpath':
+                    uploadpath = getNodeText(ftp.childNodes)
+            server["ftp"] = (host,username,password,uploadpath)
+    return server
+
 def parseGroupbuyConfigFile(configFile):
     groupbuyparams = {}
     tree = xml.dom.minidom.parse(configFile)
@@ -381,12 +421,16 @@ def main():
                 print('Error: sql config file does not exist.')
                 return False
             urls = parseConfigFile(sys.argv[1])
-            sqls = parseSqlConfigFile(sys.argv[2])
-            for host,(username,password,dbname,charset) in sqls.items():
-                for url,tag in urls.items():
-                    if (tag == 1):
-                        del urls[url]
-                sqls[host] = (username,password,dbname,charset,urls)
+            server = parseServerConfigFile(sys.argv[2])
+            if not server.has_key("mysql"):
+                print("Error: config file is not completed.")
+                return False
+            sql = server["mysql"]
+            for url,tag in urls.items():
+                if (tag == 1):
+                    del urls[url]
+            sqls = {}
+            sqls[sql[0]] = (sql[1],sql[2],sql[3],sql[4],urls)
             SpiderToSQL.SpiderToSQL(sqls)
             return True
         elif matchConfigFile(sys.argv[1]) and matchTuangou(sys.argv[2]):
@@ -423,13 +467,17 @@ def main():
                 print('Error: grouping bug config file does not exist, use -tuan to generate it')
                 return False
             urls = parseConfigFile(sys.argv[1])
-            sqls = parseSqlConfigFile(sys.argv[2])
+            server = parseServerConfigFile(sys.argv[2])
             params = parseGroupbuyConfigFile(sys.argv[3])
-            for host,(username,password,dbname,charset) in sqls.items():
-                for url,tag in urls.items():
-                    if (tag == 1):
-                        del urls[url]
-                sqls[host] = (username,password,dbname,charset,urls)
+            if not server.has_key("mysql"):
+                print("Error: config file is not completed.")
+                return False
+            sql = server["mysql"]
+            for url,tag in urls.items():
+                if (tag == 1):
+                    del urls[url]
+            sqls = {}
+            sqls[sql[0]] = (sql[1],sql[2],sql[3],sql[4],urls)
             SpiderToSQL.SpiderToSQL_tuangou(sqls,params)
             return True
         elif matchJsformDataFile(sys.argv[1]) and matSqlFile(sys.argv[2]) and matchGroupbuyConfigFile(sys.argv[3]):
