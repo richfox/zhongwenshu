@@ -102,215 +102,219 @@ def get_shop_items():
     return urls
 
 
-def import_winxuan_to_sql(sqls):
+def import_winxuan_to_sql(server,urls):
     print("Starting Import winxuan article to database...\n")
     ignored = []
+    sql = server["mysql"]
+    ftp = server["ftp"]
 
-    for host,(username,password,dbname,charset,urls) in sqls.items():
-        connection = pymysql.connect(host=host,user=username,password=password,db=dbname,charset=charset)
-        fconn = ftplib.FTP("www198.your-server.de","zhongw_0","ixMy1Niq04GaIUuu")
-        try:
-            for url,tag in urls.items():
-                text = utility.post_html_text(url)
+    connection = pymysql.connect(sql[0],sql[1],sql[2],sql[3],charset=sql[4])
+    fconn = ftplib.FTP(ftp[0],ftp[1],ftp[2])
+    try:
+        for url,tag in urls.items():
+            text = utility.post_html_text(url)
 
-                if not text:
-                    ignored.append(url)
-                    continue
+            if not text:
+                ignored.append(url)
+                continue
 
-                data = ""
-                if tag == "json":
-                    data = json.loads(text)
-                
-                #区分测试和主数据库
-                goodstable = ""
-                goodsattrtable = ""
-                goodscattable = ""
-                if dbname == 'zhongw_test':
-                    goodstable = "ecs_test_goods"
-                    goodsattrtable = "ecs_test_goods_attr"
-                    goodscattable = "ecs_test_goods_cat"
-                elif dbname == 'zhongwenshu_db1':
-                    goodstable = "ecs_goods"
-                    goodsattrtable = "ecs_goods_attr"
-                    goodscattable = "ecs_goods_cat"
+            data = ""
+            if tag == "json":
+                data = json.loads(text)
+            
+            #区分测试和主数据库
+            goodstable = ""
+            goodsattrtable = ""
+            goodscattable = ""
+            goodsimagepath = ""
+            if sql[3] == 'zhongw_test':
+                goodstable = "ecs_test_goods"
+                goodsattrtable = "ecs_test_goods_attr"
+                goodscattable = "ecs_test_goods_cat"
+                goodsimagepath = "test/" + ftp[3]
+            elif sql[3] == 'zhongwenshu_db1':
+                goodstable = "ecs_goods"
+                goodsattrtable = "ecs_goods_attr"
+                goodscattable = "ecs_goods_cat"
+                goodsimagepath = ftp[3]
 
-                #商品分类定义在表ecs_category中，先登到准上架分类'134'
-                catid = "134"
+            #商品分类定义在表ecs_category中，先登到准上架分类'134'
+            catid = "134"
 
-                #唯一商品货号
-                sn = ""
-                title = ""
-                if data["shop_items"][0].has_key("title"):
-                    title = data["shop_items"][0]["title"]
-                if title:
-                    sn = SpiderToSQL.generate_sn(data["shop_items"][0]["title"])
-                
-                #数量
-                goodsnumber = 0
-                if data["shop_items"][0].has_key("stock"):
-                    goodsnumber = data["shop_items"][0]["stock"]
-                
-                #ISBN
-                isbn = ""
-                if data["shop_items"][0].has_key("barcode"):
-                    isbn = data["shop_items"][0]["barcode"]
+            #唯一商品货号
+            sn = ""
+            title = ""
+            if data["shop_items"][0].has_key("title"):
+                title = data["shop_items"][0]["title"]
+            if title:
+                sn = SpiderToSQL.generate_sn(data["shop_items"][0]["title"])
+            
+            #数量
+            goodsnumber = 0
+            if data["shop_items"][0].has_key("stock"):
+                goodsnumber = data["shop_items"][0]["stock"]
+            
+            #ISBN
+            isbn = ""
+            if data["shop_items"][0].has_key("barcode"):
+                isbn = data["shop_items"][0]["barcode"]
 
-                #价格
-                oriprice = "0.00"
-                shopprice = 0.00
-                marketprice = "0.00"
-                if data["shop_items"][0].has_key("list_price"):
-                    oriprice = u"%s%.2f" % (u"¥",data["shop_items"][0]["list_price"])
-                    shopprice = data["shop_items"][0]["list_price"]*2/7
-                    marketprice = u"%.2f" % (data["shop_items"][0]["list_price"]*1.2)
+            #价格
+            oriprice = "0.00"
+            shopprice = 0.00
+            marketprice = "0.00"
+            if data["shop_items"][0].has_key("list_price"):
+                oriprice = u"%s%.2f" % (u"¥",data["shop_items"][0]["list_price"])
+                shopprice = data["shop_items"][0]["list_price"]*2/7
+                marketprice = u"%.2f" % (data["shop_items"][0]["list_price"]*1.2)
 
-                #重量kg
-                goodsweight = 0.000
+            #重量kg
+            goodsweight = 0.000
 
-                #商品图片
-                homeimgUrl = ""
-                largeimgUrls = {}
-                img = ImageProcess.Processor("")
-                if data["shop_items"][0].has_key("shop_item_images"):
-                    for image in data["shop_items"][0]["shop_item_images"]:
-                        if image["image_type"] == "HOME_IMAGE":
-                            homeimgUrl = image["winxuan_image_url"]
-                            img = ImageProcess.Processor(homeimgUrl)
-                        elif image["image_type"] == "LARGE_IMAGE":
-                            largeimgUrls[image["index"]] = image["winxuan_image_url"]
-             
-                oriImg = ""
-                goodsImg = ""
-                thumbImg = "" 
-                if img.Loaded():
-                    fconn.cwd("test/images/winxuan")
-                    src = img.Save("./temp",sn,img.Format())
-                    target = img.Upload(fconn,src,"source_img",sn,img.Format())
+            #商品图片
+            homeimgUrl = ""
+            largeimgUrls = {}
+            img = ImageProcess.Processor("")
+            if data["shop_items"][0].has_key("shop_item_images"):
+                for image in data["shop_items"][0]["shop_item_images"]:
+                    if image["image_type"] == "HOME_IMAGE":
+                        homeimgUrl = image["winxuan_image_url"]
+                        img = ImageProcess.Processor(homeimgUrl)
+                    elif image["image_type"] == "LARGE_IMAGE":
+                        largeimgUrls[image["index"]] = image["winxuan_image_url"]
+            
+            oriImg = ""
+            goodsImg = ""
+            thumbImg = "" 
+            if img.Loaded():
+                fconn.cwd(goodsimagepath)
+                src = img.Save("./temp",sn,img.Format())
+                target = img.Upload(fconn,src,"source_img",sn,img.Format())
+                if target:
+                    oriImg = ftp[3] + "/" + target
+
+                if img.Width()>230 and img.Height()>230:
+                    img.Thumb(230,230)
+                    src = img.Save("./temp",sn+"_G",img.Format())
+                    target = img.Upload(fconn,src,"goods_img",sn+"_G",img.Format())
                     if target:
-                        oriImg = "images/winxuan" + "/" + target
+                        goodsImg = ftp[3] + "/" + target
 
-                    if img.Width()>230 and img.Height()>230:
-                        img.Thumb(230,230)
-                        src = img.Save("./temp",sn+"_G",img.Format())
-                        target = img.Upload(fconn,src,"goods_img",sn+"_G",img.Format())
-                        if target:
-                            goodsImg = "images/winxuan" + "/" + target
+                    img.Thumb(100,100)
+                    src = img.Save("./temp",sn+"_T",img.Format())
+                    target = img.Upload(fconn,src,"thumb_img",sn+"_T",img.Format())
+                    if target:
+                        thumbImg = ftp[3] + "/" + target
+                else:
+                    target = img.Upload(fconn,src,"goods_img",sn+"_G",img.Format())
+                    if target:
+                        goodsImg = ftp[3] + "/" + target
 
+                    if img.Width()>100 and img.Height()>100:
                         img.Thumb(100,100)
                         src = img.Save("./temp",sn+"_T",img.Format())
                         target = img.Upload(fconn,src,"thumb_img",sn+"_T",img.Format())
                         if target:
-                            thumbImg = "images/winxuan" + "/" + target
+                            humbImg = ftp[3] + "/" + target
                     else:
-                        target = img.Upload(fconn,src,"goods_img",sn+"_G",img.Format())
+                        target = img.Upload(fconn,src,"thumb_img",sn+"_T",img.Format())
                         if target:
-                            goodsImg = "images/winxuan" + "/" + target
-
-                        if img.Width()>100 and img.Height()>100:
-                            img.Thumb(100,100)
-                            src = img.Save("./temp",sn+"_T",img.Format())
-                            target = img.Upload(fconn,src,"thumb_img",sn+"_T",img.Format())
-                            if target:
-                                humbImg = "images/winxuan" + "/" + target
-                        else:
-                            target = img.Upload(fconn,src,"thumb_img",sn+"_T",img.Format())
-                            if target:
-                                thumbImg = "images/winxuan" + "/" + target
-                    
-
-                #商品详情
-                fields = ["feature","editor_recommendation","content_introduce","author_introduce","catalog","preface","media_comment"]
-                sections = {"feature":{"id":u"feature","title":u"产品特色"},
-                            "editor_recommendation":{"id":u"abstract","title":u"编辑推荐"},
-                            "content_introduce":{"id":u"content","title":u"内容简介"},
-                            "author_introduce":{"id":u"authorIntroduction","title":u"作者简介"},
-                            "catalog":{"id":u"catalog","title":u"目　　录"},
-                            "preface":{"id":u"preface","title":u"在线试读"},
-                            "media_comment":{"id":u"media","title":u"媒体评论"}}
+                            thumbImg = ftp[3] + "/" + target
                 
-                prodtext = u""
-                if data["shop_items"][0].has_key("shop_item_attribute"):
-                    for field in fields:
-                        sectiontext = u''
-                        if data["shop_items"][0]["shop_item_attribute"].has_key(field):
-                            sectiontext += u'<div class="section" id="' + sections[field]["id"] + '">\
-                                    <div class="title"><span>' + sections[field]["title"] + '</span></div>\
-                                    <div class="descrip">'
-                            sectiontext += data["shop_items"][0]["shop_item_attribute"][field]
-                            sectiontext += u'<div>&nbsp;</div></div></div>'
-                        else:
-                            if field == "feature":
-                                if largeimgUrls:
-                                    sectiontext += u'<div class="section" id="' + sections[field]["id"] + '">\
-                                                <div class="title"><span>' + sections[field]["title"] + '</span></div>\
-                                                <div class="descrip">'
-                                    for url in largeimgUrls.values():
-                                        sectiontext += '<img alt="" src="' + url + '" />'
-                                    sectiontext += u'<div>&nbsp;</div></div></div>'
-                        prodtext += sectiontext
 
-                if prodtext:
-                    zwsprodtext = u"<div><zws-product>" + prodtext + u"</zws-product></div>"
-                else:
-                    zwsprodtext = u"<p>本商品暂无详情。</p>"
+            #商品详情
+            fields = ["feature","editor_recommendation","content_introduce","author_introduce","catalog","preface","media_comment"]
+            sections = {"feature":{"id":u"feature","title":u"产品特色"},
+                        "editor_recommendation":{"id":u"abstract","title":u"编辑推荐"},
+                        "content_introduce":{"id":u"content","title":u"内容简介"},
+                        "author_introduce":{"id":u"authorIntroduction","title":u"作者简介"},
+                        "catalog":{"id":u"catalog","title":u"目　　录"},
+                        "preface":{"id":u"preface","title":u"在线试读"},
+                        "media_comment":{"id":u"media","title":u"媒体评论"}}
+            
+            prodtext = u""
+            if data["shop_items"][0].has_key("shop_item_attribute"):
+                for field in fields:
+                    sectiontext = u''
+                    if data["shop_items"][0]["shop_item_attribute"].has_key(field):
+                        sectiontext += u'<div class="section" id="' + sections[field]["id"] + '">\
+                                <div class="title"><span>' + sections[field]["title"] + '</span></div>\
+                                <div class="descrip">'
+                        sectiontext += data["shop_items"][0]["shop_item_attribute"][field]
+                        sectiontext += u'<div>&nbsp;</div></div></div>'
+                    else:
+                        if field == "feature":
+                            if largeimgUrls:
+                                sectiontext += u'<div class="section" id="' + sections[field]["id"] + '">\
+                                            <div class="title"><span>' + sections[field]["title"] + '</span></div>\
+                                            <div class="descrip">'
+                                for url in largeimgUrls.values():
+                                    sectiontext += '<img alt="" src="' + url + '" />'
+                                sectiontext += u'<div>&nbsp;</div></div></div>'
+                    prodtext += sectiontext
 
-                #作者 出版社 出版时间 开本 包装 ISBN 定价
-                attrs = {"author":"","publish_house":"","publish_date":"","size":"","binding":""}
-                if data["shop_items"][0].has_key("shop_item_attribute"):
-                    for key in attrs:
-                        if data["shop_items"][0]["shop_item_attribute"].has_key(key):
-                            attrs[key] = data["shop_items"][0]["shop_item_attribute"][key]
+            if prodtext:
+                zwsprodtext = u"<div><zws-product>" + prodtext + u"</zws-product></div>"
+            else:
+                zwsprodtext = u"<p>本商品暂无详情。</p>"
 
-                #时间戳
-                addtime = str(int(time.time()))
+            #作者 出版社 出版时间 开本 包装 ISBN 定价
+            attrs = {"author":"","publish_house":"","publish_date":"","size":"","binding":""}
+            if data["shop_items"][0].has_key("shop_item_attribute"):
+                for key in attrs:
+                    if data["shop_items"][0]["shop_item_attribute"].has_key(key):
+                        attrs[key] = data["shop_items"][0]["shop_item_attribute"][key]
 
-                #商品大类定义在表ecs_goods_type中, '1'代表书
-                gtype = '1'
+            #时间戳
+            addtime = str(int(time.time()))
 
-                with connection.cursor() as cursor:
-                    sql = "INSERT INTO " + goodstable + " (`goods_id`, `cat_id`, `goods_sn`,`goods_name`,\
-                        `goods_name_style`, `click_count`, `brand_id`, `provider_name`, `goods_number`,\
-                        `goods_weight`, `market_price`, `virtual_sales`, `shop_price`, `promote_price`,\
-                        `promote_start_date`, `promote_end_date`, `warn_number`, `keywords`, `goods_brief`,\
-                        `goods_desc`, `goods_thumb`, `goods_img`, `original_img`, `is_real`, `extension_code`,\
-                        `is_on_sale`, `is_alone_sale`, `is_shipping`, `integral`, `add_time`, `sort_order`,\
-                        `is_delete`, `is_best`, `is_new`, `is_hot`, `is_promote`, `bonus_type_id`, `last_update`,\
-                        `goods_type`, `seller_note`, `give_integral`, `rank_integral`, `suppliers_id`, `is_check`) \
-                        VALUES (NULL, %s, %s, %s,\
-                        '+', '0', '0', '', %s,\
-                        %s, %s, '', %s, '0.00',\
-                        '0', '0', '1', '', '',\
-                        %s, %s, %s, %s, '1', '',\
-                        '1', '1', '0', '0', %s, '100',\
-                        '0', '0', '0', '0', '0', '0', '0',\
-                        %s, '', '-1', '-1', '0', NULL)"
-                    cursor.execute(sql,(catid,sn,title,
-                                        goodsnumber,
-                                        goodsweight,marketprice,shopprice,
-                                        zwsprodtext,thumbImg,goodsImg,oriImg,
-                                        addtime,
-                                        gtype))
+            #商品大类定义在表ecs_goods_type中, '1'代表书
+            gtype = '1'
 
-                    #创建书籍信息字典
-                    #所有商品属性定义在表ecs_attribute中
-                    attridx = {1:attrs["author"],2:attrs["publish_house"],3:isbn,4:attrs["publish_date"],5:attrs["size"],7:attrs["binding"],232:oriprice}
+            with connection.cursor() as cursor:
+                sql = "INSERT INTO " + goodstable + " (`goods_id`, `cat_id`, `goods_sn`,`goods_name`,\
+                    `goods_name_style`, `click_count`, `brand_id`, `provider_name`, `goods_number`,\
+                    `goods_weight`, `market_price`, `virtual_sales`, `shop_price`, `promote_price`,\
+                    `promote_start_date`, `promote_end_date`, `warn_number`, `keywords`, `goods_brief`,\
+                    `goods_desc`, `goods_thumb`, `goods_img`, `original_img`, `is_real`, `extension_code`,\
+                    `is_on_sale`, `is_alone_sale`, `is_shipping`, `integral`, `add_time`, `sort_order`,\
+                    `is_delete`, `is_best`, `is_new`, `is_hot`, `is_promote`, `bonus_type_id`, `last_update`,\
+                    `goods_type`, `seller_note`, `give_integral`, `rank_integral`, `suppliers_id`, `is_check`) \
+                    VALUES (NULL, %s, %s, %s,\
+                    '+', '0', '0', '', %s,\
+                    %s, %s, '', %s, '0.00',\
+                    '0', '0', '1', '', '',\
+                    %s, %s, %s, %s, '1', '',\
+                    '1', '1', '0', '0', %s, '100',\
+                    '0', '0', '0', '0', '0', '0', '0',\
+                    %s, '', '-1', '-1', '0', NULL)"
+                cursor.execute(sql,(catid,sn,title,
+                                    goodsnumber,
+                                    goodsweight,marketprice,shopprice,
+                                    zwsprodtext,thumbImg,goodsImg,oriImg,
+                                    addtime,
+                                    gtype))
 
-                    #唯一商品编号
-                    sql = "SELECT `goods_id` FROM " + goodstable + " WHERE `goods_sn`=%s"
-                    cursor.execute(sql,sn)
-                    goodsid = cursor.fetchone()[0]
-                    print(goodsid)
+                #创建书籍信息字典
+                #所有商品属性定义在表ecs_attribute中
+                attridx = {1:attrs["author"],2:attrs["publish_house"],3:isbn,4:attrs["publish_date"],5:attrs["size"],7:attrs["binding"],232:oriprice}
 
-                    #填入书籍信息
-                    for attrid,attr in attridx.items():
-                        sql = "INSERT INTO " + goodsattrtable + " (`goods_attr_id`, `goods_id`, `attr_id`,\
-                            `attr_value`, `attr_price`) VALUES (NULL, %s, %s, %s, '0')"
-                        cursor.execute(sql,(goodsid,attrid,attr))
+                #唯一商品编号
+                sql = "SELECT `goods_id` FROM " + goodstable + " WHERE `goods_sn`=%s"
+                cursor.execute(sql,sn)
+                goodsid = cursor.fetchone()[0]
+                print(goodsid)
 
-                connection.commit()
-        finally:
-            connection.close()
-            fconn.quit()
+                #填入书籍信息
+                for attrid,attr in attridx.items():
+                    sql = "INSERT INTO " + goodsattrtable + " (`goods_attr_id`, `goods_id`, `attr_id`,\
+                        `attr_value`, `attr_price`) VALUES (NULL, %s, %s, %s, '0')"
+                    cursor.execute(sql,(goodsid,attrid,attr))
+
+            connection.commit()
+    finally:
+        connection.close()
+        fconn.quit()
 
     for url in ignored:
         print(url + " ignored!\n")

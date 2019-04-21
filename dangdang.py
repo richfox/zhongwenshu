@@ -26,7 +26,7 @@ def printUsage():
     print("")
     print('python ${THIS_SCRIPT_NAME}.py {-o}   Generates a default order configuration file')
     print("")
-    print('python ${THIS_SCRIPT_NAME}.py {-sql}    Generates a default sql configuration file')
+    print('python ${THIS_SCRIPT_NAME}.py {-s}    Generates a default server configuration file')
     print("")
     print('python ${THIS_SCRIPT_NAME}.py {-t | -taobao}    spider taobao.com')
     print("")
@@ -40,15 +40,15 @@ def printUsage():
     print("")
     print('python ${THIS_SCRIPT_NAME}.py {url,id}    Generates a special configuration file, then use it')
     print("")
-    print('python ${THIS_SCRIPT_NAME}.py ${config.xml} ${sql.sxml}   use config to search attributes than import to database with settings of the sxml file')
+    print('python ${THIS_SCRIPT_NAME}.py ${config.xml} ${server.sxml}   use config to search attributes than import to database with settings of the sxml file')
     print("")
-    print('python ${THIS_SCRIPT_NAME}.py {-wx} ${sql.sxml}  call api of winxuan.com and import to database with settings of the sxml file')
+    print('python ${THIS_SCRIPT_NAME}.py {-wx} ${server.sxml}  call api of winxuan.com and import to database with settings of the sxml file')
     print("")
     print('python ${THIS_SCRIPT_NAME}.py ${config.xml} {-tuan | -tuangou}   use config to search attributes write result to _books.xlsx for groupbuy')
     print("")
-    print('python ${THIS_SCRIPT_NAME}.py ${config.xml} ${sql.sxml} ${groupbuyConfig.xml}  use config to search attributes than import to database with settings of the sxml file for groupbuy')
+    print('python ${THIS_SCRIPT_NAME}.py ${config.xml} ${server.sxml} ${groupbuyConfig.xml}  use config to search attributes than import to database with settings of the sxml file for groupbuy')
     print("")
-    print('python ${THIS_SCRIPT_NAME}.py ${_jsform.xlsx} ${sql.sxml} ${groupbuyConfig.xml}   write jsform data from excel to database with settings of the sxml file for groupbuy')
+    print('python ${THIS_SCRIPT_NAME}.py ${_jsform.xlsx} ${server.sxml} ${groupbuyConfig.xml}   write jsform data from excel to database with settings of the sxml file for groupbuy')
     print("")
 
 
@@ -72,8 +72,8 @@ def matchGenerateOrderConfigFile(arg):
     res = scanForMatch(regex,arg)
     return res
 
-def matchGenerateSqlConigFile(arg):
-    regex = r"-sql$"
+def matchGenerateServerConigFile(arg):
+    regex = r"-s$"
     res = scanForMatch(regex,arg)
     return res
 
@@ -172,24 +172,29 @@ def generateDefaultOrderConfig():
     fp.close()
     print('Generated default order config file: dangdangConfig.xml')
 
-def generateDefaultSqlConfig():
-    fp = open('mySQLConfig.sxml','w')
+def generateDefaultServerConfig():
+    fp = open('myServerConfig.sxml','w')
 
     content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + \
             "<config>\n" + \
-            "  <!-- Exmaple for mysql server: https://konsoleh.your-server.de/ -->\n" + \
             "  <mysql>\n" + \
-            "    <host>konsoleh.your-server.de</host>\n" + \
+            "    <host>sql.your-server.de</host>\n" + \
             "    <user>to_input</user>\n" + \
             "    <password>to_input</password>\n" + \
             "    <db>zhongw_test</db>\n" + \
             "    <charset>utf8</charset>\n" + \
             "  </mysql>\n" + \
+            "  <ftp>\n" + \
+            "    <host>www.your-server.de</host>\n" + \
+            "    <user>to_input</user>\n" + \
+            "    <password>to_input</password>\n" + \
+            "    <uploadpath>images/winxuan</uploadpath>\n" + \
+            "  </ftp>\n" + \
             "</config>\n"
 
     fp.write(content)
     fp.close()
-    print('Generated default sql config file: mySQLConfig.sxml')
+    print('Generated default server config file: myServerConfig.sxml')
 
 
 def generateDefaultGroupbuyConfig():
@@ -372,8 +377,8 @@ def main():
         elif matchGenerateOrderConfigFile(sys.argv[1]):
             generateDefaultOrderConfig()
             return True
-        elif matchGenerateSqlConigFile(sys.argv[1]):
-            generateDefaultSqlConfig()
+        elif matchGenerateServerConigFile(sys.argv[1]):
+            generateDefaultServerConfig()
             return True
         elif matchTaobao(sys.argv[1]):
             taobao.aptamil()
@@ -438,11 +443,12 @@ def main():
         elif matchWinxuan(sys.argv[1]) and matSqlFile(sys.argv[2]):
             if not os.path.exists(sys.argv[2]):
                 print('Error: sql config file does not exist.')
-            sqls = parseSqlConfigFile(sys.argv[2])
+            server = parseServerConfigFile(sys.argv[2])
+            if (not server.has_key("mysql")) or (not server.has_key("ftp")):
+                print("Error: config file is not completed.")
+                return False
             urls = winxuan.get_shop_items()
-            for host,(username,password,dbname,charset) in sqls.items():
-                sqls[host] = (username,password,dbname,charset,urls)
-            winxuan.import_winxuan_to_sql(sqls)
+            winxuan.import_winxuan_to_sql(server,urls)
             return True
     elif numArgs == 4:
         if matchConfigFile(sys.argv[1]) and matSqlFile(sys.argv[2]) and matchGroupbuyConfigFile(sys.argv[3]):
@@ -479,8 +485,14 @@ def main():
             if not os.path.exists(sys.argv[3]):
                 print('Error: grouping bug config file does not exist, use -tuan to generate it')
                 return False
-            sqls = parseSqlConfigFile(sys.argv[2])
+            server = parseServerConfigFile(sys.argv[2])
             params = parseGroupbuyConfigFile(sys.argv[3])
+            if not server.has_key("mysql"):
+                print("Error: config file is not completed.")
+                return False
+            sql = server["mysql"]
+            sqls = {}
+            sqls[sql[0]] = (sql[1],sql[2],sql[3],sql[4])
             ExcelToSQL.ExcelToSQLGBuy(sqls,params)
             return True
 
