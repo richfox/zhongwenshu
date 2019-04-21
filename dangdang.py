@@ -8,7 +8,6 @@ import sys
 import os
 import Spider
 import Visitor
-import SQLimport
 import SpiderToSQL
 import taobao
 import winxuan
@@ -40,8 +39,6 @@ def printUsage():
     print('python ${THIS_SCRIPT_NAME}.py ${file.html} {-tuan | -tuangou}    visit the html file and write result to _books.xlsx for groupbuy')
     print("")
     print('python ${THIS_SCRIPT_NAME}.py {url,id}    Generates a special configuration file, then use it')
-    print("")
-    print('python ${THIS_SCRIPT_NAME}.py ${sql.sxml}    import to database with settings of the sxml file')
     print("")
     print('python ${THIS_SCRIPT_NAME}.py ${config.xml} ${sql.sxml}   use config to search attributes than import to database with settings of the sxml file')
     print("")
@@ -398,14 +395,6 @@ def main():
                 return False
             else:
                 Visitor.visitorStart(sys.argv[1])
-                return True
-        elif matSqlFile(sys.argv[1]):
-            if not os.path.exists(sys.argv[1]):
-                print('Error: sql config file does not exist.')
-                return False
-            else:
-                sqls = parseSqlConfigFile(sys.argv[1])
-                SQLimport.SQLimport(sqls)
                 return True
     elif numArgs == 3:
         if matchUrl(sys.argv[1]):
