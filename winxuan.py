@@ -191,35 +191,35 @@ def import_winxuan_to_sql(server,urls):
                 src = img.Save("./temp",sn,img.Format())
                 target = img.Upload(fconn,src,"source_img",sn,img.Format())
                 if target:
-                    oriImg = ftp[3] + "/" + target
+                    oriImg = ftp[3] + target
 
                 if img.Width()>230 and img.Height()>230:
                     img.Thumb(230,230)
                     src = img.Save("./temp",sn+"_G",img.Format())
                     target = img.Upload(fconn,src,"goods_img",sn+"_G",img.Format())
                     if target:
-                        goodsImg = ftp[3] + "/" + target
+                        goodsImg = ftp[3] + target
 
                     img.Thumb(100,100)
                     src = img.Save("./temp",sn+"_T",img.Format())
                     target = img.Upload(fconn,src,"thumb_img",sn+"_T",img.Format())
                     if target:
-                        thumbImg = ftp[3] + "/" + target
+                        thumbImg = ftp[3] + target
                 else:
                     target = img.Upload(fconn,src,"goods_img",sn+"_G",img.Format())
                     if target:
-                        goodsImg = ftp[3] + "/" + target
+                        goodsImg = ftp[3] + target
 
                     if img.Width()>100 and img.Height()>100:
                         img.Thumb(100,100)
                         src = img.Save("./temp",sn+"_T",img.Format())
                         target = img.Upload(fconn,src,"thumb_img",sn+"_T",img.Format())
                         if target:
-                            humbImg = ftp[3] + "/" + target
+                            humbImg = ftp[3] + target
                     else:
                         target = img.Upload(fconn,src,"thumb_img",sn+"_T",img.Format())
                         if target:
-                            thumbImg = ftp[3] + "/" + target
+                            thumbImg = ftp[3] + target
                 
 
             #商品详情

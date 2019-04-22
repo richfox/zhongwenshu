@@ -188,7 +188,7 @@ def generateDefaultServerConfig():
             "    <host>www.your-server.de</host>\n" + \
             "    <user>to_input</user>\n" + \
             "    <password>to_input</password>\n" + \
-            "    <uploadpath>images/winxuan</uploadpath>\n" + \
+            "    <uploadpath>images/winxuan/</uploadpath>\n" + \
             "  </ftp>\n" + \
             "</config>\n"
 
