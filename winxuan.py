@@ -126,16 +126,19 @@ def import_winxuan_to_sql(server,urls):
             goodstable = ""
             goodsattrtable = ""
             goodscattable = ""
+            goodsgallerytable = ""
             goodsimagepath = ""
             if sql[3] == 'zhongw_test':
                 goodstable = "ecs_test_goods"
                 goodsattrtable = "ecs_test_goods_attr"
                 goodscattable = "ecs_test_goods_cat"
+                goodsgallerytable = "ecs_test_goods_gallery"
                 goodsimagepath = "test/" + ftp[3]
             elif sql[3] == 'zhongwenshu_db1':
                 goodstable = "ecs_goods"
                 goodsattrtable = "ecs_goods_attr"
                 goodscattable = "ecs_goods_cat"
+                goodsgallerytable = "ecs_goods_gallery"
                 goodsimagepath = ftp[3]
 
             #商品分类定义在表ecs_category中，先登到准上架分类'134'
@@ -310,6 +313,12 @@ def import_winxuan_to_sql(server,urls):
                     sql = "INSERT INTO " + goodsattrtable + " (`goods_attr_id`, `goods_id`, `attr_id`,\
                         `attr_value`, `attr_price`) VALUES (NULL, %s, %s, %s, '0')"
                     cursor.execute(sql,(goodsid,attrid,attr))
+
+                #填入书籍画册
+                if oriImg:
+                    sql = "INSERT INTO " + goodsgallerytable + " (`img_id`, `goods_id`, `img_url`, `img_desc`,\
+                        `thumb_url`, `img_original`) VALUES (NULL, %s, %s, '', %s, %s)"
+                    cursor.execute(sql,(goodsid,goodsImg,thumbImg,oriImg))
 
             connection.commit()
     finally:
