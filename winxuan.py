@@ -188,13 +188,22 @@ def import_winxuan_to_sql(server,urls):
             
             oriImg = ""
             goodsImg = ""
-            thumbImg = "" 
+            thumbImg = ""
+            galleryOriImg = ""
+            galleryGoodsImg = ""
+            galleryThumbImg = ""
             if img.Loaded():
                 fconn.cwd(goodsimagepath)
                 src = img.Save("./temp",sn,img.Format())
                 target = img.Upload(fconn,src,"source_img",sn,img.Format())
                 if target:
                     oriImg = ftp[3] + target
+                target = img.Upload(fconn,src,"source_img",sn+"_P",img.Format())
+                if target:
+                    galleryOriImg = ftp[3] +  target
+                target = img.Upload(fconn,src,"goods_img",sn+"_G_P",img.Format())
+                if target:
+                    galleryGoodsImg = ftp[3] +  target
 
                 if img.Width()>230 and img.Height()>230:
                     img.Thumb(230,230)
@@ -208,6 +217,9 @@ def import_winxuan_to_sql(server,urls):
                     target = img.Upload(fconn,src,"thumb_img",sn+"_T",img.Format())
                     if target:
                         thumbImg = ftp[3] + target
+                    target = img.Upload(fconn,src,"thumb_img",sn+"_T_P",img.Format())
+                    if target:
+                        galleryThumbImg = ftp[3] + target
                 else:
                     target = img.Upload(fconn,src,"goods_img",sn+"_G",img.Format())
                     if target:
@@ -219,10 +231,16 @@ def import_winxuan_to_sql(server,urls):
                         target = img.Upload(fconn,src,"thumb_img",sn+"_T",img.Format())
                         if target:
                             humbImg = ftp[3] + target
+                        target = img.Upload(fconn,src,"thumb_img",sn+"_T_P",img.Format())
+                        if target:
+                            galleryThumbImg = ftp[3] + target
                     else:
                         target = img.Upload(fconn,src,"thumb_img",sn+"_T",img.Format())
                         if target:
                             thumbImg = ftp[3] + target
+                        target = img.Upload(fconn,src,"thumb_img",sn+"_T_P",img.Format())
+                        if target:
+                            galleryThumbImg = ftp[3] + target
                 
 
             #商品详情
@@ -315,10 +333,10 @@ def import_winxuan_to_sql(server,urls):
                     cursor.execute(sql,(goodsid,attrid,attr))
 
                 #填入书籍画册
-                if oriImg:
+                if galleryOriImg:
                     sql = "INSERT INTO " + goodsgallerytable + " (`img_id`, `goods_id`, `img_url`, `img_desc`,\
                         `thumb_url`, `img_original`) VALUES (NULL, %s, %s, '', %s, %s)"
-                    cursor.execute(sql,(goodsid,goodsImg,thumbImg,oriImg))
+                    cursor.execute(sql,(goodsid,galleryGoodsImg,galleryThumbImg,galleryOriImg))
 
             connection.commit()
     finally:
