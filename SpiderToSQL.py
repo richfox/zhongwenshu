@@ -252,7 +252,8 @@ def SpiderToSQL(sqls):
                             paper = res[1]
 
                 #商品图片
-                Spider.spider_picture(url)
+                spider = Spider.Spider(url)
+                spider.saveFirstPicture(sn)
 
                 #商品标志
                 psstr = get_prodSpuInfo(htmltext)
