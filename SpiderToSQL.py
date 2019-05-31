@@ -18,6 +18,8 @@ import proxy
 import webbrowser
 import json
 import utility
+import ftplib
+import ImageProcess
 
 
 def generate_sn(hanzi):
@@ -116,8 +118,22 @@ def SpiderToSQL(sqls):
     print("Spider to SQL start...\n")
     ignored = []
 
-    for host,(username,password,dbname,charset,urls) in sqls.items():
-        connection = pymysql.connect(host=host,user=username,password=password,db=dbname,charset=charset)
+    for host,(username,password,dbname,charset,ftp,urls) in sqls.items():
+        connection = pymysql.connect(host,username,password,dbname,charset=charset)
+
+        #区分ftp服务器和本地
+        goodsimagepath = ""
+        if dbname == 'zhongw_test':
+            goodsimagepath = "test/" + ftp[3]
+        elif dbname == 'zhongwenshu_db1':
+            goodsimagepath = ftp[3]
+        fconn = {}
+        if re.match(r".*your-server\.de$",ftp[0]):
+            fconn["server"] = ftplib.FTP(ftp[0],ftp[1],ftp[2])
+            fconn["server"].cwd(goodsimagepath)
+        elif re.match(r".*local.*",ftp[0]):
+            fconn["local"] = True
+
         try:
             for url,tag in urls.items():
                 htmltext = ""
@@ -316,14 +332,17 @@ def SpiderToSQL(sqls):
                 goodstable = ""
                 goodsattrtable = ""
                 goodscattable = ""
+                goodsgallerytable = ""
                 if dbname == 'zhongw_test':
                     goodstable = "ecs_test_goods"
                     goodsattrtable = "ecs_test_goods_attr"
                     goodscattable = "ecs_test_goods_cat"
+                    goodsgallerytable = "ecs_test_goods_gallery"
                 elif dbname == 'zhongwenshu_db1':
                     goodstable = "ecs_goods"
                     goodsattrtable = "ecs_goods_attr"
                     goodscattable = "ecs_goods_cat"
+                    goodsgallerytable = "ecs_goods_gallery"
 
                 with connection.cursor() as cursor:
                     sql = "INSERT INTO " + goodstable + " (`goods_id`, `cat_id`, `goods_sn`,`goods_name`,\
@@ -363,6 +382,9 @@ def SpiderToSQL(sqls):
                 connection.commit()
         finally:
             connection.close()
+
+            if fconn.has_key("server"):
+                fconn["server"].quit()
 
     for url in ignored:
         print(url + " ignored!\n")

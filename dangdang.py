@@ -420,11 +420,15 @@ def main():
                 print("Error: config file is not completed.")
                 return False
             sql = server["mysql"]
+            if not server.has_key("ftp"):
+                print("Error: config file is not completed.")
+                return False
+            ftp = server["ftp"]
             for url,tag in urls.items():
                 if (tag == 1):
                     del urls[url]
             sqls = {}
-            sqls[sql[0]] = (sql[1],sql[2],sql[3],sql[4],urls)
+            sqls[sql[0]] = (sql[1],sql[2],sql[3],sql[4],ftp,urls)
             SpiderToSQL.SpiderToSQL(sqls)
             return True
         elif matchConfigFile(sys.argv[1]) and matchTuangou(sys.argv[2]):
