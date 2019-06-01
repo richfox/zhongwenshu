@@ -114,6 +114,29 @@ def show_all(tree,key):
         showmorenode[0].set('class','section_show_more')
 
 
+#找到第一张大图并存储为3种尺寸
+def saveFirstPicture(text,name):
+    regX = '<img alt=\"\" src=\".*.jpg\" title=\"\" id=\"modalBigImg\">'
+    elem_url = re.findall(regX,text,re.S)
+    for each in elem_url:
+        #print(each)
+        pic_url = re.findall('http://.*.jpg',each,re.S)
+        webbrowser.open(pic_url[0])
+        img = ImageProcess.Processor(pic_url[0])
+        img.Save("./temp",name,"jpg")
+
+        if img.Width()>230 and img.Height()>230:
+            img.Thumb(230,230)
+            img.Save("./temp",name+"_G","jpg")
+            img.Thumb(100,100)
+            img.Save("./temp",name+"_T","jpg")
+        else:
+            if img.Width()>100 and img.Height()>100:
+                img.Thumb(100,100)
+                img.Save("./temp",name+"_T","jpg")
+
+
+
 def SpiderToSQL(sqls):
     print("Spider to SQL start...\n")
     ignored = []
@@ -268,8 +291,7 @@ def SpiderToSQL(sqls):
                             paper = res[1]
 
                 #商品图片
-                spider = Spider.Spider(url)
-                spider.saveFirstPicture(sn)
+                saveFirstPicture(htmltext,sn)
 
                 #商品标志
                 psstr = get_prodSpuInfo(htmltext)

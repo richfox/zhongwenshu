@@ -91,26 +91,6 @@ class Spider:
                 numPicture += 1
         print("Here is " + str(numPicture) + " pictures!\n")
 
-    def saveFirstPicture(self,name):
-        #找到第一张大图并存储为3种尺寸
-        regX = '<img alt=\"\" src=\".*.jpg\" title=\"\" id=\"modalBigImg\">'
-        elem_url = re.findall(regX,self._html,re.S)
-        for each in elem_url:
-            #print(each)
-            pic_url = re.findall('http://.*.jpg',each,re.S)
-            webbrowser.open(pic_url[0])
-            img = ImageProcess.Processor(pic_url[0])
-            img.Save("./temp",name,"jpg")
-
-            if img.Width()>230 and img.Height()>230:
-                img.Thumb(230,230)
-                img.Save("./temp",name+"_G","jpg")
-                img.Thumb(100,100)
-                img.Save("./temp",name+"_T","jpg")
-            else:
-                if img.Width()>100 and img.Height()>100:
-                    img.Thumb(100,100)
-                    img.Save("./temp",name+"_T","jpg")
 
 
     #找缩略图和大图
