@@ -115,26 +115,88 @@ def show_all(tree,key):
 
 
 #找到第一张大图并存储为3种尺寸
-def saveFirstPicture(text,name):
-    regX = '<img alt=\"\" src=\".*.jpg\" title=\"\" id=\"modalBigImg\">'
-    elem_url = re.findall(regX,text,re.S)
-    for each in elem_url:
-        #print(each)
-        pic_url = re.findall('http://.*.jpg',each,re.S)
+def saveFirstPicture(text,sn,fconn):
+    imgurl = {}
+    oriImg = ""
+    goodsImg = ""
+    thumbImg = ""
+    galleryOriImg = ""
+    galleryGoodsImg = ""
+    galleryThumbImg = ""
+
+    reg = '<img alt=\"\" src=\".*.jpg\" title=\"\" id=\"modalBigImg\">'
+    urls = re.findall(reg,text,re.S)
+    if urls:
+        pic_url = re.findall('http://.*.jpg',urls[0],re.S)
         webbrowser.open(pic_url[0])
         img = ImageProcess.Processor(pic_url[0])
-        img.Save("./temp",name,"jpg")
+        if img.Loaded():
+            if fconn.has_key("server"):
+                src = img.Save("./temp",sn,"jpg")
+                target = img.Upload(fconn["server"],src,"source_img",sn,"jpg")
+                if target:
+                    oriImg = fconn["path"] + target
+                target = img.Upload(fconn["server"],src,"source_img",sn+"_P","jpg")
+                if target:
+                    galleryOriImg = fconn["path"] + target
+                target = img.Upload(fconn["server"],src,"goods_img",sn+"_G_P","jpg")
+                if target:
+                    galleryGoodsImg = fconn["path"] + target
 
-        if img.Width()>230 and img.Height()>230:
-            img.Thumb(230,230)
-            img.Save("./temp",name+"_G","jpg")
-            img.Thumb(100,100)
-            img.Save("./temp",name+"_T","jpg")
-        else:
-            if img.Width()>100 and img.Height()>100:
-                img.Thumb(100,100)
-                img.Save("./temp",name+"_T","jpg")
+                if img.Width()>230 and img.Height()>230:
+                    img.Thumb(230,230)
+                    src = img.Save("./temp",sn+"_G",img.Format())
+                    target = img.Upload(fconn["server"],src,"goods_img",sn+"_G","jpg")
+                    if target:
+                        goodsImg = fconn["path"] + target
 
+                    img.Thumb(100,100)
+                    src = img.Save("./temp",sn+"_T","jpg")
+                    target = img.Upload(fconn["server"],src,"thumb_img",sn+"_T","jpg")
+                    if target:
+                        thumbImg = fconn["path"] + target
+                    target = img.Upload(fconn["server"],src,"thumb_img",sn+"_T_P","jpg")
+                    if target:
+                        galleryThumbImg = fconn["path"] + target
+                else:
+                    target = img.Upload(fconn["server"],src,"goods_img",sn+"_G","jpg")
+                    if target:
+                        goodsImg = fconn["path"] + target
+
+                    if img.Width()>100 and img.Height()>100:
+                        img.Thumb(100,100)
+                        src = img.Save("./temp",sn+"_T","jpg")
+                        target = img.Upload(fconn["server"],src,"thumb_img",sn+"_T","jpg")
+                        if target:
+                            humbImg = fconn["path"] + target
+                        target = img.Upload(fconn["server"],src,"thumb_img",sn+"_T_P","jpg")
+                        if target:
+                            galleryThumbImg = fconn["path"] + target
+                    else:
+                        target = img.Upload(fconn["server"],src,"thumb_img",sn+"_T","jpg")
+                        if target:
+                            thumbImg = fconn["path"] + target
+                        target = img.Upload(fconn["server"],src,"thumb_img",sn+"_T_P","jpg")
+                        if target:
+                            galleryThumbImg = fconn["path"] + target
+            elif fconn.has_key("local"):
+                if img.Width()>230 and img.Height()>230:
+                    img.Thumb(230,230)
+                    img.Save("./temp",sn+"_G","jpg")
+                    img.Thumb(100,100)
+                    img.Save("./temp",sn+"_T","jpg")
+                else:
+                    if img.Width()>100 and img.Height()>100:
+                        img.Thumb(100,100)
+                        img.Save("./temp",sn+"_T","jpg")
+
+    imgurl["ori"] = oriImg
+    imgurl["goods"] = goodsImg
+    imgurl["thumb"] = thumbImg
+    imgurl["galleryori"] = galleryOriImg
+    imgurl["gallerygoods"] = galleryGoodsImg
+    imgurl["gallerythumb"] = galleryThumbImg
+    return imgurl
 
 
 def SpiderToSQL(sqls):
@@ -151,6 +213,7 @@ def SpiderToSQL(sqls):
         elif dbname == 'zhongwenshu_db1':
             goodsimagepath = ftp[3]
         fconn = {}
+        fconn["path"] = goodsimagepath
         if re.match(r".*your-server\.de$",ftp[0]):
             fconn["server"] = ftplib.FTP(ftp[0],ftp[1],ftp[2])
             fconn["server"].cwd(goodsimagepath)
@@ -291,7 +354,7 @@ def SpiderToSQL(sqls):
                             paper = res[1]
 
                 #商品图片
-                saveFirstPicture(htmltext,sn)
+                imgurl = saveFirstPicture(htmltext,sn,fconn)
 
                 #商品标志
                 psstr = get_prodSpuInfo(htmltext)
