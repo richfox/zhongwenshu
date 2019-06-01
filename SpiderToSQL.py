@@ -179,7 +179,9 @@ def saveFirstPicture(text,sn,fconn):
                         target = img.Upload(fconn["server"],src,"thumb_img",sn+"_T_P","jpg")
                         if target:
                             galleryThumbImg = fconn["path"] + target
+
             elif fconn.has_key("local"):
+                img.Save("./temp",sn,"jpg")
                 if img.Width()>230 and img.Height()>230:
                     img.Thumb(230,230)
                     img.Save("./temp",sn+"_G","jpg")
@@ -442,11 +444,16 @@ def SpiderToSQL(sqls):
                         '+', '0', '0', '', %s,\
                         %s, %s, '', %s, '0.00',\
                         '0', '0', '1', '', '',\
-                        %s, '', '', '', '1', '',\
+                        %s, %s, %s, %s, '1', '',\
                         '0', '1', '0', '0', %s, '100',\
                         '0', '0', '1', '0', '0', '0', '0',\
                         %s, '', '-1', '-1', '0', NULL)"
-                    cursor.execute(sql,(catid,sn,title,goodsnumber,goodsweight,marketprice,shopprice,zwsprodtext,addtime,gtype))
+                    cursor.execute(sql,(catid,sn,title,
+                                        goodsnumber,
+                                        goodsweight,marketprice,shopprice,
+                                        zwsprodtext,imgurl["thumb"],imgurl["goods"],imgurl["ori"],
+                                        addtime,
+                                        gtype))
 
                     #唯一商品编号
                     sql = "SELECT `goods_id` FROM " + goodstable + " WHERE `goods_sn`=%s"
@@ -463,6 +470,12 @@ def SpiderToSQL(sqls):
                     #新品到货
                     sql = "INSERT INTO " + goodscattable + " (`goods_id`, `cat_id`) VALUES (%s, '65')"
                     cursor.execute(sql,goodsid)
+
+                    #填入书籍画册
+                    if imgurl["galleryori"]:
+                        sql = "INSERT INTO " + goodsgallerytable + " (`img_id`, `goods_id`, `img_url`, `img_desc`,\
+                            `thumb_url`, `img_original`) VALUES (NULL, %s, %s, '', %s, %s)"
+                        cursor.execute(sql,(goodsid,imgurl["gallerygoods"],imgurl["gallerythumb"],imgurl["galleryori"]))
                     
                 connection.commit()
         finally:
