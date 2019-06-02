@@ -145,7 +145,7 @@ def saveFirstPicture(text,sn,fconn):
 
                 if img.Width()>230 and img.Height()>230:
                     img.Thumb(230,230)
-                    src = img.Save("./temp",sn+"_G",img.Format())
+                    src = img.Save("./temp",sn+"_G","jpg")
                     target = img.Upload(fconn["server"],src,"goods_img",sn+"_G","jpg")
                     if target:
                         goodsImg = fconn["path"] + target
