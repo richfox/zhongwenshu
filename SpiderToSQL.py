@@ -208,19 +208,19 @@ def SpiderToSQL(sqls):
     for host,(username,password,dbname,charset,ftp,urls) in sqls.items():
         connection = pymysql.connect(host,username,password,dbname,charset=charset)
 
-        #区分ftp服务器和本地
-        fconn = {}
-        fconn["path"] = ftp[3]
-        if re.match(r".*your-server\.de$",ftp[0]):
-            fconn["server"] = ftplib.FTP(ftp[0],ftp[1],ftp[2])
-            if dbname == 'zhongw_test':
-                fconn["server"].cwd("test/" + ftp[3])
-            elif dbname == 'zhongwenshu_db1':
-                fconn["server"].cwd(ftp[3])
-        elif re.match(r".*local.*",ftp[0]):
-            fconn["local"] = True
-
         try:
+            #区分ftp服务器和本地
+            fconn = {}
+            fconn["path"] = ftp[3]
+            if re.match(r".*your-server\.de$",ftp[0]):
+                fconn["server"] = ftplib.FTP(ftp[0],ftp[1],ftp[2])
+                if dbname == 'zhongw_test':
+                    fconn["server"].cwd("test/" + ftp[3])
+                elif dbname == 'zhongwenshu_db1':
+                    fconn["server"].cwd(ftp[3])
+            elif re.match(r".*local.*",ftp[0]):
+                fconn["local"] = True
+
             for url,tag in urls.items():
                 htmltext = ""
                 ddsn = ""
