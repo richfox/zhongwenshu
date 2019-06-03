@@ -178,12 +178,38 @@ def generateDefaultServerConfig():
     content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + \
             "<config>\n" + \
             "  <mysql>\n" + \
+            "    <host>localhost</host>\n" + \
+            "    <user>to_input</user>\n" + \
+            "    <password>to_input</password>\n" + \
+            "    <db>zhongw_test</db>\n" + \
+            "    <charset>utf8</charset>\n" + \
+            "  </mysql>\n" + \
+            "  <mysql>\n" + \
             "    <host>sql.your-server.de</host>\n" + \
             "    <user>to_input</user>\n" + \
             "    <password>to_input</password>\n" + \
             "    <db>zhongw_test</db>\n" + \
             "    <charset>utf8</charset>\n" + \
             "  </mysql>\n" + \
+            "  <mysql>\n" + \
+            "    <host>sql.your-server.de</host>\n" + \
+            "    <user>to_input</user>\n" + \
+            "    <password>to_input</password>\n" + \
+            "    <db>zhongwenshu_db1</db>\n" + \
+            "    <charset>utf8</charset>\n" + \
+            "  </mysql>\n" + \
+            "  <ftp>\n" + \
+            "    <host>local</host>\n" + \
+            "    <user></user>\n" + \
+            "    <password></password>\n" + \
+            "    <uploadpath>images/winxuan/</uploadpath>\n" + \
+            "  </ftp>\n" + \
+            "  <ftp>\n" + \
+            "    <host>local_test</host>\n" + \
+            "    <user></user>\n" + \
+            "    <password></password>\n" + \
+            "    <uploadpath>images/winxuan/</uploadpath>\n" + \
+            "  </ftp>\n" + \
             "  <ftp>\n" + \
             "    <host>www.your-server.de</host>\n" + \
             "    <user>to_input</user>\n" + \
