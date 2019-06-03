@@ -181,16 +181,44 @@ def saveFirstPicture(text,sn,fconn):
                             galleryThumbImg = fconn["path"] + target
 
             elif fconn.has_key("local"):
-                img.Save("./temp",sn,"jpg")
+                root = ""
+                if not re.match(r".*test.*",fconn["local"]):
+                    root = "C:/xampp/htdocs/ecshop/"
+                else:
+                    root = "C:/xampp/htdocs/ecshop/test/"
+
+                img.Save(root+fconn["path"]+"source_img",sn,"jpg")
+                oriImg = fconn["path"] + "source_img/" + sn + "." + "jpg"
+                img.Save(root+fconn["path"]+"source_img",sn+"_P","jpg")
+                galleryOriImg = fconn["path"] + "source_img/" + sn + "_P." + "jpg"
+                img.Save(root+fconn["path"]+"goods_img",sn+"_G_P","jpg")
+                galleryGoodsImg = fconn["path"] + "goods_img/" + sn + "_G_P." + "jpg"
+
                 if img.Width()>230 and img.Height()>230:
                     img.Thumb(230,230)
-                    img.Save("./temp",sn+"_G","jpg")
+                    img.Save(root+fconn["path"]+"goods_img/",sn+"_G","jpg")
+                    goodsImg = fconn["path"] + "goods_img/" + sn + "_G." + "jpg"
+
                     img.Thumb(100,100)
-                    img.Save("./temp",sn+"_T","jpg")
+                    img.Save(root+fconn["path"]+"thumb_img/",sn+"_T","jpg")
+                    thumbImg = fconn["path"] + "thumb_img/" + sn + "_T." + "jpg"
+                    img.Save(root+fconn["path"]+"thumb_img/",sn+"_T_P","jpg")
+                    galleryThumbImg = fconn["path"] + "thumb_img/" + sn + "_T_P." + "jpg"
                 else:
+                    img.Save(root+fconn["path"]+"goods_img/",sn+"_G","jpg")
+                    goodsImg = fconn["path"] + "goods_img/" + sn + "_G." + "jpg"
+
                     if img.Width()>100 and img.Height()>100:
                         img.Thumb(100,100)
-                        img.Save("./temp",sn+"_T","jpg")
+                        img.Save(root+fconn["path"]+"thumb_img/",sn+"_T","jpg")
+                        thumbImg = fconn["path"] + "thumb_img/" + sn + "_T." + "jpg"
+                        img.Save(root+fconn["path"]+"thumb_img/",sn+"_T_P","jpg")
+                        galleryThumbImg = fconn["path"] + "thumb_img/" + sn + "_T_P." + "jpg"
+                    else:
+                        img.Save(root+fconn["path"]+"thumb_img/",sn+"_T","jpg")
+                        thumbImg = fconn["path"] + "thumb_img/" + sn + "_T." + "jpg"
+                        img.Save(root+fconn["path"]+"thumb_img/",sn+"_T_P","jpg")
+                        galleryThumbImg = fconn["path"] + "thumb_img/" + sn + "_T_P." + "jpg"
 
     imgurl["ori"] = oriImg
     imgurl["goods"] = goodsImg
@@ -215,7 +243,7 @@ def SpiderToSQL(sqls):
         if re.match(r".*your-server\.de$",ftp[0]):
             fconn["server"] = ftplib.FTP(ftp[0],ftp[1],ftp[2])
         elif re.match(r".*local.*",ftp[0]):
-            fconn["local"] = True
+            fconn["local"] = ftp[0]
 
         try:
             #设置ftp上传路径
