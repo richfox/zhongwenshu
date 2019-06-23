@@ -421,6 +421,10 @@ def SpiderToSQL(sqls):
                     #商品描述
                     producttext = ""
                     for item in ajaxhtmltree.body:
+                        #重磅推荐广告忽略
+                        if re.match('^describe_http:.*\.xml$',item.attrib["id"]):
+                            continue
+                        
                         try:
                             producttext += xml.etree.ElementTree.tostring(item)
                         except:
