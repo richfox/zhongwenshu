@@ -566,7 +566,12 @@ def SpiderToSQL_tuangou(sqls,params):
                 oriprice = Spider.searchOriginalPrice(htmltree)
                 groupbuyprice = 0.0
                 if oriprice:
-                    groupbuyprice = format(float(oriprice) * rate,'.2f')
+                    #dangdang 自营
+                    if len(sn) == 8:
+                        groupbuyprice = format(float(oriprice) * rate,'.2f')
+                    #非dangdang 自营
+                    else:
+                        groupbuyprice = format(float(oriprice) * rate + 2,'.2f')
 
                 goodsdict[sn] = (titlesn,groupbuyprice)
 
