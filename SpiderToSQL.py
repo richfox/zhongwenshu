@@ -568,10 +568,10 @@ def SpiderToSQL_tuangou(sqls,params):
                 if oriprice:
                     #dangdang 自营
                     if len(sn) == 8:
-                        groupbuyprice = format(float(oriprice) * rate,'.2f')
+                        groupbuyprice = format(float(oriprice) * rate + float(params[u'offset']),'.2f')
                     #非dangdang 自营
                     else:
-                        groupbuyprice = format(float(oriprice) * rate + 2,'.2f')
+                        groupbuyprice = format(float(oriprice) * rate + float(params[u'offset2']),'.2f')
 
                 goodsdict[sn] = (titlesn,groupbuyprice)
 

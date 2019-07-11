@@ -234,12 +234,20 @@ def generateDefaultGroupbuyConfig():
             "  <!-- 团购类型属性 -->\n" + \
             "  <attr>团购商品</attr>\n" + \
             "  <goodsname>5月团</goodsname>\n" + \
+            "  <!-- 当当自营欧元团购价=定价*discount*multiple/exchange + offset -->\n" + \
+            "  <!-- 非当当自营欧元团购价=定价*discount*multiple/exchange + offset2 -->\n" + \
             "  <discount>0.60</discount>\n" + \
             "  <multiple>1.40</multiple>\n" + \
             "  <exchange>7.80</exchange>\n" + \
+            "  <offset>0.00</offset>\n" + \
+            "  <offset2>2.00</offset2>\n" + \
+            "  <!-- 德国境内运费 -->\n" + \
             "  <dhl_de>5.00</dhl_de>\n" + \
+            "  <!-- 欧洲境内运费 -->\n" + \
             "  <dhl_eu>10.00</dhl_eu>\n" + \
+            "  <!-- 打包费 -->\n" + \
             "  <packing>3.00</packing>\n" + \
+            "  <!-- 欧洲境内运费补差=dhl_eu-dhl_de, 编号一般不用改 -->\n" + \
             "  <dhl_diff_sn>666666</dhl_diff_sn>\n" + \
             "</config>\n"
 
