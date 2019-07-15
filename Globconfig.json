@@ -3,7 +3,7 @@
     "configurations": [
         {
             "transport": [
-                {"type": "海","consignee": ".*董然.*"},
+                {"type": "海","consignee": ".*黄琰.*"},
                 {"type": "陆","consignee": ".*李明松.*"},
                 {"type": "空","consignee": ".*李沐阳.*"}
             ]
