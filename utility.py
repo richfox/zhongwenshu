@@ -34,6 +34,25 @@ def get_html_text(url):
         print(url + " fetched successfully!")
     return htmltext
 
+def get_html_byte(url):
+    bytes = b""
+    try:
+        bytes = requests.get(url,headers=proxy.get_http_headers()).content
+    except requests.exceptions.ConnectTimeout:
+        print("timeout, try with another IP...")
+        bytes = proxy.get_html_byte_with_proxy(url)
+    except requests.exceptions.ConnectionError:
+        print("connection failed, try with another IP...")
+        bytes = proxy.get_html_byte_with_proxy(url)
+    except requests.exceptions.InvalidURL:
+        print("invalid url")
+    except:
+        print("unexpected error: {0} {1}".format(sys.exc_info()[0],"try with another IP..."))
+        bytes = proxy.get_html_byte_with_proxy(url)
+    else:
+        print(url + " fetched successfully!")
+    return bytes
+
 def post_html_text(url):
     htmltext = ""
     try:
@@ -52,6 +71,25 @@ def post_html_text(url):
     else:
         print(url + " fetched successfully!")
     return htmltext
+
+def post_html_byte(url):
+    bytes = b""
+    try:
+        bytes = requests.post(url,headers=proxy.get_http_headers()).content
+    except requests.exceptions.ConnectTimeout:
+        print("timeout, try with another IP...")
+        bytes = proxy.post_html_byte_with_proxy(url)
+    except requests.exceptions.ConnectionError:
+        print("connection failed, try with another IP...")
+        bytes = proxy.post_html_byte_with_proxy(url)
+    except requests.exceptions.InvalidURL:
+        print("invalid url")
+    except:
+        print("unexpected error: {0} {1}".format(sys.exc_info()[0],"try with another IP..."))
+        bytes = proxy.post_html_byte_with_proxy(url)
+    else:
+        print(url + " fetched successfully!")
+    return bytes
 
 
 def get_html_tree(text):

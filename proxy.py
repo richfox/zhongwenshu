@@ -47,7 +47,7 @@ def get_http_proxies():
     proxies.append({'http':'http://47.52.114.248:8088','https':'https://47.52.114.248:8088'})
     proxies.append({'http':'http://139.224.24.26:8888','https':'https://139.224.24.26:8888'})
     proxies.append({'http':'http://219.141.153.11:8080','https':'https://219.141.153.11:8080'})
-    proxies.append({'http':'http://223.93.172.248:3128','https':'https://223.93.172.248:3128'})
+    proxies.append({'http':'http://183.129.207.80:12834','https':'http://183.129.207.80:12834'})
     return proxies
 
 
@@ -64,6 +64,18 @@ def get_html_text_with_proxy(url):
             continue
     return text
 
+def get_html_byte_with_proxy(url):
+    bytes = b""
+    for proxy in get_http_proxies():
+        try:
+            res = requests.get(url,timeout=6,headers=get_http_headers(),proxies=proxy)
+            if res.ok:
+                print(proxy['http'] + " fetched successfully!")
+                bytes = res.content
+                break
+        except:
+            continue
+    return bytes
 
 def post_html_text_with_proxy(url):
     text = ""
@@ -77,3 +89,16 @@ def post_html_text_with_proxy(url):
         except:
             continue
     return text
+
+def post_html_byte_with_proxy(url):
+    bytes = b""
+    for proxy in get_http_proxies():
+        try:
+            res = requests.post(url,timeout=6,headers=get_http_headers(),proxies=proxy)
+            if res.ok:
+                print(proxy['http'] + " fetched successfully!")
+                bytes = res.content
+                break
+        except:
+            continue
+    return bytes

@@ -8,6 +8,7 @@
 import io
 import PIL.Image
 import requests
+import utility
 import ftplib
 
 
@@ -15,8 +16,8 @@ class Processor:
     def __init__(self,url):
         self._loaded = False
         if url:
-            res = requests.get(url)
-            self._image = PIL.Image.open(io.BytesIO(res.content))
+            bytes = utility.get_html_byte(url)
+            self._image = PIL.Image.open(io.BytesIO(bytes))
             self._loaded = True
 
     def Loaded(self):
