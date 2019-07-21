@@ -10,15 +10,22 @@ import PIL.Image
 import requests
 import utility
 import ftplib
+import sys
 
 
 class Processor:
     def __init__(self,url):
         self._loaded = False
         if url:
-            bytes = utility.get_html_byte(url)
-            self._image = PIL.Image.open(io.BytesIO(bytes))
-            self._loaded = True
+            try:
+                res = requests.get(url)
+                if res.ok:
+                    self._image = PIL.Image.open(io.BytesIO(res.content))
+                    self._loaded = True
+            except:
+                print("unexpected error: {0} {1} {2}".format(sys.exc_info()[0],url,"fetch failed!"))
+            else:
+                print(url + " fetched successfully!")
 
     def Loaded(self):
         return self._loaded
