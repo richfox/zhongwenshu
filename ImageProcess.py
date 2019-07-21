@@ -18,7 +18,7 @@ class Processor:
         self._loaded = False
         if url:
             try:
-                res = requests.get(url)
+                res = requests.get(url,timeout=6)
                 if res.ok:
                     self._image = PIL.Image.open(io.BytesIO(res.content))
                     self._loaded = True
