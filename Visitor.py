@@ -133,8 +133,9 @@ class Visitor:
                 ws.cell(row=i+j+1,column=10,value=spider.searchPress())
 
                 adress = spider.searchSmallAndBigPicture()
-                ws.cell(row=i+j+1,column=11,value=adress[0])
-                ws.cell(row=i+j+1,column=12,value=adress[1])
+                if adress:
+                    ws.cell(row=i+j+1,column=11,value=adress[0])
+                    ws.cell(row=i+j+1,column=12,value=adress[1])
             else:
                 ws.cell(row=i+j+1,column=7,value=sn)
                 
