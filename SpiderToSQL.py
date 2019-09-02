@@ -20,6 +20,8 @@ import json
 import utility
 import ftplib
 import ImageProcess
+import os
+import win32com.client
 
 
 def generate_sn(hanzi):
@@ -181,11 +183,16 @@ def saveFirstPicture(text,sn,fconn):
                             if target:
                                 galleryThumbImg = fconn["path"] + target
                 elif fconn.has_key("local"):
-                    root = ""
+                    root = "C:/xampp"
+                    if not os.path.exists(root):
+                        if os.path.exists(root + ".lnk"):
+                            shell = win32com.client.Dispatch("WScript.Shell")
+                            shortcut = shell.CreateShortCut(root + ".lnk")
+                            root = shortcut.Targetpath
                     if not re.match(r".*test.*",fconn["local"]):
-                        root = "C:/xampp/htdocs/ecshop/"
+                        root += "/htdocs/ecshop/"
                     else:
-                        root = "C:/xampp/htdocs/ecshop/test/"
+                        root += "/htdocs/ecshop/test/"
 
                     img.Save(root+fconn["path"]+"source_img",sn,img.Format())
                     oriImg = fconn["path"] + "source_img/" + sn + "." + img.Format()
