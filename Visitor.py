@@ -39,7 +39,7 @@ class Visitor:
     #预处理，比如先删除一些非法字符
     def preprocess(self,htmlstring):
         try:
-            res = htmlstring.decode('gb2312')
+            res = htmlstring.decode('utf8')
         except Exception as error:
             print error
             print 'delete illegal multibyte sequence...'
