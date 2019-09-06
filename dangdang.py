@@ -230,10 +230,10 @@ def generateDefaultGroupbuyConfig():
             "<config>\n" + \
             "  <!-- parameter for grouping buy -->\n" + \
             "  <!-- 团购类型名称，必须独一无二！！！ -->\n" + \
-            "  <name>20180501GBuy</name>\n" + \
+            "  <name>20180801GBuy</name>\n" + \
             "  <!-- 团购类型属性 -->\n" + \
             "  <attr>团购商品</attr>\n" + \
-            "  <goodsname>5月团</goodsname>\n" + \
+            "  <goodsname>8月团</goodsname>\n" + \
             "  <!-- 当当自营欧元团购价=定价*discount*multiple/exchange + offset -->\n" + \
             "  <!-- 非当当自营欧元团购价=定价*discount*multiple/exchange + offset2 -->\n" + \
             "  <discount>0.60</discount>\n" + \
@@ -249,6 +249,8 @@ def generateDefaultGroupbuyConfig():
             "  <packing>3.00</packing>\n" + \
             "  <!-- 欧洲境内运费补差=dhl_eu-dhl_de, 编号一般不用改 -->\n" + \
             "  <dhl_diff_sn>666666</dhl_diff_sn>\n" + \
+            "  <!-- 本期推荐，须从dangdangConfig.xml的<productID>中选取，加号为分隔符 -->\n" + \
+            "  <recommend>66 + 88</recommend>\n" + \
             "</config>\n"
 
     fp.write(content)

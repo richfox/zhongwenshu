@@ -541,6 +541,7 @@ def SpiderToSQL_tuangou(sqls,params):
     rate = float(params[u'discount']) * float(params[u'multiple']) / float(params[u'exchange'])
     diff = format(float(params[u'dhl_eu']) - float(params[u'dhl_de']),'.2f') #保留两位小数
     baseprice = format(float(params[u'dhl_de']) + float(params[u'packing']),'.2f')
+    recs = [rec.strip() for rec in params[u"recommend"].split('+')]
 
     for host,(username,password,dbname,charset,urls) in sqls.items():
         connection = pymysql.connect(host=host,user=username,password=password,db=dbname,charset=charset)
