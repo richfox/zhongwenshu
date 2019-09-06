@@ -548,15 +548,17 @@ def SpiderToSQL_tuangou(sqls,params):
     rate = float(params[u'discount']) * float(params[u'multiple']) / float(params[u'exchange'])
     diff = format(float(params[u'dhl_eu']) - float(params[u'dhl_de']),'.2f') #保留两位小数
     baseprice = format(float(params[u'dhl_de']) + float(params[u'packing']),'.2f')
-    recs = [rec.strip() for rec in params[u"recommend"].split('+')]
+    recssn = [rec.strip() for rec in params[u"recommend"].split('+')] #分解本期推荐当当单号，去除空格
 
     for host,(username,password,dbname,charset,urls) in sqls.items():
         connection = pymysql.connect(host=host,user=username,password=password,db=dbname,charset=charset)
         try:
             goodnames = ''
             goodsdict = {}
+            recstext = {}
             for url,tag in urls.items():
                 if tag == 0:
+                    ddsn = Spider.split_ddsn(url)
                     htmltext = utility.get_html_text(url)
                 elif tag == 2:
                     data = json.loads(url)
@@ -566,16 +568,14 @@ def SpiderToSQL_tuangou(sqls,params):
 
                 parser = lxml.html.HTMLParser()
                 htmltree = xml.etree.ElementTree.fromstring(htmltext,parser)
-                
-                #dangdang编号
-                sn = Spider.split_ddsn(url)
+
 
                 #爬取书籍名称和定价
                 titlenode = htmltree.xpath('//*[@id="product_info"]/div[1]/h1/@title')
                 titlesn = ''
                 if titlenode:
                     title = titlenode[0]
-                    titlesn = title + ' [' + sn + ']'
+                    titlesn = title + ' [' + ddsn + ']'
                     goodnames += titlesn
                     goodnames += '\r\n'
                 
@@ -583,13 +583,62 @@ def SpiderToSQL_tuangou(sqls,params):
                 groupbuyprice = 0.0
                 if oriprice:
                     #dangdang 自营
-                    if len(sn) == 8:
+                    if len(ddsn) == 8:
                         groupbuyprice = format(float(oriprice) * rate + float(params[u'offset']),'.2f')
                     #非dangdang 自营
                     else:
                         groupbuyprice = format(float(oriprice) * rate + float(params[u'offset2']),'.2f')
 
-                goodsdict[sn] = (titlesn,groupbuyprice)
+                goodsdict[ddsn] = (titlesn,groupbuyprice)
+
+                #本期推荐
+                if ddsn in recssn:
+                    #商品标志
+                    psstr = get_prodSpuInfo(htmltext)
+                    psdata = json.loads(psstr)
+
+                    shopid = psdata["shopId"]
+                    catpath = psdata["categoryPath"]
+                    descmap = psdata["describeMap"]
+                    if descmap:
+                        lastmap = descmap.split(',')[-1]
+                        descmap = lastmap.split(':')[0] + "%3A" + lastmap.split(':')[1]
+
+                    #商品详情Ajax请求
+                    ajaxbaseurl = "http://product.dangdang.com/index.php?r=callback%2Fdetail&productId={id}&templateType=publish&describeMap={descmap}&shopId={shopid}&categoryPath={catpath}"
+                    ajaxurl = ajaxbaseurl.format(id=ddsn,descmap=descmap,shopid=shopid,catpath=catpath)
+                    ajaxtext = utility.get_html_text(ajaxurl)
+                    ajaxdata = json.loads(ajaxtext)
+                    ajaxhtmltext = ajaxdata["data"]["html"]
+                    producttext = u""
+                    if ajaxhtmltext:
+                        ajaxhtmltree = utility.get_html_tree(ajaxhtmltext)
+                        
+                        #插图目录显示全部
+                        show_all(ajaxhtmltree,"attachImage")
+                        show_all(ajaxhtmltree,"catalog")
+
+                        #产品特色图片匹配
+                        imgnode = ajaxhtmltree.xpath('//*[@id="feature"]//img')
+                        if imgnode:
+                            imgnode[0].set('width','716')
+
+                        #商品描述
+                        producttext = ""
+                        for item in ajaxhtmltree.body:
+                            #重磅推荐广告忽略
+                            if re.match('^describe_http:.*\.xml$',item.attrib["id"]):
+                                continue
+
+                            try:
+                                producttext += xml.etree.ElementTree.tostring(item)
+                            except:
+                                print("item \"%s\" ignored!" % item.attrib["id"])
+                    else:
+                        producttext = u"<p>本商品暂无详情。</p>"
+
+                    recstext[ddsn] = producttext
+
 
             diffsn = params[u'dhl_diff_sn']
             diffname = u'------欧洲境内邮费补差------' + ' [' + diffsn + ']'
@@ -641,6 +690,12 @@ def SpiderToSQL_tuangou(sqls,params):
                 attrid = cursor.fetchone()[0]
                 print(attrtable + ":" + str(attrid))
 
+                #本期推荐描述
+                zwsprodtext = u"<div><zws-product>"
+                for ddsn,text in recstext.items():
+                    zwsprodtext += text
+                zwsprodtext += u"</zws-product></div>"
+
                 #添加团购商品
                 goodsname = params[u'goodsname']
                 addtime = str(int(time.time()))
@@ -648,7 +703,7 @@ def SpiderToSQL_tuangou(sqls,params):
                 catid = '135'
                 #商品品牌定义在表ecs_brand中，限定为团购7%增值税
                 brand = '53'
-
+                #唯一商品货号
                 sn = generate_sn(goodsname)
                 sql = "INSERT INTO " + goodstable + " (`goods_id`, `cat_id`, `goods_sn`,`goods_name`,\
                     `goods_name_style`, `click_count`, `brand_id`, `provider_name`, `goods_number`,\
@@ -662,20 +717,19 @@ def SpiderToSQL_tuangou(sqls,params):
                     '+', '0', %s, '', '1000',\
                     '0', %s, '', %s, '0.00',\
                     '0', '0', '1', '', '',\
-                    '', '', '', '', '1', '',\
+                    %s, '', '', '', '1', '',\
                     '0', '1', '1', '0', %s, '100',\
                     '0', '1', '1', '1', '0', '0', '0',\
                     %s, '', '-1', '-1', '0', NULL)"
-                cursor.execute(sql,(catid,sn,goodsname,brand,baseprice,baseprice,addtime,goodtype))
+                cursor.execute(sql,(catid,sn,goodsname,brand,baseprice,baseprice,zwsprodtext,addtime,goodtype))
 
-                #唯一商品编号
                 sql = "SELECT `goods_id` FROM " + goodstable + " WHERE `goods_sn`=%s"
                 cursor.execute(sql,sn)
                 goodsid = cursor.fetchone()[0]
                 print(goodstable + ":" + str(goodsid))
 
                 #添加商品属性
-                for sn,(name,price) in goodsdict.items():
+                for ddsn,(name,price) in goodsdict.items():
                     sql = "INSERT INTO " + goodsattrtable + " (`goods_attr_id`, `goods_id`, `attr_id`, `attr_value`, `attr_price`) \
                         VALUES (NULL, %s, %s, %s, %s)"
                     cursor.execute(sql,(goodsid,attrid,name,price))
