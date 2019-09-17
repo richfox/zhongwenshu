@@ -181,12 +181,18 @@ class Visitor:
             elif len(ordertime) == 2:
                 ws.cell(row=lastrow+1,column=1,value=transport+nr+ordertime[0].text+ordertime[1].text+payment[0].text)
             #最终价
-            ws.cell(row=lastrow+1,column=6,value=endprice[0].text)
+            if (endprice[0].text.find(u'\xa5')) >= 0: #包含¥符号
+                ws.cell(row=lastrow+1,column=6,value=endprice[0].text.replace(u'\xa5',u''))
+            else:
+                ws.cell(row=lastrow+1,column=6,value=endprice[0].text)
             #优惠
             bonus = others[0].xpath('.//span')
             for i,elem in enumerate(bonus):
                 if i == 0:
-                    ws.cell(row=lastrow+1,column=5,value=bonus[0].text)
+                    if (bonus[0].text.find(u'\xa5')) >= 0: #包含¥符号
+                        ws.cell(row=lastrow+1,column=5,value=bonus[0].text.replace(u'\xa5',u''))
+                    else:
+                        ws.cell(row=lastrow+1,column=5,value=bonus[0].text)
                 else:
                     ws.cell(row=lastrow+1+i-1,column=3,value=bonus[i].text)
         else: #分包裹
