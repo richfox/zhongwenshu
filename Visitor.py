@@ -15,6 +15,7 @@ import re
 import requests
 import Spider
 import json
+import os
 
 
 def get_transports_info():
@@ -27,6 +28,9 @@ def get_transports_info():
                 res[trans["type"]] = trans["consignee"]
             break
     return res
+
+def get_excel_name():
+    return "_books.xlsx"
 
 
 class Visitor:
@@ -206,8 +210,7 @@ class Visitor:
                 ws.cell(row=lastrow+1+i,column=5,value=bonus[0].text)
 
         
-        wb.save('_books.xlsx')
-        
+        wb.save(get_excel_name())
 
 
 
@@ -215,4 +218,5 @@ def visitorStart(file,tuan=False):
     print("Starting visitor...\n")
     visitor = Visitor(file,tuan)
     visitor.searchOrderGoods()
+    os.system("start " + get_excel_name())
     print("\nFinished.")
