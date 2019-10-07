@@ -9,6 +9,13 @@
             ]
         },
         {
+            "dduser": [
+                {"code": "FX","consignee": ".*转FX.*"},
+                {"code": "XX","consignee": ".*转XX.*"},
+                {"code": "FY","consignee": ".*转FY.*"}
+            ]
+        },
+        {
             "winxuan": [
                 {
                     "type": "gw",

@@ -29,6 +29,19 @@ def get_transports_info():
             break
     return res
 
+def get_ddusers_info():
+    res = {}
+    jsonstring = open(".\\Globconfig.json",'r').read()
+    allinfo = json.loads(jsonstring)
+    for config in allinfo["configurations"]:
+        if config.has_key("dduser"):
+            for user in config["dduser"]:
+                res[user["code"]] = user["consignee"]
+            break
+    return res
+
+
+
 def get_excel_name():
     return "_books.xlsx"
 
@@ -87,13 +100,17 @@ class Visitor:
         payment = self._htmltree.xpath('//*[@id="normalorder"]//*[@class="order_detail_frame"]/ul[position()=4]/li')
         
         #物流信息
-        transport = ""
+        header = ""
         consignee = self._htmltree.xpath('//*[@id="label_name"]')[0].text
         for type,pattern in get_transports_info().items():
             if re.match(pattern,consignee):
-                transport = u"【" + type + u"】"
+                header += u"【" + type + u"】"
                 break
-        
+        for code,pattern in get_ddusers_info().items():
+            if re.match(pattern,consignee):
+                header += u"【" + code + u"】"
+                break
+
 
         wb = openpyxl.Workbook()
         ws = wb.active
@@ -179,11 +196,11 @@ class Visitor:
                     nr = n.strip(' \n\t')
                     break
             if len(ordertime) == 0:
-                ws.cell(row=lastrow+1,column=1,value=transport+nr+payment[0].text)
+                ws.cell(row=lastrow+1,column=1,value=header+nr+payment[0].text)
             elif len(ordertime) == 1:
-                ws.cell(row=lastrow+1,column=1,value=transport+nr+ordertime[0].text+payment[0].text)
+                ws.cell(row=lastrow+1,column=1,value=header+nr+ordertime[0].text+payment[0].text)
             elif len(ordertime) == 2:
-                ws.cell(row=lastrow+1,column=1,value=transport+nr+ordertime[0].text+ordertime[1].text+payment[0].text)
+                ws.cell(row=lastrow+1,column=1,value=header+nr+ordertime[0].text+ordertime[1].text+payment[0].text)
             #最终价
             if (endprice[0].text.find(u'\xa5')) >= 0: #包含¥符号
                 ws.cell(row=lastrow+1,column=6,value=endprice[0].text.replace(u'\xa5',u''))
