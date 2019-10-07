@@ -146,28 +146,28 @@ class Visitor:
 
             #换购商品或分册信息
             res = books[i].xpath('../br')
-            if len(res) != 0:
+            subbook = books[i].xpath('../span[@class="present"]')
+            for s,elem in enumerate(subbook):
                 j += 1
-                hgtitle = books[i].xpath('../a[2]/@title')
-                hghref = books[i].xpath('../a[2]/@href')
+                hgtitle = elem.xpath('../a/@title')
+                hghref = elem.xpath('../a/@href')
                 hgprice = prices[i].xpath('./span/text()')
-                hgamount = amounts[i].xpath('./text()[2]')
-                hgsum = sums[i].xpath('./text()[2]')
+                hgamount = amounts[i].xpath('./text()')
+                hgsum = sums[i].xpath('./text()')
                 
-                restext = books[i].xpath('../span[@class="present"]/text()')
-                if re.match(u'.*换购',restext[0]):  #有换购
-                    ws.cell(row=i+j+1,column=1,value='[HG] ' + hgtitle[0]).hyperlink = hghref[0]
-                else: #有分册信息
-                    ws.cell(row=i+j+1,column=1,value='[FC] ' + hgtitle[0]).hyperlink = hghref[0]
+                stext = elem.xpath('./text()')
+                if re.match(u'.*换购',stext[0]): #有换购
+                    ws.cell(row=i+j+1,column=1,value='[HG] ' + hgtitle[1+s]).hyperlink = hghref[1+s]
+                else: #有分册
+                    ws.cell(row=i+j+1,column=1,value='[FC] ' + hgtitle[1+s]).hyperlink = hghref[1+s]
 
-                if len(hgprice) != 0:
-                    ws.cell(row=i+j+1,column=2,value=hgprice[0])
-                if len(hgamount) != 0:
-                    ws.cell(row=i+j+1,column=4,value=hgamount[0])
-                if len(hgsum) != 0:
-                    ws.cell(row=i+j+1,column=5,value=re.findall('\d+.\d+',hgsum[0])[0])
-                if len(hghref) != 0:
-                    ws.cell(row=i+j+1,column=7,value=Spider.split_ddsn(hghref[0]))
+                ws.cell(row=i+j+1,column=2,value=hgprice[s])
+                if amounts[i].text:
+                    ws.cell(row=i+j+1,column=4,value=hgamount[1+s])
+                else:
+                    ws.cell(row=i+j+1,column=4,value=hgamount[s])
+                ws.cell(row=i+j+1,column=5,value=re.findall('\d+.\d+',hgsum[1+s])[0])
+                ws.cell(row=i+j+1,column=7,value=Spider.split_ddsn(hghref[1+s]))
 
         lastrow = len(books) + len(subbooks)
 
