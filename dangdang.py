@@ -46,6 +46,8 @@ def printUsage():
     print("")
     print('python ${THIS_SCRIPT_NAME}.py {-wx} ${server.sxml}  call api of winxuan.com and import to database with settings of the sxml file')
     print("")
+    print('python ${THIS_SCRIPT_NAME}.py ${logis.xml} ${server.sxml}   import logistics info to database with settings of the sxml file')
+    print("")
     print('python ${THIS_SCRIPT_NAME}.py ${config.xml} {-tuan | -tuangou}   use config to search attributes write result to _books.xlsx for groupbuy')
     print("")
     print('python ${THIS_SCRIPT_NAME}.py ${config.xml} ${server.sxml} ${groupbuyConfig.xml}  use config to search attributes than import to database with settings of the sxml file for groupbuy')
@@ -123,6 +125,11 @@ def matSqlFile(arg):
 
 def matchGroupbuyConfigFile(arg):
     regex = r".*groupbuyConfig\.xml$"
+    res = scanForMatch(regex,arg)
+    return res
+
+def matchLogisConfigFile(arg):
+    regex = r".*logisticsConfig\.xml$"
     res = scanForMatch(regex,arg)
     return res
 
@@ -551,6 +558,18 @@ def main():
                 return False
             urls = winxuan.get_shop_items()
             winxuan.import_winxuan_to_sql(server,urls)
+            return True
+        elif matchLogisConfigFile(sys.argv[1]) and matSqlFile(sys.argv[2]):
+            if not os.path.exists(sys.argv[1]):
+                print('Error: logistics config file does not exist, use -logis to generate it')
+                return False
+            if not os.path.exists(sys.argv[2]):
+                print('Error: sql config file does not exist, use -sql to generate it')
+                return False
+            server = parseServerConfigFile(sys.argv[2])
+            if (not server.has_key("mysql")) or (not server.has_key("ftp")):
+                print("Error: config file is not completed.")
+                return False
             return True
     elif numArgs == 4:
         if matchConfigFile(sys.argv[1]) and matSqlFile(sys.argv[2]) and matchGroupbuyConfigFile(sys.argv[3]):
