@@ -15,6 +15,7 @@ import re
 import xml.dom.minidom
 import ExcelToSQL
 import json
+import logis
 
 
 
@@ -46,7 +47,7 @@ def printUsage():
     print("")
     print('python ${THIS_SCRIPT_NAME}.py {-wx} ${server.sxml}  call api of winxuan.com and import to database with settings of the sxml file')
     print("")
-    print('python ${THIS_SCRIPT_NAME}.py ${logis.xml} ${server.sxml}   import logistics info to database with settings of the sxml file')
+    print('python ${THIS_SCRIPT_NAME}.py {-l | -logis} ${server.sxml}   import logistics info to database with settings of the sxml file')
     print("")
     print('python ${THIS_SCRIPT_NAME}.py ${config.xml} {-tuan | -tuangou}   use config to search attributes write result to _books.xlsx for groupbuy')
     print("")
@@ -125,11 +126,6 @@ def matSqlFile(arg):
 
 def matchGroupbuyConfigFile(arg):
     regex = r".*groupbuyConfig\.xml$"
-    res = scanForMatch(regex,arg)
-    return res
-
-def matchLogisConfigFile(arg):
-    regex = r".*logisticsConfig\.xml$"
     res = scanForMatch(regex,arg)
     return res
 
@@ -275,14 +271,13 @@ def generateDefaultLogisticsConfig():
     fp = open('logisticsConfig.xml','w')
 
     content = '''<?xml version="1.0" encoding="UTF-8"?>
-<!--  以8月第二批为例 -->
+<!-- 以8月第二批为例 -->
+<!-- 物流公司代码code请查www.kuaidi100.com -->
 <config>
     <!-- 国际段 -->
     <inter>
         <company code="">
-            <sn>
-                V0229682879
-            </sn>
+            <sn>V0229682879</sn>
         </company>
     </inter>
     <!-- 国内段 -->
@@ -374,6 +369,38 @@ def parseConfigFile(configFile):
                             values[json.dumps(data)] = tag
 
     return values
+
+
+def parseLogisConfigFile(configFile):
+    logisinfo = {}
+    tree = xml.dom.minidom.parse(configFile)
+    configNode = tree.getElementsByTagName("config")[0]
+    for node in configNode.childNodes:
+        if node.nodeName == "inter":
+            logisinfo["inter"] = {}
+            company = node.getElementsByTagName("company")[0] #国际段只取第一家物流公司
+            code = company.getAttribute("code")
+            for attr in company.childNodes:
+                if attr.nodeName == "sn":
+                    sn = getNodeText(attr.childNodes)
+                    logisinfo["inter"][code] = sn #这里只有一个单号
+        elif node.nodeName == "cn":
+            logisinfo["cn"] = {}
+            for company in node.getElementsByTagName("company"):
+                code = company.getAttribute("code")
+                for attr in company.childNodes:
+                    if attr.nodeName == "sn":
+                        sn = getNodeText(attr.childNodes)
+                        logisinfo["cn"][code] = sn.split() #以空格为分隔符，包含 \n
+        elif node.nodeName == "de":
+            logisinfo["de"] = {}
+            for company in node.getElementsByTagName("company"):
+                code = company.getAttribute("code")
+                for attr in company.childNodes:
+                    if attr.nodeName == "sn":
+                        sn = getNodeText(attr.childNodes)
+                        logisinfo["de"][code] = sn.split()
+    return logisinfo
 
 
 def parseSqlConfigFile(configFile):
@@ -559,8 +586,8 @@ def main():
             urls = winxuan.get_shop_items()
             winxuan.import_winxuan_to_sql(server,urls)
             return True
-        elif matchLogisConfigFile(sys.argv[1]) and matSqlFile(sys.argv[2]):
-            if not os.path.exists(sys.argv[1]):
+        elif matchGenerateLogisticsConfigFile(sys.argv[1]) and matSqlFile(sys.argv[2]):
+            if not os.path.exists("logisticsConfig.xml"):
                 print('Error: logistics config file does not exist, use -logis to generate it')
                 return False
             if not os.path.exists(sys.argv[2]):
@@ -570,6 +597,8 @@ def main():
             if (not server.has_key("mysql")) or (not server.has_key("ftp")):
                 print("Error: config file is not completed.")
                 return False
+            info = parseLogisConfigFile("logisticsConfig.xml")
+            logis.import_logis_to_sql(server,info)
             return True
     elif numArgs == 4:
         if matchConfigFile(sys.argv[1]) and matSqlFile(sys.argv[2]) and matchGroupbuyConfigFile(sys.argv[3]):
