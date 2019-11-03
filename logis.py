@@ -65,7 +65,7 @@ def import_logis_to_sql(server,logis):
             sql = "SELECT `id` FROM " + rinterTable + " WHERE `railway_sn`=%s"
             cursor.execute(sql,railway_sn)
             rinterid = cursor.fetchone()[0]
-            print("inter id = " + rinterid)
+            print("inter id : " + str(rinterid))
 
             for sn,company in cn_packet.items():
                 sql = "INSERT INTO " + logiscnTable + " (`id`, `cn_packet_sn`, `railway_id`, `cn_log`, `cn_time`, `cn_status`, `cn_company`) \
