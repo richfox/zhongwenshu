@@ -32,6 +32,8 @@ def printUsage():
     print("")
     print('python ${THIS_SCRIPT_NAME}.py {-tuan | -tuangou}    Generates a config file for parameters of grouping buy')
     print("")
+    print('python ${THIS_SCRIPT_NAME}.py {-l | -logis}    Generates a config file for parameters of logistics')
+    print("")
     print('python ${THIS_SCRIPT_NAME}.py ${config.xml}    Uses all settings of the xml configuration file')
     print("")
     print('python ${THIS_SCRIPT_NAME}.py ${file.html}    visit the html file and write result to _books.xlsx')
@@ -94,6 +96,11 @@ def matchTuangou(arg):
 
 def matchGenerateGroupbuyConigFile(arg):
     regex = r"-tuan$|-tuangou$"
+    res = scanForMatch(regex,arg)
+    return res
+
+def matchGenerateLogisticsConfigFile(arg):
+    regex = r"-l$|-logis$"
     res = scanForMatch(regex,arg)
     return res
 
@@ -256,6 +263,58 @@ def generateDefaultGroupbuyConfig():
     fp.write(content)
     fp.close()
     print('Generated default grouping buy parameter file: groupbuyConfig.xml')
+
+def generateDefaultLogisticsConfig():
+    fp = open('logisticsConfig.xml','w')
+
+    content = '''<?xml version="1.0" encoding="UTF-8"?>
+<!--  以8月第二批为例 -->
+<config>
+    <!-- 国际段 -->
+    <inter>
+        <company code="">
+            <sn>
+                V0229682879
+            </sn>
+        </company>
+    </inter>
+    <!-- 国内段 -->
+    <cn>
+        <company code="shunfeng">
+            <sn>
+                SF1002140140375
+            </sn>
+        </company>
+        <company code="">
+            <sn>
+                JD0001588574256-1-1-306
+                71772301035493
+                75170136931141
+                JD0001528940869-1-1-306
+                71772301016376
+                773001152992568
+                JDVD00141250253-1-1
+                9896074183914
+                YT4049229100256
+                73118055799728
+                3102720244033
+            </sn>
+        </company>
+    </cn>
+    <!-- 德国段 -->
+    <de>
+        <company code="ups">
+            <sn>
+                1Z30YE206898641505
+                1Z30YE206898744314
+            </sn>
+        </company>
+    </de>
+</config>'''
+
+    fp.write(content)
+    fp.close()
+    print('Generated default logistics parameter file: logisticsConfig.xml')
 
 
 def getNodeText(nodelist):
@@ -421,6 +480,9 @@ def main():
             return True
         elif matchGenerateGroupbuyConigFile(sys.argv[1]):
             generateDefaultGroupbuyConfig()
+            return True
+        elif matchGenerateLogisticsConfigFile(sys.argv[1]):
+            generateDefaultLogisticsConfig()
             return True
         elif matchConfigFile(sys.argv[1]):
             if not os.path.exists(sys.argv[1]):
