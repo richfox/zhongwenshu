@@ -424,9 +424,10 @@ def SpiderToSQL(sqls):
                 if ajaxhtmltext:
                     ajaxhtmltree = utility.get_html_tree(ajaxhtmltext)
                     
-                    #插图目录显示全部
+                    #需要显示全部的块，比如插图和目录
                     show_all(ajaxhtmltree,"attachImage")
                     show_all(ajaxhtmltree,"catalog")
+                    show_all(ajaxhtmltree,"authorIntroduction")
 
                     #产品特色图片匹配
                     imgnode = ajaxhtmltree.xpath('//*[@id="feature"]//img')
@@ -613,10 +614,11 @@ def SpiderToSQL_tuangou(sqls,params):
                     producttext = u""
                     if ajaxhtmltext:
                         ajaxhtmltree = utility.get_html_tree(ajaxhtmltext)
-                        
-                        #插图目录显示全部
+
+                        #需要显示全部的块，比如插图和目录
                         show_all(ajaxhtmltree,"attachImage")
                         show_all(ajaxhtmltree,"catalog")
+                        show_all(ajaxhtmltree,"authorIntroduction")
 
                         #产品特色图片匹配
                         imgnode = ajaxhtmltree.xpath('//*[@id="feature"]//img')

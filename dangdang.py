@@ -277,6 +277,7 @@ def generateDefaultLogisticsConfig():
     <!-- 国际段 -->
     <inter>
         <company code="">
+            <!-- 这里只能填一个单号 -->
             <sn>V0229682879</sn>
         </company>
     </inter>
