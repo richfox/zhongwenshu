@@ -143,13 +143,13 @@ class Visitor:
 
             #团购所需图书信息
             #团购表和采购表从第7行开始有区别
+            spider = Spider.Spider(hrefs[i])
             if self._tuan:    
                 titlesn = ws.cell(row=i+j+1,column=1).value + ' [' + sn  + ']'
                 ws.cell(row=i+j+1,column=1,value=titlesn)
                 ws.cell(row=i+j+1,column=7,value=self.getOriginalPrice(hrefs[i]))
                 ws.cell(row=i+j+1,column=8,value=sn)
 
-                spider = Spider.Spider(hrefs[i])
                 ws.cell(row=i+j+1,column=9,value=spider.searchISBN())
                 ws.cell(row=i+j+1,column=10,value=spider.searchPress())
 
@@ -159,6 +159,7 @@ class Visitor:
                     ws.cell(row=i+j+1,column=12,value=adress[1])
             else:
                 ws.cell(row=i+j+1,column=7,value=sn)
+                ws.cell(row=i+j+1,column=8,value=spider.searchISBN())
                 
 
             #换购商品或分册信息

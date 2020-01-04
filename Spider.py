@@ -39,6 +39,17 @@ def split_ddsn(url):
     ddsn = re.split('\.',res[len(res)-1])
     return ddsn[0]
 
+#获取书籍信息的具体位置
+def get_xpath_indexs(tree,path,attrs,separator):
+    indexs = {}
+    nodes = tree.xpath(path)
+    for attr in attrs:
+        for i,node in enumerate(nodes):
+            name = re.split(separator,node.text)[0]
+            if re.match(u'.*'+attr,name.replace(' ','')):
+                indexs[attr] = i+1
+                break
+    return indexs
 
 #爬虫类
 class Spider:
@@ -136,15 +147,18 @@ class Spider:
             price += zhenode[0]
         return price
 
-
-
     #isbn
     def searchISBN(self):
+        attrnames = [u'ISBN']
+        attrpath = '//*[@id="detail_describe"]/ul/li'
+        attrindexs = get_xpath_indexs(self._htmltree,attrpath,attrnames,u'：')
+        
         isbn = ''
-        isbnnode = self._htmltree.xpath('//*[@id="detail_describe"]/ul/li[9]/text()')
-        if isbnnode:
-            for res in re.findall('[0-9]+',isbnnode[0]):
-                isbn += res
+        if attrindexs.has_key(u'ISBN'):
+            isbnnode = self._htmltree.xpath(attrpath + '[' + str(attrindexs[u'ISBN']) + ']' + '/text()')
+            if isbnnode:
+                for res in re.findall('[0-9]+',isbnnode[0]):
+                    isbn += res
         return isbn
 
     #出版社

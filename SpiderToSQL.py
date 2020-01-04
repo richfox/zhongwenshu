@@ -67,16 +67,6 @@ def get_xpath_index(tree,path,attr,separator):
             break
     return index+1
 
-def get_xpath_indexs(tree,path,attrs,separator):
-    indexs = {}
-    nodes = tree.xpath(path)
-    for attr in attrs:
-        for i,node in enumerate(nodes):
-            name = re.split(separator,node.text)[0]
-            if re.match(u'.*'+attr,name.replace(' ','')):
-                indexs[attr] = i+1
-                break
-    return indexs
 
 
 def show_all(tree,key):
@@ -298,7 +288,7 @@ def SpiderToSQL(sqls):
                 #爬取书籍信息
                 attrnames = [u'开本',u'纸张',u'包装',u'ISBN']
                 attrpath = '//*[@id="detail_describe"]/ul/li'
-                attrindexs = get_xpath_indexs(htmltree,attrpath,attrnames,u'：')
+                attrindexs = Spider.get_xpath_indexs(htmltree,attrpath,attrnames,u'：')
 
                 title = ''
                 if tag == 0:
