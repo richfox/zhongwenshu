@@ -193,8 +193,8 @@ class Visitor:
         if len(ordernr) != 0: #普通订单不分包裹
             nr = ''
             for n in ordernr:
-                if n.strip(' \n\t'):
-                    nr = n.strip(' \n\t')
+                if n.strip() != '':
+                    nr = n.strip()
                     break
             if len(ordertime) == 0:
                 ws.cell(row=lastrow+1,column=1,value=header+nr+payment[0].text)
