@@ -4,6 +4,8 @@
 #Author: Xiang Fu
 #Email: tech@zhongwenshu.de
 
+from __future__ import print_function
+
 import sys
 import os
 import Spider
@@ -549,11 +551,11 @@ def main():
                 return False
             urls = parseConfigFile(sys.argv[1])
             server = parseServerConfigFile(sys.argv[2])
-            if not server.has_key("mysql"):
+            if not "mysql" in server:
                 print("Error: config file is not completed.")
                 return False
             sql = server["mysql"]
-            if not server.has_key("ftp"):
+            if not "ftp" in server:
                 print("Error: config file is not completed.")
                 return False
             ftp = server["ftp"]
@@ -581,7 +583,7 @@ def main():
             if not os.path.exists(sys.argv[2]):
                 print('Error: sql config file does not exist.')
             server = parseServerConfigFile(sys.argv[2])
-            if (not server.has_key("mysql")) or (not server.has_key("ftp")):
+            if (not "mysql" in server) or (not "ftp" in server):
                 print("Error: config file is not completed.")
                 return False
             urls = winxuan.get_shop_items()
@@ -595,7 +597,7 @@ def main():
                 print('Error: sql config file does not exist, use -sql to generate it')
                 return False
             server = parseServerConfigFile(sys.argv[2])
-            if (not server.has_key("mysql")) or (not server.has_key("ftp")):
+            if (not "mysql" in server) or (not "ftp" in server):
                 print("Error: config file is not completed.")
                 return False
             info = parseLogisConfigFile("logisticsConfig.xml")
@@ -615,7 +617,7 @@ def main():
             urls = parseConfigFile(sys.argv[1])
             server = parseServerConfigFile(sys.argv[2])
             params = parseGroupbuyConfigFile(sys.argv[3])
-            if not server.has_key("mysql"):
+            if not "mysql" in server:
                 print("Error: config file is not completed.")
                 return False
             sql = server["mysql"]
@@ -638,7 +640,7 @@ def main():
                 return False
             server = parseServerConfigFile(sys.argv[2])
             params = parseGroupbuyConfigFile(sys.argv[3])
-            if not server.has_key("mysql"):
+            if not "mysql" in server:
                 print("Error: config file is not completed.")
                 return False
             sql = server["mysql"]

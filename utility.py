@@ -127,7 +127,7 @@ def search_close_bracket(text,posopen,bpair):
     openstack = []
     start = posopen + 1
 
-    charopen = bpair.keys()[0]
+    charopen = list(bpair.keys())[0]
     charclose = bpair[charopen]
     charset = charopen + charclose
     pos = find_first_of(text,charset,start)

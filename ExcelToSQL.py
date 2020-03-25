@@ -182,7 +182,7 @@ def ExcelToSQLGBuy(sqls,params):
                         goodtype = cursor._rows[0][0]
                         print(goodstypetable + ": " + str(goodtype))
                     else:
-                        raise Exception, "this goodtype %s for groupbuy is not jet inserted in database!" %params[u'name']
+                        raise Exception("this goodtype %s for groupbuy is not jet inserted in database!" %params[u'name'])
 
                     #找团购大类的属性
                     sql = "SELECT `attr_id` FROM " + attrtable + " WHERE `cat_id`=%s"
@@ -359,7 +359,7 @@ def ExcelToSQLGBuy(sqls,params):
                         orderid = cursor._rows[0][0]
                         print(ordertable + ": " + str(orderid))
                     else:
-                        raise Exception, "this ordernr %s for groupbuy is not jet inserted in database!" %ordernr                    
+                        raise Exception("this ordernr %s for groupbuy is not jet inserted in database!" %ordernr)
 
                     
                     #订单商品

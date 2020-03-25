@@ -38,8 +38,8 @@ def preprocess2(htmlstring):
     try:
         res = htmlstring.decode('utf-8')
     except Exception as error:
-        print error
-        print 'delete illegal multibyte sequence...'
+        print(error)
+        print('delete illegal multibyte sequence...')
         pos = re.findall('decodebytesinposition(\d+)-(\d+):illegal',str(error).replace(' ',''))
         if len(pos) != 0:
             htmlstring = htmlstring[0:int(pos[0][0])] + htmlstring[int(pos[0][1]):]
@@ -57,7 +57,7 @@ def load_json(jsonstring):
     try:
         res = json.loads(jsonstring)
     except Exception as error:
-        print error
+        print(error)
         pos = re.findall('Expectingobject:line(\d+)column(\d+)\(char(\d+)\)',str(error).replace(' ',''))
         if pos:
             if jsonstring[int(pos[0][2])] == '}':
@@ -142,7 +142,7 @@ def aptamil():
                             #pagers = jsonpath.jsonpath(jsondata,'$..pager',result_type='IPATH')
                             #print totalpages
                             if pagers:
-                                print pagers[0]
+                                print(pagers[0])
 
                             break
                 break

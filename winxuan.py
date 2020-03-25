@@ -21,7 +21,7 @@ def get_authorization():
     jsonstring = open(".\\Globconfig.json",'r').read()
     allinfo = json.loads(jsonstring)
     for config in allinfo["configurations"]:
-        if config.has_key("winxuan"):
+        if "winxuan" in config:
             for wx in config["winxuan"]:
                 res[wx["type"]] = (wx["address"],wx["key"],wx["secret"],wx["accesstoken"],wx["version"],wx["format"])
             break
@@ -147,26 +147,26 @@ def import_winxuan_to_sql(server,urls):
             #唯一商品货号
             sn = ""
             title = ""
-            if data["shop_items"][0].has_key("title"):
+            if "title" in data["shop_items"][0]:
                 title = data["shop_items"][0]["title"]
             if title:
                 sn = SpiderToSQL.generate_sn(data["shop_items"][0]["title"])
             
             #数量
             goodsnumber = 0
-            if data["shop_items"][0].has_key("stock"):
+            if "stock" in data["shop_items"][0]:
                 goodsnumber = data["shop_items"][0]["stock"]
             
             #ISBN
             isbn = ""
-            if data["shop_items"][0].has_key("barcode"):
+            if "barcode" in data["shop_items"][0]:
                 isbn = data["shop_items"][0]["barcode"]
 
             #价格
             oriprice = "0.00"
             shopprice = 0.00
             marketprice = "0.00"
-            if data["shop_items"][0].has_key("list_price"):
+            if "list_price" in data["shop_items"][0]:
                 oriprice = u"%s%.2f" % (u"¥",data["shop_items"][0]["list_price"])
                 shopprice = data["shop_items"][0]["list_price"]*2/7
                 marketprice = u"%.2f" % (data["shop_items"][0]["list_price"]*1.2)
@@ -178,7 +178,7 @@ def import_winxuan_to_sql(server,urls):
             homeimgUrl = ""
             largeimgUrls = {}
             img = ImageProcess.Processor("")
-            if data["shop_items"][0].has_key("shop_item_images"):
+            if "shop_item_images" in data["shop_items"][0]:
                 for image in data["shop_items"][0]["shop_item_images"]:
                     if image["image_type"] == "HOME_IMAGE":
                         homeimgUrl = image["winxuan_image_url"]
@@ -254,10 +254,10 @@ def import_winxuan_to_sql(server,urls):
                         "media_comment":{"id":u"media","title":u"媒体评论"}}
             
             prodtext = u""
-            if data["shop_items"][0].has_key("shop_item_attribute"):
+            if "shop_item_attribute" in data["shop_items"][0]:
                 for field in fields:
                     sectiontext = u''
-                    if data["shop_items"][0]["shop_item_attribute"].has_key(field):
+                    if field in data["shop_items"][0]["shop_item_attribute"]:
                         sectiontext += u'<div class="section" id="' + sections[field]["id"] + '">\
                                 <div class="title"><span>' + sections[field]["title"] + '</span></div>\
                                 <div class="descrip">'
@@ -281,9 +281,9 @@ def import_winxuan_to_sql(server,urls):
 
             #作者 出版社 出版时间 开本 包装 ISBN 定价
             attrs = {"author":"","publish_house":"","publish_date":"","size":"","binding":""}
-            if data["shop_items"][0].has_key("shop_item_attribute"):
+            if "shop_item_attribute" in data["shop_items"][0]:
                 for key in attrs:
-                    if data["shop_items"][0]["shop_item_attribute"].has_key(key):
+                    if key in data["shop_items"][0]["shop_item_attribute"]:
                         attrs[key] = data["shop_items"][0]["shop_item_attribute"][key]
 
             #时间戳

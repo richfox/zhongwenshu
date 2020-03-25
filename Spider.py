@@ -20,7 +20,7 @@ import lxml.etree
 import json
 
 import codecs
-sys.stdout = codecs.getwriter('utf8')(sys.stdout)
+#sys.stdout = codecs.getwriter('utf8')(sys.stdout)
 
 import utility
 import ImageProcess
@@ -116,7 +116,7 @@ class Spider:
         regX = '<img alt=\"\" src=\".*.jpg\" title=\"\" id=\"modalBigImg\">'
         bigpic_paths = re.findall(regX,self._html,re.S)
         if bigpic_paths:
-            print bigpic_paths[0]
+            print(bigpic_paths[0])
             bigpic_urls = re.findall('http://.*.jpg',bigpic_paths[0],re.S)
             if bigpic_urls:
                 picadress.append(bigpic_urls[0])
@@ -154,7 +154,7 @@ class Spider:
         attrindexs = get_xpath_indexs(self._htmltree,attrpath,attrnames,u'：')
         
         isbn = ''
-        if attrindexs.has_key(u'ISBN'):
+        if u'ISBN' in attrindexs:
             isbnnode = self._htmltree.xpath(attrpath + '[' + str(attrindexs[u'ISBN']) + ']' + '/text()')
             if isbnnode:
                 for res in re.findall('[0-9]+',isbnnode[0]):

@@ -124,7 +124,7 @@ def saveFirstPicture(text,sn,fconn):
         img = ImageProcess.Processor(pic_url[0])
         if img.Loaded():
             try:
-                if fconn.has_key("server"):
+                if "server" in fconn:
                     src = img.Save("./temp",sn,img.Format())
                     target = img.Upload(fconn["server"],src,"source_img",sn,img.Format())
                     if target:
@@ -172,7 +172,7 @@ def saveFirstPicture(text,sn,fconn):
                             target = img.Upload(fconn["server"],src,"thumb_img",sn+"_T_P",img.Format())
                             if target:
                                 galleryThumbImg = fconn["path"] + target
-                elif fconn.has_key("local"):
+                elif "local" in fconn:
                     root = "C:/xampp"
                     if not os.path.exists(root):
                         if os.path.exists(root + ".lnk"):
@@ -252,7 +252,7 @@ def SpiderToSQL(sqls):
 
         try:
             #设置ftp上传路径
-            if fconn.has_key("server"):
+            if "server" in fconn:
                 if dbname == 'zhongw_test':
                     fconn["server"].cwd("test/" + ftp[3])
                 elif dbname == 'zhongwenshu_db1':
@@ -296,7 +296,7 @@ def SpiderToSQL(sqls):
                     if titlenode:
                         title = titlenode[0]
                 elif tag == 2:
-                    if tabledata.has_key(u'title'):
+                    if u'title' in tabledata:
                         title = tabledata[u'title']
                     
                 #唯一商品货号
@@ -307,23 +307,23 @@ def SpiderToSQL(sqls):
                 #数量
                 goodsnumber = '0'
                 if tag == 2:
-                    if tabledata.has_key(u'quantity'):
+                    if u'quantity' in tabledata:
                         goodsnumber = tabledata[u'quantity']
 
                 #重量kg
                 goodsweight = '0.000'
                 if tag == 2:
-                    if tabledata.has_key(u'weight'):
+                    if u'weight' in tabledata:
                         goodsweight = u"%.3f" % (float(tabledata[u'weight'])/1000)
                 
                 #价格
                 shopprice = '0.00'
                 marketprice = '0.00'
                 if tag == 2:
-                    if tabledata.has_key(u'price'):
+                    if u'price' in tabledata:
                         shopprice = tabledata[u'price']
                         marketprice = u"%.2f" % (float(shopprice)*1.2)
-                    elif tabledata.has_key(u'rprice'):
+                    elif u'rprice' in tabledata:
                         shopprice = tabledata[u'rprice']
                         marketprice = u"%.2f" % (float(shopprice)*1.2)
 
@@ -346,7 +346,7 @@ def SpiderToSQL(sqls):
                     press = pressnode[0]
 
                 #ISBN
-                if attrindexs.has_key(u'ISBN'):
+                if u'ISBN' in attrindexs:
                     isbnnode = htmltree.xpath(attrpath + '[' + str(attrindexs[u'ISBN']) + ']' + '/text()')
                     isbn = ''
                     if isbnnode:
@@ -362,7 +362,7 @@ def SpiderToSQL(sqls):
                         pressdate = res[1]
 
                 #开本
-                if attrindexs.has_key(u'开本'):
+                if u'开本' in attrindexs:
                     sizenode = htmltree.xpath(attrpath + '[' + str(attrindexs[u'开本']) + ']' + '/text()')
                     size = ''
                     if sizenode:
@@ -370,7 +370,7 @@ def SpiderToSQL(sqls):
                             size += res
 
                 #包装
-                if attrindexs.has_key(u'包装'):
+                if u'包装' in attrindexs:
                     packingnode = htmltree.xpath(attrpath + '[' + str(attrindexs[u'包装']) + ']' + '/text()')
                     packing = ''
                     if packingnode:
@@ -382,7 +382,7 @@ def SpiderToSQL(sqls):
                             packing = '盒装'
 
                 #纸张
-                if attrindexs.has_key(u'纸张'):
+                if u'纸张' in attrindexs:
                     papernode = htmltree.xpath(attrpath + '[' + str(attrindexs[u'纸张']) + ']' + '/text()')
                     paper = ''
                     if papernode:
@@ -521,7 +521,7 @@ def SpiderToSQL(sqls):
         finally:
             connection.close()
 
-            if fconn.has_key("server"):
+            if "server" in fconn:
                 fconn["server"].quit()
 
     for url in ignored:
@@ -659,7 +659,7 @@ def SpiderToSQL_tuangou(sqls,params):
                 sql = "SELECT `cat_id` FROM " + goodstypetable + " WHERE `cat_name`=%s"
                 res = cursor.execute(sql,catname)
                 if res:
-                    raise Exception, "this goodtype %s for groupbuy is already inserted in database!" %catname
+                    raise Exception("this goodtype %s for groupbuy is already inserted in database!" %catname)
 
                 sql = "INSERT INTO " + goodstypetable + " (`cat_id`,`cat_name`,`enabled`,`attr_group`) \
                     VALUES (NULL,%s,'1','')"

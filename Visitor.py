@@ -20,10 +20,10 @@ import os
 
 def get_transports_info():
     res = {}
-    jsonstring = open(".\\Globconfig.json",'r').read()
+    jsonstring = open(".\\Globconfig.json",'rb').read()
     allinfo = json.loads(jsonstring)
     for config in allinfo["configurations"]:
-        if config.has_key("transport"):
+        if "transport" in config:
             for trans in config["transport"]:
                 res[trans["type"]] = trans["consignee"]
             break
@@ -31,10 +31,10 @@ def get_transports_info():
 
 def get_ddusers_info():
     res = {}
-    jsonstring = open(".\\Globconfig.json",'r').read()
+    jsonstring = open(".\\Globconfig.json",'rb').read()
     allinfo = json.loads(jsonstring)
     for config in allinfo["configurations"]:
-        if config.has_key("dduser"):
+        if "dduser" in config:
             for user in config["dduser"]:
                 res[user["code"]] = user["consignee"]
             break
@@ -48,7 +48,7 @@ def get_excel_name():
 
 class Visitor:
     def __init__(self,file,tuan):
-        htmlstring = open(file,'r').read()
+        htmlstring = open(file,'rb').read()
         htmltree = lxml.html.document_fromstring(self.preprocess(htmlstring))
         self._htmltree = htmltree
         self._tuan = tuan
@@ -58,8 +58,8 @@ class Visitor:
         try:
             res = htmlstring.decode('utf8')
         except Exception as error:
-            print error
-            print 'delete illegal multibyte sequence...'
+            print(error)
+            print('delete illegal multibyte sequence...')
             pos = re.findall('decodebytesinposition(\d+)-(\d+):illegal',str(error).replace(' ',''))
             if len(pos) != 0:
                 htmlstring = htmlstring[0:int(pos[0][0])] + htmlstring[int(pos[0][1]):]
