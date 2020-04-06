@@ -432,7 +432,7 @@ def SpiderToSQL(sqls):
                             continue
                         
                         try:
-                            producttext += xml.etree.ElementTree.tostring(item)
+                            producttext += xml.etree.ElementTree.tostring(item,encoding="unicode")
                         except:
                             print("item \"%s\" ignored!" % item.attrib["id"])
 
@@ -623,7 +623,7 @@ def SpiderToSQL_tuangou(sqls,params):
                                 continue
 
                             try:
-                                producttext += xml.etree.ElementTree.tostring(item)
+                                producttext += xml.etree.ElementTree.tostring(item,encoding="unicode")
                             except:
                                 print("item \"%s\" ignored!" % item.attrib["id"])
                     else:

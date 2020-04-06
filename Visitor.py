@@ -116,8 +116,6 @@ class Visitor:
         ws = wb.active
         j = 0
         for i,book in enumerate(books):
-            #lxml.html.tostring(book,pretty_print=True,encoding='utf-8')
-
             #预售商品
             res = book.xpath('../span[@class="c_red"]')
             if len(res) != 0: #是预售

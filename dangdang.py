@@ -146,7 +146,7 @@ def matchUrl(arg):
 
 #生成默认配置文件
 def generateDefaultConfig():
-    fp = open('dangdangConfig.xml','w')
+    fp = open('dangdangConfig.xml','w',encoding="utf-8")
 
     content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + \
             "<config>\n" + \
@@ -169,7 +169,7 @@ def generateDefaultConfig():
     print('Generated default config file: dangdangConfig.xml')
 
 def generateDefaultOrderConfig():
-    fp = open('dangdangConfig.xml','w')
+    fp = open('dangdangConfig.xml','w',encoding="utf-8")
 
     content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + \
             "<config>\n" + \
@@ -185,7 +185,7 @@ def generateDefaultOrderConfig():
     print('Generated default order config file: dangdangConfig.xml')
 
 def generateDefaultServerConfig():
-    fp = open('myServerConfig.sxml','w')
+    fp = open('myServerConfig.sxml','w',encoding="utf-8")
 
     content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + \
             "<config>\n" + \
@@ -236,7 +236,7 @@ def generateDefaultServerConfig():
 
 
 def generateDefaultGroupbuyConfig():
-    fp = open('groupbuyConfig.xml','w')
+    fp = open('groupbuyConfig.xml','w',encoding="utf-8")
 
     content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + \
             "<config>\n" + \
@@ -270,7 +270,7 @@ def generateDefaultGroupbuyConfig():
     print('Generated default grouping buy parameter file: groupbuyConfig.xml')
 
 def generateDefaultLogisticsConfig():
-    fp = open('logisticsConfig.xml','w')
+    fp = open('logisticsConfig.xml','w',encoding="utf-8")
 
     content = '''<?xml version="1.0" encoding="UTF-8"?>
 <!-- 以8月第二批为例 -->
