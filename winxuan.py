@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 # 文轩网接口
-#Python 2.7
+#Python 3.7
 #Author: Xiang Fu
 #Email: tech@zhongwenshu.de
 

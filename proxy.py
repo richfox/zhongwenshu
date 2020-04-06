@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 #＝＝＝＝＝＝代理设置＝＝＝＝＝＝＝＝
-#Python 2.7
+#Python 3.7
 #Author: Xiang Fu
 #Email: tech@zhongwenshu.de
 #
