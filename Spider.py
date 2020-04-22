@@ -45,10 +45,11 @@ def get_xpath_indexs(tree,path,attrs,separator):
     nodes = tree.xpath(path)
     for attr in attrs:
         for i,node in enumerate(nodes):
-            name = re.split(separator,node.text)[0]
-            if re.match(u'.*'+attr,name.replace(' ','')):
-                indexs[attr] = i+1
-                break
+            if node.text:
+                name = re.split(separator,node.text)[0]
+                if re.match(u'.*'+attr,name.replace(' ','')):
+                    indexs[attr] = i+1
+                    break
     return indexs
 
 #爬虫类
