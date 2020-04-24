@@ -11,7 +11,7 @@ import json
 import time
 import utility
 import pymysql
-
+import logging
 
 
 def import_logis_to_sql(server,logis):
@@ -62,6 +62,11 @@ def import_logis_to_sql(server,logis):
                   VALUES (NULL, %s, '', %s, '-1', %s)"
             cursor.execute(sql,(railway_sn,timestamp,inter_company))
 
+            #log
+            LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
+            logging.basicConfig(filename='mylogis.log',level=logging.DEBUG,format=LOG_FORMAT)
+            logging.info(sql % ("'"+railway_sn+"'","'"+timestamp+"'","'"+inter_company+"'"))
+
             sql = "SELECT `id` FROM " + rinterTable + " WHERE `railway_sn`=%s"
             cursor.execute(sql,railway_sn)
             rinterid = cursor.fetchone()[0]
@@ -71,11 +76,13 @@ def import_logis_to_sql(server,logis):
                 sql = "INSERT INTO " + logiscnTable + " (`id`, `cn_packet_sn`, `railway_id`, `cn_log`, `cn_time`, `cn_status`, `cn_company`) \
                     VALUES (NULL, %s, %s, '', %s, '-1', %s)"
                 cursor.execute(sql,(sn,rinterid,timestamp,company))
+                logging.info(sql % ("'"+sn+"'",rinterid,"'"+timestamp+"'","'"+company+"'"))
 
             for sn,company in de_packet.items():
                 sql = "INSERT INTO " + logisdeTable + " (`id`, `de_packet_sn`, `railway_id`, `de_log`, `de_time`, `de_status`, `de_company`) \
                     VALUES (NULL, %s, %s, '', %s, '-1', %s)"
                 cursor.execute(sql,(sn,rinterid,timestamp,company))
+                logging.info(sql % ("'"+sn+"'",rinterid,"'"+timestamp+"'","'"+company+"'"))
 
         connection.commit()
     finally:

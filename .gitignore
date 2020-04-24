@@ -12,6 +12,7 @@ ZWSTool/ZWSTool/ZWSTool.vcxproj.user
 *.sxml
 *.pyc
 *.xlsx
+*.log
 .vscode/*.json
 ftpConfig.fxml
 temp/
