@@ -16,6 +16,7 @@ import requests
 import Spider
 import json
 import os
+import unittest
 
 
 def get_transports_info():
@@ -236,3 +237,21 @@ def visitorStart(file,tuan=False):
     visitor.searchOrderGoods()
     os.system("start " + get_excel_name())
     print("\nFinished.")
+
+
+
+
+class TestVisitor(unittest.TestCase):
+    def testSearchOrderGoods(self):
+        files = [".\\testdata\\simple.order.dangdang.html",
+                 ".\\testdata\\fenbao.order.dangdang.html"]
+        for file in files:
+            succeed = False
+            try:
+                visitor = Visitor(file,False)
+                visitor.searchOrderGoods()
+            except:
+                print("unexpected error: {0} at {1}".format(sys.exc_info()[0],file))
+            else:
+                succeed = True
+            self.assertEqual(succeed,True)

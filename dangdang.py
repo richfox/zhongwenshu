@@ -18,7 +18,7 @@ import xml.dom.minidom
 import ExcelToSQL
 import json
 import logis
-
+import testSuite
 
 
 def printUsage():
@@ -31,11 +31,13 @@ def printUsage():
     print("")
     print('python ${THIS_SCRIPT_NAME}.py {-s}    Generates a default server configuration file')
     print("")
-    print('python ${THIS_SCRIPT_NAME}.py {-t | -taobao}    spider taobao.com')
+    print('python ${THIS_SCRIPT_NAME}.py {-taobao}    spider taobao.com')
     print("")
     print('python ${THIS_SCRIPT_NAME}.py {-tuan | -tuangou}    Generates a config file for parameters of grouping buy')
     print("")
     print('python ${THIS_SCRIPT_NAME}.py {-l | -logis}    Generates a config file for parameters of logistics')
+    print("")
+    print('python ${THIS_SCRIPT_NAME}.py {-test}    Run unit test')
     print("")
     print('python ${THIS_SCRIPT_NAME}.py ${config.xml}    Uses all settings of the xml configuration file')
     print("")
@@ -85,7 +87,7 @@ def matchGenerateServerConigFile(arg):
     return res
 
 def matchTaobao(arg):
-    regex = r"-taobao$|-t$"
+    regex = r"-taobao$"
     res = scanForMatch(regex,arg)
     return res
 
@@ -106,6 +108,11 @@ def matchGenerateGroupbuyConigFile(arg):
 
 def matchGenerateLogisticsConfigFile(arg):
     regex = r"-l$|-logis$"
+    res = scanForMatch(regex,arg)
+    return res
+
+def matchTest(arg):
+    regex = r"-test$"
     res = scanForMatch(regex,arg)
     return res
 
@@ -536,6 +543,9 @@ def main():
             else:
                 Visitor.visitorStart(sys.argv[1])
                 return True
+        elif matchTest(sys.argv[1]):
+            testSuite.run()
+            return True
     elif numArgs == 3:
         if matchUrl(sys.argv[1]):
             generateConfig(sys.argv[1],sys.argv[2])
