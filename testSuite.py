@@ -13,10 +13,10 @@ import Visitor
 def run():
     suite = unittest.TestSuite()
 
-    tests = [Visitor.TestVisitor("testSearchOrderGoods")            
-            ]
+    tests = [Visitor.TestVisitor("testSearchOrderGoods"),
+             Visitor.TestVisitor("testSearchOrderGoodsTuan")]
 
     suite.addTests(tests)
 
-    runner = unittest.TextTestRunner()
+    runner = unittest.TextTestRunner(verbosity=2)
     runner.run(suite)
