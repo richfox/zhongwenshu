@@ -242,6 +242,12 @@ def visitorStart(file,tuan=False):
 
 
 class TestVisitor(unittest.TestCase):
+    def setUp(self):
+        self._cwd = os.getcwd()
+
+    def tearDown(self):
+        os.chdir(self._cwd)
+
     def testSearchOrderGoods(self):
         files = [".\\testdata\\simple.order.dangdang.html",
                  ".\\testdata\\fenbao.order.dangdang.html"]
