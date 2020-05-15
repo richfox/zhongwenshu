@@ -59,7 +59,7 @@ def import_logis_to_sql(server,logis):
         #再写入国内段和德国段物流信息，可以不分先后
         with connection.cursor() as cursor:
             sql = "INSERT INTO " + rinterTable + " (`id`, `railway_sn`, `inter_log`, `inter_time`, `inter_status`, `inter_company`) \
-                  VALUES (NULL, %s, '', %s, '-1', %s)"
+                  VALUES (NULL, %s, '', %s, '-1', %s);"
             cursor.execute(sql,(railway_sn,timestamp,inter_company))
 
             #log
@@ -74,13 +74,13 @@ def import_logis_to_sql(server,logis):
 
             for sn,company in cn_packet.items():
                 sql = "INSERT INTO " + logiscnTable + " (`id`, `cn_packet_sn`, `railway_id`, `cn_log`, `cn_time`, `cn_status`, `cn_company`) \
-                    VALUES (NULL, %s, %s, '', %s, '-1', %s)"
+                    VALUES (NULL, %s, %s, '', %s, '-1', %s);"
                 cursor.execute(sql,(sn,rinterid,timestamp,company))
                 logging.info(sql % ("'"+sn+"'",rinterid,"'"+timestamp+"'","'"+company+"'"))
 
             for sn,company in de_packet.items():
                 sql = "INSERT INTO " + logisdeTable + " (`id`, `de_packet_sn`, `railway_id`, `de_log`, `de_time`, `de_status`, `de_company`) \
-                    VALUES (NULL, %s, %s, '', %s, '-1', %s)"
+                    VALUES (NULL, %s, %s, '', %s, '-1', %s);"
                 cursor.execute(sql,(sn,rinterid,timestamp,company))
                 logging.info(sql % ("'"+sn+"'",rinterid,"'"+timestamp+"'","'"+company+"'"))
 
