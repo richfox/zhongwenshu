@@ -53,6 +53,8 @@ def printUsage():
     print("")
     print('python ${THIS_SCRIPT_NAME}.py {-l | -logis} ${server.sxml}   import logistics info to database with settings of the sxml file')
     print("")
+    print('python ${THIS_SCRIPT_NAME}.py {-l | -logis} {-exp | -expression} ${server.sxml}   generate logis expression according to the order nr')
+    print("")
     print('python ${THIS_SCRIPT_NAME}.py ${config.xml} {-tuan | -tuangou}   use config to search attributes write result to _books.xlsx for groupbuy')
     print("")
     print('python ${THIS_SCRIPT_NAME}.py ${config.xml} ${server.sxml} ${groupbuyConfig.xml}  use config to search attributes than import to database with settings of the sxml file for groupbuy')
@@ -108,6 +110,11 @@ def matchGenerateGroupbuyConigFile(arg):
 
 def matchGenerateLogisticsConfigFile(arg):
     regex = r"-l$|-logis$"
+    res = scanForMatch(regex,arg)
+    return res
+
+def matchLogisExpression(arg):
+    regex = r"-exp$|-expression$"
     res = scanForMatch(regex,arg)
     return res
 
@@ -322,6 +329,18 @@ def generateDefaultLogisticsConfig():
             </sn>
         </company>
     </de>
+    <!-- 物流表达式 -->
+    <expression>
+        <!-- 模板商品id -->
+        <!-- 海运自助购称重模板-3860 -->
+        <!-- 铁路自助购称重模板-3590 -->
+        <!-- 空运自助购称重模板-3859 -->
+        <template>3590</template>
+        <!-- 订单号，regex可选0完全匹配，或者1支持正则 -->
+        <order regex="1">
+            202006
+        </order>
+    </expression>
 </config>'''
 
     fp.write(content)
@@ -411,6 +430,25 @@ def parseLogisConfigFile(configFile):
                         sn = getNodeText(attr.childNodes)
                         logisinfo["de"][code] = sn.split()
     return logisinfo
+
+
+def parseLogisConfigFileOnlyExp(configFile):
+    info = {}
+    tree = xml.dom.minidom.parse(configFile)
+    configNode = tree.getElementsByTagName("config")[0]
+    for node in configNode.childNodes:
+        if node.nodeName == "expression":
+            info["expression"] = {}
+            for attr in node.childNodes:
+                if attr.nodeName == "template":
+                    template = getNodeText(attr.childNodes)
+                    info["expression"][template] = {}
+                    break
+            orderNode = node.getElementsByTagName("order")[0]
+            regex = orderNode.getAttribute("regex")
+            info["expression"][template][regex] = getNodeText(orderNode.childNodes).split()
+            break
+    return info
 
 
 def parseSqlConfigFile(configFile):
@@ -657,6 +695,20 @@ def main():
             sqls = {}
             sqls[sql[0]] = (sql[1],sql[2],sql[3],sql[4])
             ExcelToSQL.ExcelToSQLGBuy(sqls,params)
+            return True
+        elif matchGenerateLogisticsConfigFile(sys.argv[1]) and matchLogisExpression(sys.argv[2]) and matSqlFile(sys.argv[3]):
+            if not os.path.exists("logisticsConfig.xml"):
+                print('Error: logistics config file does not exist, use -logis to generate it')
+                return False
+            if not os.path.exists(sys.argv[3]):
+                print('Error: sql config file does not exist, use -sql to generate it')
+                return False
+            server = parseServerConfigFile(sys.argv[3])
+            if (not "mysql" in server) or (not "ftp" in server):
+                print("Error: config file is not completed.")
+                return False
+            info = parseLogisConfigFileOnlyExp("logisticsConfig.xml")
+            #logis.import_logis_to_sql(server,info)
             return True
 
     printUsage()
