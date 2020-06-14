@@ -438,15 +438,14 @@ def parseLogisConfigFileOnlyExp(configFile):
     configNode = tree.getElementsByTagName("config")[0]
     for node in configNode.childNodes:
         if node.nodeName == "expression":
-            info["expression"] = {}
             for attr in node.childNodes:
                 if attr.nodeName == "template":
                     template = getNodeText(attr.childNodes)
-                    info["expression"][template] = {}
+                    info[template] = {}
                     break
             orderNode = node.getElementsByTagName("order")[0]
             regex = orderNode.getAttribute("regex")
-            info["expression"][template][regex] = getNodeText(orderNode.childNodes).split()
+            info[template][regex] = getNodeText(orderNode.childNodes).split()
             break
     return info
 
@@ -708,7 +707,7 @@ def main():
                 print("Error: config file is not completed.")
                 return False
             info = parseLogisConfigFileOnlyExp("logisticsConfig.xml")
-            #logis.import_logis_to_sql(server,info)
+            logis.generate_logis_expression_from_sql(server,info)
             return True
 
     printUsage()

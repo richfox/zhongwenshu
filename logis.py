@@ -12,23 +12,25 @@ import time
 import utility
 import pymysql
 import logging
+import re
+import openpyxl.workbook
 
 
 def import_logis_to_sql(server,logis):
     print("Starting import logis info to database...\n")
 
-    sql = server["mysql"]
-    connection = pymysql.connect(sql[0],sql[1],sql[2],sql[3],charset=sql[4])
+    mysql = server["mysql"]
+    connection = pymysql.connect(mysql[0],mysql[1],mysql[2],mysql[3],charset=mysql[4])
 
     #区分测试和主数据库
     rinterTable = ""
     logiscnTable = ""
     logisdeTable = ""
-    if sql[3] == 'zhongw_test':
+    if mysql[3] == 'zhongw_test':
         rinterTable = "zws_test_railway_inter"
         logiscnTable = "zws_test_logis_cn"
         logisdeTable = "zws_test_logis_de"
-    elif sql[3] == 'zhongwenshu_db1':
+    elif mysql[3] == 'zhongwenshu_db1':
         rinterTable = "zws_railway_inter"
         logiscnTable = "zws_logis_cn"
         logisdeTable = "zws_logis_de"
@@ -87,5 +89,79 @@ def import_logis_to_sql(server,logis):
         connection.commit()
     finally:
         connection.close()
+
+    print("Finished.")
+
+
+
+
+def generate_logis_expression_from_sql(server,logis):
+    print("Starting generate logis expression from database...\n")
+
+    mysql = server["mysql"]
+    connection = pymysql.connect(mysql[0],mysql[1],mysql[2],mysql[3],charset=mysql[4])
+
+    #区分测试和主数据库
+    orderInfoTable = ""
+    orderGoodsTable = ""
+    if mysql[3] == 'zhongw_test':
+        orderInfoTable = "ecs_test_order_info"
+        orderGoodsTable = "ecs_test_order_goods"
+        goodsTable = "ecs_test_goods"
+    elif mysql[3] == 'zhongwenshu_db1':
+        orderInfoTable = "ecs_order_info"
+        orderGoodsTable = "ecs_order_goods"
+        goodsTable = "ecs_goods"
+
+    timestamp = time.strftime("%Y-%m-%d %H:%M:%S",time.localtime())
+    template = ""
+    sns = []
+    regex = ""
+    res = {}
+
+    for template,v in logis.items():
+        for regex,orders in v.items():
+            if regex == "1":
+                for order in orders:
+                    sns.append("^" + order + ".*$")
+            elif regex == "0":
+                for order in orders:
+                    sns.append(order)
+    try:
+        with connection.cursor() as cursor:
+            for sn in sns:
+                if regex == "1":
+                    sql = "SELECT `order_id`,`order_sn` FROM " + orderInfoTable + " WHERE `order_sn` REGEXP %s AND `order_status`=1 AND `order_id` \
+                        in (SELECT `order_id` FROM " + orderGoodsTable + " WHERE `goods_id` = %s);"
+                    cursor.execute(sql,(sn,template))
+                    orderids = cursor.fetchall()
+
+                    for (orderid,ordersn) in orderids:
+                        sql = "SELECT `goods_id` FROM " + orderGoodsTable + " WHERE order_id = %s;"
+                        cursor.execute(sql,orderid)
+                        goodsids = cursor.fetchall()
+
+                        found = False
+                        for goodsid in goodsids:
+                            sql = "SELECT `cat_id`,`goods_name` FROM " + goodsTable + " WHERE goods_id = %s;"
+                            cursor.execute(sql,goodsid[0])
+                            (catid,goodsname) = cursor.fetchone()
+                            if catid == 82: #82表示订购分类
+                                if not(re.match(r".*template.*",goodsname,re.IGNORECASE)): #非模板商品
+                                    found = True
+                                    res[ordersn] = goodsid[0]
+                                    break
+                
+    finally:
+        connection.close()
+
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    i = 0
+    for k,v in res.items():
+        ws.cell(row=i+1,column=1,value=k)
+        i += 1
+    wb.save("_manifest.xlsx")
+    os.system("start _manifest.xlsx")
 
     print("Finished.")
