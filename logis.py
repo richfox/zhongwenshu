@@ -117,7 +117,7 @@ def generate_logis_expression_from_sql(server,logis):
     template = ""
     sns = []
     regex = ""
-    res = {}
+    res = []
 
     for template,v in logis.items():
         for regex,orders in v.items():
@@ -131,16 +131,17 @@ def generate_logis_expression_from_sql(server,logis):
         with connection.cursor() as cursor:
             for sn in sns:
                 if regex == "1":
-                    sql = "SELECT `order_id`,`order_sn` FROM " + orderInfoTable + " WHERE `order_sn` REGEXP %s AND `order_status`=1 AND `order_id` \
+                    sql = "SELECT `order_id`,`order_sn`,`best_time` FROM " + orderInfoTable + " WHERE `order_sn` REGEXP %s AND `order_status`=1 AND `order_id` \
                         in (SELECT `order_id` FROM " + orderGoodsTable + " WHERE `goods_id` = %s);"
                     cursor.execute(sql,(sn,template))
                     orderids = cursor.fetchall()
 
-                    for (orderid,ordersn) in orderids:
+                    for (orderid,ordersn,wchat) in orderids:
                         sql = "SELECT `goods_id` FROM " + orderGoodsTable + " WHERE order_id = %s;"
                         cursor.execute(sql,orderid)
                         goodsids = cursor.fetchall()
 
+                        validitem = {}
                         found = False
                         for goodsid in goodsids:
                             sql = "SELECT `cat_id`,`goods_name` FROM " + goodsTable + " WHERE goods_id = %s;"
@@ -149,17 +150,22 @@ def generate_logis_expression_from_sql(server,logis):
                             if catid == 82: #82表示订购分类
                                 if not(re.match(r".*template.*",goodsname,re.IGNORECASE)): #非模板商品
                                     found = True
-                                    res[ordersn] = goodsid[0]
+                                    validitem["ordersn"] = ordersn
+                                    validitem["logisgoodid"] = goodsid[0]
+                                    validitem["wchat"] = wchat
                                     break
-                
+
+                        if found == True:
+                            res.append(validitem)
     finally:
         connection.close()
 
     wb = openpyxl.Workbook()
     ws = wb.active
     i = 0
-    for k,v in res.items():
-        ws.cell(row=i+1,column=1,value=k)
+    for item in res:
+        ws.cell(row=i+1,column=1,value=item["ordersn"])
+        ws.cell(row=i+1,column=4,value=item["wchat"])
         i += 1
     wb.save("_manifest.xlsx")
     os.system("start _manifest.xlsx")
