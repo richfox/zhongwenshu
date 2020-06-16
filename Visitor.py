@@ -26,7 +26,7 @@ def get_transports_info():
     for config in allinfo["configurations"]:
         if "transport" in config:
             for trans in config["transport"]:
-                res[trans["type"]] = trans["consignee"]
+                res[trans["code"]] = (trans["en"],trans["cn"],trans["consignee"])
             break
     return res
 
@@ -103,9 +103,9 @@ class Visitor:
         #物流信息
         header = ""
         consignee = self._htmltree.xpath('//*[@id="label_name"]')[0].text
-        for type,pattern in get_transports_info().items():
+        for code,(en,cn,pattern) in get_transports_info().items():
             if re.match(pattern,consignee):
-                header += u"【" + type + u"】"
+                header += u"【" + cn + u"】"
                 break
         for code,pattern in get_ddusers_info().items():
             if re.match(pattern,consignee):

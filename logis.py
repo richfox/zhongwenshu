@@ -13,7 +13,10 @@ import utility
 import pymysql
 import logging
 import re
+import xml
+import lxml
 import openpyxl.workbook
+import Visitor
 
 
 def import_logis_to_sql(server,logis):
@@ -94,6 +97,23 @@ def import_logis_to_sql(server,logis):
 
 
 
+def generate_logis_expression_from_html(htmltext):
+    expression = ""
+    parser = lxml.html.HTMLParser()
+    htmltree = xml.etree.ElementTree.fromstring(htmltext,parser)
+    for code,(en,cn,pattern) in Visitor.get_transports_info().items():
+        nodes = htmltree.xpath('//div[@id="' + code + '" or @id="' + en + '"]/div[@class="descrip"]//span/text()')
+        for i,node in enumerate(nodes):
+            if i == 0:
+                expression += "%" + code + "("
+            expression += node
+            if i < len(nodes) - 1:
+                expression += " + "
+            else:
+                expression += ")"
+    return expression
+
+
 
 def generate_logis_expression_from_sql(server,logis):
     print("Starting generate logis expression from database...\n")
@@ -144,15 +164,16 @@ def generate_logis_expression_from_sql(server,logis):
                         validitem = {}
                         found = False
                         for goodsid in goodsids:
-                            sql = "SELECT `cat_id`,`goods_name` FROM " + goodsTable + " WHERE goods_id = %s;"
+                            sql = "SELECT `cat_id`,`goods_name`,`goods_desc` FROM " + goodsTable + " WHERE goods_id = %s;"
                             cursor.execute(sql,goodsid[0])
-                            (catid,goodsname) = cursor.fetchone()
+                            (catid,goodsname,goodsdesc) = cursor.fetchone()
                             if catid == 82: #82表示订购分类
                                 if not(re.match(r".*template.*",goodsname,re.IGNORECASE)): #非模板商品
                                     found = True
                                     validitem["ordersn"] = ordersn
                                     validitem["logisgoodid"] = goodsid[0]
                                     validitem["wchat"] = wchat
+                                    validitem["expression"] = generate_logis_expression_from_html(goodsdesc)
                                     break
 
                         if found == True:
@@ -165,6 +186,7 @@ def generate_logis_expression_from_sql(server,logis):
     i = 0
     for item in res:
         ws.cell(row=i+1,column=1,value=item["ordersn"])
+        ws.cell(row=i+1,column=2,value=item["expression"])
         ws.cell(row=i+1,column=4,value=item["wchat"])
         i += 1
     wb.save("_manifest.xlsx")
