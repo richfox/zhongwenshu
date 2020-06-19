@@ -150,34 +150,40 @@ def generate_logis_expression_from_sql(server,logis):
     try:
         with connection.cursor() as cursor:
             for sn in sns:
+                orderinfos = {}
                 if regex == "1":
                     sql = "SELECT `order_id`,`order_sn`,`best_time` FROM " + orderInfoTable + " WHERE `order_sn` REGEXP %s AND `order_status`=1 AND `order_id` \
                         in (SELECT `order_id` FROM " + orderGoodsTable + " WHERE `goods_id` = %s);"
                     cursor.execute(sql,(sn,template))
-                    orderids = cursor.fetchall()
+                    orderinfos = cursor.fetchall()
+                elif regex == "0":
+                    sql = "SELECT `order_id`,`order_sn`,`best_time` FROM " + orderInfoTable + " WHERE `order_sn` = %s AND `order_status`=1 AND `order_id` \
+                        in (SELECT `order_id` FROM " + orderGoodsTable + " WHERE `goods_id` = %s);"
+                    cursor.execute(sql,(sn,template))
+                    orderinfos = cursor.fetchall()
 
-                    for (orderid,ordersn,wchat) in orderids:
-                        sql = "SELECT `goods_id` FROM " + orderGoodsTable + " WHERE order_id = %s;"
-                        cursor.execute(sql,orderid)
-                        goodsids = cursor.fetchall()
+                for (orderid,ordersn,wchat) in orderinfos:
+                    sql = "SELECT `goods_id` FROM " + orderGoodsTable + " WHERE order_id = %s;"
+                    cursor.execute(sql,orderid)
+                    goodsids = cursor.fetchall()
 
-                        validitem = {}
-                        found = False
-                        for goodsid in goodsids:
-                            sql = "SELECT `cat_id`,`goods_name`,`goods_desc` FROM " + goodsTable + " WHERE goods_id = %s;"
-                            cursor.execute(sql,goodsid[0])
-                            (catid,goodsname,goodsdesc) = cursor.fetchone()
-                            if catid == 82: #82表示订购分类
-                                if not(re.match(r".*template.*",goodsname,re.IGNORECASE)): #非模板商品
-                                    found = True
-                                    validitem["ordersn"] = ordersn
-                                    validitem["logisgoodid"] = goodsid[0]
-                                    validitem["wchat"] = wchat
-                                    validitem["expression"] = generate_logis_expression_from_html(goodsdesc)
-                                    break
+                    validitem = {}
+                    found = False
+                    for goodsid in goodsids:
+                        sql = "SELECT `cat_id`,`goods_name`,`goods_desc` FROM " + goodsTable + " WHERE goods_id = %s;"
+                        cursor.execute(sql,goodsid[0])
+                        (catid,goodsname,goodsdesc) = cursor.fetchone()
+                        if catid == 82: #82表示订购分类
+                            if not(re.match(r".*template.*",goodsname,re.IGNORECASE)): #非模板商品
+                                found = True
+                                validitem["ordersn"] = ordersn
+                                validitem["logisgoodid"] = goodsid[0]
+                                validitem["wchat"] = wchat
+                                validitem["expression"] = generate_logis_expression_from_html(goodsdesc)
+                                break
 
-                        if found == True:
-                            res.append(validitem)
+                    if found == True:
+                        res.append(validitem)
     finally:
         connection.close()
 
