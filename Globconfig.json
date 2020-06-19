@@ -1,22 +1,31 @@
 {
     "version": "0.2.0",
-    "configurations": [
+    "configurations": 
+    [
         {
-            "transport": [
+            "transport": 
+            [
                 {"code":"s", "en":"ship", "cn":"海", "consignee":".*黄琰.*"},
                 {"code":"r", "en":"railway", "cn":"陆", "consignee":".*李明松.*"},
                 {"code":"a", "en":"airline", "cn":"空", "consignee":".*李沐阳.*"}
+            ],
+            "label":
+            [
+                {"code":0, "name":"到仓"},
+                {"code":1, "name":"已发"}
             ]
         },
         {
-            "dduser": [
-                {"code": "FX","consignee": ".*转FX.*"},
-                {"code": "XX","consignee": ".*转XX.*"},
-                {"code": "FY","consignee": ".*转FY.*"}
+            "dduser": 
+            [
+                {"code":"FX", "consignee":".*转FX.*"},
+                {"code":"XX", "consignee":".*转XX.*"},
+                {"code":"FY", "consignee":".*转FY.*"}
             ]
         },
         {
-            "winxuan": [
+            "winxuan": 
+            [
                 {
                     "type": "gw",
                     "address": "http://gw.api.winxuan.com/router/rest",
