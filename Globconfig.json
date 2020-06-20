@@ -11,8 +11,8 @@
             ],
             "label":
             [
-                {"code":0, "name":"到仓"},
-                {"code":1, "name":"已发"}
+                {"code":"da", "name":"到仓"},
+                {"code":"fa", "name":"已发"}
             ]
         },
         {

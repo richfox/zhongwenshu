@@ -97,14 +97,15 @@ def import_logis_to_sql(server,logis):
 
 
 
-def generate_logis_expression_from_html(htmltext):
+def generate_logis_expression_from_html(htmltree):
     expression = ""
-    parser = lxml.html.HTMLParser()
-    htmltree = xml.etree.ElementTree.fromstring(htmltext,parser)
+
     for code,(en,cn,pattern) in Visitor.get_transports_info().items():
         nodes = htmltree.xpath('//div[@id="' + code + '" or @id="' + en + '"]/div[@class="descrip"]//span/text()')
         for i,node in enumerate(nodes):
             if i == 0:
+                if expression:
+                    expression += " + "
                 expression += "%" + code + "("
             expression += node
             if i < len(nodes) - 1:
@@ -179,7 +180,10 @@ def generate_logis_expression_from_sql(server,logis):
                                 validitem["ordersn"] = ordersn
                                 validitem["logisgoodid"] = goodsid[0]
                                 validitem["wchat"] = wchat
-                                validitem["expression"] = generate_logis_expression_from_html(goodsdesc)
+
+                                parser = lxml.html.HTMLParser()
+                                htmltree = xml.etree.ElementTree.fromstring(goodsdesc,parser)
+                                validitem["expression"] = generate_logis_expression_from_html(htmltree)
                                 break
 
                     if found == True:
@@ -191,6 +195,15 @@ def generate_logis_expression_from_sql(server,logis):
     ws = wb.active
     i = 0
     for item in res:
+        if i == 0:
+            ws.cell(row=1,column=1,value="订单号")
+            ws.cell(row=1,column=2,value="国内物流单号")
+            ws.cell(row=1,column=3,value="国内物流单号2")
+            ws.cell(row=1,column=4,value="微信号")
+            ws.cell(row=1,column=5,value="重量")
+            ws.cell(row=1,column=6,value="备注")
+            ws.cell(row=1,column=7,value="交接单")
+            i = 1
         ws.cell(row=i+1,column=1,value=item["ordersn"])
         ws.cell(row=i+1,column=2,value=item["expression"])
         ws.cell(row=i+1,column=4,value=item["wchat"])
