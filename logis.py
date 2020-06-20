@@ -99,7 +99,6 @@ def import_logis_to_sql(server,logis):
 
 def generate_logis_expression_from_html(htmltree):
     expression = ""
-
     for code,(en,cn,pattern) in Visitor.get_transports_info().items():
         nodes = htmltree.xpath('//div[@id="' + code + '" or @id="' + en + '"]/div[@class="descrip"]//span/text()')
         for i,node in enumerate(nodes):
@@ -112,6 +111,72 @@ def generate_logis_expression_from_html(htmltree):
                 expression += " + "
             else:
                 expression += ")"
+    return expression
+
+
+def split_logis_expr(expr):
+    return re.split('[\+]',expr.strip()) #+为表达式连接符号
+
+
+def split_logis_expr_and_token(expr):
+    res = {}
+    ids = split_logis_expr(expr)
+    for id in ids:
+        sn = ['']
+        company =['']
+        split_token(id,sn,company)
+        res[sn[0]] = company[0]
+    return res
+
+
+def split_token(token,sn,company):
+    pattern = '[:]' #半角冒号为表达式说明符
+    if re.match(pattern,token.strip()):
+        tokens = re.split(pattern,token.strip())
+        token = tokens[0]
+
+    matches = re.findall('[a-zA-Z0-9\-]+',token.strip())
+    if len(matches) == 1:
+        tmp = [matches[0]]
+        get_main_sn(tmp)
+        sn[0] = tmp[0]
+    else:
+        tmp = [matches[1]]
+        get_main_sn(tmp)
+        sn[0] = tmp[0]
+        company[0] = get_company_code(matches[0])
+
+    if not company[0]:
+        company[0] = split_company_header_code(sn[0])
+
+
+def get_main_sn(sn):
+    pattern = '[\-]' #-符号代表的子单号
+    if re.match(pattern,sn[0].strip()):
+        sns = re.split(pattern,sn[0].strip())
+        sn[0] = sns[0]
+
+
+def get_company_code(company):
+    code = ""
+    return code
+
+
+def split_company_header_code(sn):
+    company = ''
+    return company
+
+
+def generate_manifest(htmltree):
+    expression = ""
+    for code,(en,cn,pattern) in Visitor.get_transports_info().items():
+        if code == 'r':
+            nodes = htmltree.xpath('//div[@id="' + code + '" or @id="' + en + '"]/div[@class="descrip"]//span/text()')
+            for i,node in enumerate(nodes):
+                if re.split('[:]',node.strip())[-1].lower() == "da":
+                    continue
+                else:
+                    split_logis_expr_and_token(node)
     return expression
 
 
@@ -184,6 +249,7 @@ def generate_logis_expression_from_sql(server,logis):
                                 parser = lxml.html.HTMLParser()
                                 htmltree = xml.etree.ElementTree.fromstring(goodsdesc,parser)
                                 validitem["expression"] = generate_logis_expression_from_html(htmltree)
+                                validitem["manifest"] = generate_manifest(htmltree)
                                 break
 
                     if found == True:
