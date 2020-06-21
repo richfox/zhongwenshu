@@ -96,6 +96,18 @@ def import_logis_to_sql(server,logis):
     print("Finished.")
 
 
+def get_logis_companies():
+    res = {}
+    jsonstring = open(".\\Globconfig.json",'rb').read()
+    allinfo = json.loads(jsonstring)
+    for config in allinfo["configurations"]:
+        if "logisCompany" in config:
+            for company in config["logisCompany"]:
+                res[company["name"]] = company["code"]
+            break
+    return res
+
+
 def get_logis_company_headers():
     res = {}
     jsonstring = open(".\\Globconfig.json",'rb').read()
@@ -103,7 +115,7 @@ def get_logis_company_headers():
     for config in allinfo["configurations"]:
         if "logisCompanyHeader" in config:
             for company in config["logisCompanyHeader"]:
-                res[company["code"]] = company["attr"]
+                res[company["header"]] = company["attr"]
             break
     return res
 
@@ -156,7 +168,7 @@ def split_token(token,sn,company):
         matches[1] = [matches[1]]
         get_main_sn(matches[1])
         sn[0] = matches[1][0]
-        company[0] = matches[0]
+        company[0] = get_company_code(matches[0])
 
     if not company[0]:
         company[0] = split_company_header_code(sn)
@@ -169,11 +181,20 @@ def get_main_sn(sn):
         sn[0] = sns[0]
 
 
+def get_company_code(company):
+    code = ""
+    for n,c in get_logis_companies().items():
+        if re.search(n,company):
+            code = c
+            break
+    return code
+
+
 def split_company_header_code(sn):
     company = ""
     hsize = []
-    for code,(attr) in get_logis_company_headers().items():
-        hsize.append(len(code))
+    for h,attr in get_logis_company_headers().items():
+        hsize.append(len(h))
     hsize = list(set(hsize))
 
     for size in hsize:
@@ -191,8 +212,8 @@ def split_company_header_code(sn):
 
 def get_company_header_code(header):
     res = []
-    for code,attr in get_logis_company_headers().items():
-        if (code == header.upper()):
+    for h,attr in get_logis_company_headers().items():
+        if (h == header.upper()):
             res = attr
             break
     return res
