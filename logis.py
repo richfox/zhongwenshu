@@ -96,6 +96,17 @@ def import_logis_to_sql(server,logis):
     print("Finished.")
 
 
+def get_logis_company_headers():
+    res = {}
+    jsonstring = open(".\\Globconfig.json",'rb').read()
+    allinfo = json.loads(jsonstring)
+    for config in allinfo["configurations"]:
+        if "logisCompanyHeader" in config:
+            for company in config["logisCompanyHeader"]:
+                res[company["code"]] = company["attr"]
+            break
+    return res
+
 
 def generate_logis_expression_from_html(htmltree):
     expression = ""
@@ -131,40 +142,60 @@ def split_logis_expr_and_token(expr):
 
 def split_token(token,sn,company):
     pattern = '[:]' #半角冒号为表达式说明符
-    if re.match(pattern,token.strip()):
+    if re.search(pattern,token.strip()):
         tokens = re.split(pattern,token.strip())
         token = tokens[0]
 
-    matches = re.findall('[a-zA-Z0-9\-]+',token.strip())
+    matches = re.split('([a-zA-Z0-9\-]+)',token.strip())
+    matches = list(filter(None,matches)) #去除空字符串
     if len(matches) == 1:
-        tmp = [matches[0]]
-        get_main_sn(tmp)
-        sn[0] = tmp[0]
+        matches[0] = [matches[0]]
+        get_main_sn(matches[0])
+        sn[0] = matches[0][0]
     else:
-        tmp = [matches[1]]
-        get_main_sn(tmp)
-        sn[0] = tmp[0]
-        company[0] = get_company_code(matches[0])
+        matches[1] = [matches[1]]
+        get_main_sn(matches[1])
+        sn[0] = matches[1][0]
+        company[0] = matches[0]
 
     if not company[0]:
-        company[0] = split_company_header_code(sn[0])
+        company[0] = split_company_header_code(sn)
 
 
 def get_main_sn(sn):
     pattern = '[\-]' #-符号代表的子单号
-    if re.match(pattern,sn[0].strip()):
+    if re.search(pattern,sn[0].strip()):
         sns = re.split(pattern,sn[0].strip())
         sn[0] = sns[0]
 
 
-def get_company_code(company):
-    code = ""
-    return code
-
-
 def split_company_header_code(sn):
-    company = ''
+    company = ""
+    hsize = []
+    for code,(attr) in get_logis_company_headers().items():
+        hsize.append(len(code))
+    hsize = list(set(hsize))
+
+    for size in hsize:
+        header = ""
+        if (len(sn[0]) > size):
+            header = sn[0][0:size]
+            code = get_company_header_code(header)
+            if code:
+                company = code[0]
+                if code[1] == 0:
+                    sn[0] = sn[0][size:]
+                break
     return company
+
+
+def get_company_header_code(header):
+    res = []
+    for code,attr in get_logis_company_headers().items():
+        if (code == header.upper()):
+            res = attr
+            break
+    return res
 
 
 def generate_manifest(htmltree):

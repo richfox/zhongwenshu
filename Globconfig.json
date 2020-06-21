@@ -13,6 +13,22 @@
             [
                 {"code":"da", "name":"到仓"},
                 {"code":"fa", "name":"已发"}
+            ],
+            "logisCompanyHeader":
+            [
+                {"code":"SF", "attr":["shunfeng",1]},
+                {"code":"YT", "attr":["yuantong",1]},
+                {"code":"JD", "attr":["jd",1]},
+                {"code":"TT", "attr":["tiantian",1]},
+                {"code":"JT", "attr":["jtexpress",1]},
+                {"code":"DD", "attr":["ndwl",0]},
+                {"code":"TNT", "attr":["tnt",0]},
+                {"code":"EMS", "attr":["ems",0]},
+                {"code":"DHL", "attr":["dhlen",0]},
+                {"code":"UPS", "attr":["ups",0]},
+                {"code":"DPD", "attr":["dpd",0]},
+                {"code":"GLS", "attr":["gls",0]},
+                {"code":"FEDEX", "attr":["fedex",0]}
             ]
         },
         {
