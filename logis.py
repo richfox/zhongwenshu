@@ -96,6 +96,18 @@ def import_logis_to_sql(server,logis):
     print("Finished.")
 
 
+def get_logis_labels():
+    res = {}
+    jsonstring = open(".\\Globconfig.json",'rb').read()
+    allinfo = json.loads(jsonstring)
+    for config in allinfo["configurations"]:
+        if "label" in config:
+            for label in config["label"]:
+                res[label["code"]] = label["name"]
+            break
+    return res
+
+
 def get_logis_companies():
     res = {}
     jsonstring = open(".\\Globconfig.json",'rb').read()
@@ -137,6 +149,9 @@ def generate_logis_expression_from_html(htmltree):
     return expression
 
 
+#
+#以下若干函数物流表达式解析，不支持括号，和logis.php一致
+#
 def split_logis_expr(expr):
     return re.split('[\+]',expr.strip()) #+为表达式连接符号
 
@@ -221,14 +236,12 @@ def get_company_header_code(header):
 
 def generate_manifest(htmltree):
     expression = ""
+    forecast = []
     for code,(en,cn,pattern) in Visitor.get_transports_info().items():
         if code == 'r':
             nodes = htmltree.xpath('//div[@id="' + code + '" or @id="' + en + '"]/div[@class="descrip"]//span/text()')
             for i,node in enumerate(nodes):
-                if re.split('[:]',node.strip())[-1].lower() == "da":
-                    continue
-                else:
-                    split_logis_expr_and_token(node)
+                forecast.append(split_logis_expr_and_token(node))
     return expression
 
 
