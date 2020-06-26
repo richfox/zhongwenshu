@@ -316,17 +316,17 @@ def generate_logis_expression_from_sql(server,logis):
             for sn in sns:
                 orderinfos = {}
                 if regex == "1":
-                    sql = "SELECT `order_id`,`order_sn`,`best_time` FROM " + orderInfoTable + " WHERE `order_sn` REGEXP %s AND `order_status`=1 AND `order_id` \
+                    sql = "SELECT `order_id`,`order_sn`,`best_time`,`money_paid` FROM " + orderInfoTable + " WHERE `order_sn` REGEXP %s AND `order_status`=1 AND `order_id` \
                         in (SELECT `order_id` FROM " + orderGoodsTable + " WHERE `goods_id` = %s);"
                     cursor.execute(sql,(sn,template))
                     orderinfos = cursor.fetchall()
                 elif regex == "0":
-                    sql = "SELECT `order_id`,`order_sn`,`best_time` FROM " + orderInfoTable + " WHERE `order_sn` = %s AND `order_status`=1 AND `order_id` \
+                    sql = "SELECT `order_id`,`order_sn`,`best_time`,`money_paid` FROM " + orderInfoTable + " WHERE `order_sn` = %s AND `order_status`=1 AND `order_id` \
                         in (SELECT `order_id` FROM " + orderGoodsTable + " WHERE `goods_id` = %s);"
                     cursor.execute(sql,(sn,template))
                     orderinfos = cursor.fetchall()
 
-                for (orderid,ordersn,wchat) in orderinfos:
+                for (orderid,ordersn,wchat,paid) in orderinfos:
                     sql = "SELECT `goods_id` FROM " + orderGoodsTable + " WHERE order_id = %s;"
                     cursor.execute(sql,orderid)
                     goodsids = cursor.fetchall()
@@ -343,6 +343,7 @@ def generate_logis_expression_from_sql(server,logis):
                                 validitem["ordersn"] = ordersn
                                 validitem["logisgoodid"] = goodsid[0]
                                 validitem["wchat"] = wchat
+                                validitem["paid"] = paid
 
                                 parser = lxml.html.HTMLParser()
                                 htmltree = xml.etree.ElementTree.fromstring(goodsdesc,parser)
@@ -375,15 +376,17 @@ def generate_logis_expression_from_sql(server,logis):
             ws.cell(row=1,column=1,value="订单号")
             ws.cell(row=1,column=2,value="国内物流单号")
             ws.cell(row=1,column=3,value="国内物流单号2")
-            ws.cell(row=1,column=4,value="微信号")
-            ws.cell(row=1,column=5,value="重量")
-            ws.cell(row=1,column=6,value="备注")
-            ws.cell(row=1,column=7,value="交接单")
+            ws.cell(row=1,column=4,value="用户")
+            ws.cell(row=1,column=5,value="支付")
+            ws.cell(row=1,column=6,value="重量")
+            ws.cell(row=1,column=7,value="备注")
+            ws.cell(row=1,column=8,value="交接单")
             i = 1
         ws.cell(row=i+1,column=1,value=item["ordersn"])
         ws.cell(row=i+1,column=2,value=item["expression"])
         ws.cell(row=i+1,column=4,value=item["wchat"])
-        ws.cell(row=i+1,column=7,value=item["manifest"])
+        ws.cell(row=i+1,column=5,value=item["paid"])
+        ws.cell(row=i+1,column=8,value=item["manifest"])
         i += 1
     wb.save("_manifest.xlsx")
     os.system("start _manifest.xlsx")
