@@ -149,29 +149,41 @@ def generate_logis_expression_from_html(htmltree):
     return expression
 
 
+def has_special_label(nstr):
+    if nstr.strip():
+        for note in json.loads(nstr.strip()):
+            for code,name in get_logis_labels().items():
+                if note.strip().upper() == code:
+                    return True
+    return False
+
+
 #
 #以下若干函数物流表达式解析，不支持括号，和logis.php一致
 #
-def split_logis_expr(expr):
-    return re.split('[\+]',expr.strip()) #+为表达式连接符号
-
-
 def split_logis_expr_and_token(expr):
     res = {}
     ids = split_logis_expr(expr)
     for id in ids:
         sn = ['']
         company =['']
-        split_token(id,sn,company)
-        res[sn[0]] = company[0]
+        note = ['']
+        split_token(id,sn,company,note)
+        res[sn[0]] = (company[0],note[0])
     return res
 
 
-def split_token(token,sn,company):
+def split_logis_expr(expr):
+    return re.split('[\+]',expr.strip()) #+为表达式连接符号
+
+
+def split_token(token,sn,company,note):
     pattern = '[:]' #半角冒号为表达式说明符
     if re.search(pattern,token.strip()):
         tokens = re.split(pattern,token.strip())
         token = tokens[0]
+        if len(tokens) > 1:
+            note[0] = json.dumps(tokens[1:])
 
     matches = re.split('([a-zA-Z0-9\-]+)',token.strip())
     matches = list(filter(None,matches)) #去除空字符串
@@ -234,16 +246,35 @@ def get_company_header_code(header):
     return res
 
 
-def generate_manifest(htmltree):
-    expression = ""
+def get_customer_forecast(htmltree):
     forecast = []
     for code,(en,cn,pattern) in Visitor.get_transports_info().items():
         if code == 'r':
             nodes = htmltree.xpath('//div[@id="' + code + '" or @id="' + en + '"]/div[@class="descrip"]//span/text()')
             for i,node in enumerate(nodes):
                 forecast.append(split_logis_expr_and_token(node))
+    return forecast
+
+
+def generate_manifest_expression(data):
+    expression = ''
+    for i,(sn,company,note) in enumerate(data):
+        expression += get_company_name(company) + sn
+        if note.strip():
+            for n in json.loads(note):
+                expression += ":" + n.strip()
+        if i < len(data)-1:
+            expression += ' + '
     return expression
 
+
+def get_company_name(code):
+    name = ""
+    for n,c in get_logis_companies().items():
+        if code.strip().lower() == c:
+            name = n
+            break
+    return name
 
 
 def generate_logis_expression_from_sql(server,logis):
@@ -259,10 +290,12 @@ def generate_logis_expression_from_sql(server,logis):
         orderInfoTable = "ecs_test_order_info"
         orderGoodsTable = "ecs_test_order_goods"
         goodsTable = "ecs_test_goods"
+        logiscnTable = "zws_test_logis_cn"
     elif mysql[3] == 'zhongwenshu_db1':
         orderInfoTable = "ecs_order_info"
         orderGoodsTable = "ecs_order_goods"
         goodsTable = "ecs_goods"
+        logiscnTable = "zws_logis_cn"
 
     timestamp = time.strftime("%Y-%m-%d %H:%M:%S",time.localtime())
     template = ""
@@ -314,7 +347,19 @@ def generate_logis_expression_from_sql(server,logis):
                                 parser = lxml.html.HTMLParser()
                                 htmltree = xml.etree.ElementTree.fromstring(goodsdesc,parser)
                                 validitem["expression"] = generate_logis_expression_from_html(htmltree)
-                                validitem["manifest"] = generate_manifest(htmltree)
+                                
+                                manifest = []
+                                for forecast in get_customer_forecast(htmltree):
+                                    for cnsn,(company,note) in forecast.items():
+                                        sql = "SELECT * FROM " + logiscnTable + " WHERE cn_packet_sn REGEXP %s;"
+                                        cursor.execute(sql,cnsn)
+                                        #未录入的而且没有特定标记的加入交接单
+                                        if not cursor.fetchone():
+                                            if not has_special_label(note):
+                                                manifest.append((cnsn,company,note))
+
+                                validitem["manifest"] = generate_manifest_expression(manifest)
+
                                 break
 
                     if found == True:
@@ -338,6 +383,7 @@ def generate_logis_expression_from_sql(server,logis):
         ws.cell(row=i+1,column=1,value=item["ordersn"])
         ws.cell(row=i+1,column=2,value=item["expression"])
         ws.cell(row=i+1,column=4,value=item["wchat"])
+        ws.cell(row=i+1,column=7,value=item["manifest"])
         i += 1
     wb.save("_manifest.xlsx")
     os.system("start _manifest.xlsx")

@@ -11,8 +11,8 @@
             ],
             "label":
             [
-                {"code":"da", "name":"到仓"},
-                {"code":"fa", "name":"已发"}
+                {"code":"DA", "name":"到仓"},
+                {"code":"FA", "name":"已发"}
             ],
             "logisCompany":
             [
@@ -36,7 +36,6 @@
                 {"name":"南方传媒", "code":"ndwl"},
                 {"name":"安能", "code":"annengwuliu"},
                 {"name":"如风达", "code":"rufengda"},
-                {"name":"当当", "code":"ndwl"},
                 {"name":"极兔", "code":"jtexpress"},
                 {"name":"比利时邮政", "code":"bpost"},
                 {"name":"联邦快递", "code":"fedex"}
