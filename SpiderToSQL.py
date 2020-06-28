@@ -346,9 +346,9 @@ def SpiderToSQL(sqls):
                     press = pressnode[0]
 
                 #ISBN
+                isbn = ''
                 if u'ISBN' in attrindexs:
                     isbnnode = htmltree.xpath(attrpath + '[' + str(attrindexs[u'ISBN']) + ']' + '/text()')
-                    isbn = ''
                     if isbnnode:
                         for res in re.findall('[0-9]+',isbnnode[0]):
                             isbn += res
@@ -362,17 +362,17 @@ def SpiderToSQL(sqls):
                         pressdate = res[1]
 
                 #开本
+                size = ''
                 if u'开本' in attrindexs:
                     sizenode = htmltree.xpath(attrpath + '[' + str(attrindexs[u'开本']) + ']' + '/text()')
-                    size = ''
                     if sizenode:
                         for res in re.findall('[0-9]+.*',sizenode[0]):
                             size += res
 
                 #包装
+                packing = ''
                 if u'包装' in attrindexs:
                     packingnode = htmltree.xpath(attrpath + '[' + str(attrindexs[u'包装']) + ']' + '/text()')
-                    packing = ''
                     if packingnode:
                         if re.match(u'.*平装',packingnode[0]):
                             packing = '平装'
@@ -382,9 +382,9 @@ def SpiderToSQL(sqls):
                             packing = '盒装'
 
                 #纸张
+                paper = ''
                 if u'纸张' in attrindexs:
                     papernode = htmltree.xpath(attrpath + '[' + str(attrindexs[u'纸张']) + ']' + '/text()')
-                    paper = ''
                     if papernode:
                         res = re.split(u'：',papernode[0])
                         if len(res) > 1:
