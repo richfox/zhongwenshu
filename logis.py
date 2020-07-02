@@ -316,12 +316,12 @@ def generate_logis_expression_from_sql(server,logis):
             for sn in sns:
                 orderinfos = {}
                 if regex == "1":
-                    sql = "SELECT `order_id`,`order_sn`,`best_time`,`money_paid` FROM " + orderInfoTable + " WHERE `order_sn` REGEXP %s AND `order_status`=1 AND `order_id` \
+                    sql = "SELECT `order_id`,`order_sn`,`best_time`,`money_paid` FROM " + orderInfoTable + " WHERE `order_sn` REGEXP %s AND `order_id` \
                         in (SELECT `order_id` FROM " + orderGoodsTable + " WHERE `goods_id` = %s);"
                     cursor.execute(sql,(sn,template))
                     orderinfos = cursor.fetchall()
                 elif regex == "0":
-                    sql = "SELECT `order_id`,`order_sn`,`best_time`,`money_paid` FROM " + orderInfoTable + " WHERE `order_sn` = %s AND `order_status`=1 AND `order_id` \
+                    sql = "SELECT `order_id`,`order_sn`,`best_time`,`money_paid` FROM " + orderInfoTable + " WHERE `order_sn` = %s AND `order_id` \
                         in (SELECT `order_id` FROM " + orderGoodsTable + " WHERE `goods_id` = %s);"
                     cursor.execute(sql,(sn,template))
                     orderinfos = cursor.fetchall()
