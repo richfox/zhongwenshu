@@ -69,11 +69,29 @@ def get_xpath_indexs(tree,path,attrs,separator):
                     break
     return indexs
 
+
+#从file获取session id
+def get_session_id_from_config(file):
+    res = {}
+    tree = xml.dom.minidom.parse(file)
+    configNode = tree.getElementsByTagName(u"config")[0]
+    for node in configNode.childNodes:
+        if node.nodeName == "http":
+            for locator in node.childNodes:
+                if locator.nodeName == "url":
+                    sessionID = locator.getAttribute("sessionID")
+                    res['sessionID'] = sessionID
+                    break
+            if res:
+                break
+    return res
+
+
 #爬虫类
 class Spider:
     def __init__(self,url):
         # 获取网页源代码
-        self._html = utility.get_html_text(url)
+        self._html = utility.get_html_text(url,cookies=get_session_id_from_config('dangdangConfig.xml'))
         parser = lxml.html.HTMLParser()
         self._htmltree = xml.etree.ElementTree.fromstring(self._html,parser)
         self._title = u""
