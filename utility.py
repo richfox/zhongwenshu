@@ -15,21 +15,21 @@ import sys
 import requests
 import proxy
 
-def get_html_text(url):
+def get_html_text(url,cookies=None):
     htmltext = ""
     try:
-        htmltext = requests.get(url,headers=proxy.get_http_headers()).text
+        htmltext = requests.get(url,headers=proxy.get_http_headers(),cookies=cookies).text
     except requests.exceptions.ConnectTimeout:
         print("timeout, try with another IP...")
-        htmltext = proxy.get_html_text_with_proxy(url)
+        htmltext = proxy.get_html_text_with_proxy(url,cookies=cookies)
     except requests.exceptions.ConnectionError:
         print("connection failed, try with another IP...")
-        htmltext = proxy.get_html_text_with_proxy(url)
+        htmltext = proxy.get_html_text_with_proxy(url,cookies=cookies)
     except requests.exceptions.InvalidURL:
         print("invalid url")
     except:
         print("unexpected error: {0} {1}".format(sys.exc_info()[0],"try with another IP..."))
-        htmltext = proxy.get_html_text_with_proxy(url)
+        htmltext = proxy.get_html_text_with_proxy(url,cookies=cookies)
     else:
         print(url + " fetched successfully!")
     return htmltext

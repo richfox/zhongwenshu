@@ -39,6 +39,23 @@ def split_ddsn(url):
     ddsn = re.split('\.',res[len(res)-1])
     return ddsn[0]
 
+#从url提取参数
+def split_params(url):
+    params= {}
+    res = re.split('[\?&]',url)
+    for i,param in enumerate(res):
+        if i > 0:
+            kv = re.split('=',param)
+            if len(kv) == 1:
+                params[kv[0]] = ""
+            else:
+                params[kv[0]] = kv[1]
+    return params
+
+#去掉url参数
+def remove_params(url):
+    return re.split('\?',url)[0]
+
 #获取书籍信息的具体位置
 def get_xpath_indexs(tree,path,attrs,separator):
     indexs = {}

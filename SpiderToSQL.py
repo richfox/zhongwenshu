@@ -261,9 +261,12 @@ def SpiderToSQL(sqls):
             for url,tag in urls.items():
                 htmltext = ""
                 ddsn = ""
+                cookies = {}
                 if tag == 0:
                     ddsn = Spider.split_ddsn(url)
-                    htmltext = utility.get_html_text(url)
+                    cookies = Spider.split_params(url)
+                    url = Spider.remove_params(url)
+                    htmltext = utility.get_html_text(url,cookies)
                 elif tag == 2:
                     tabledata = json.loads(url)
                     ddsn = tabledata[u'sn']
@@ -407,7 +410,7 @@ def SpiderToSQL(sqls):
                 #商品详情Ajax请求
                 ajaxbaseurl = "http://product.dangdang.com/index.php?r=callback%2Fdetail&productId={id}&templateType=publish&describeMap={descmap}&shopId={shopid}&categoryPath={catpath}"
                 ajaxurl = ajaxbaseurl.format(id=ddsn,descmap=descmap,shopid=shopid,catpath=catpath)
-                ajaxtext = utility.get_html_text(ajaxurl)
+                ajaxtext = utility.get_html_text(ajaxurl,cookies=cookies)
                 ajaxdata = json.loads(ajaxtext)
                 ajaxhtmltext = ajaxdata["data"]["html"]
                 zwsprodtext = u""
@@ -548,9 +551,14 @@ def SpiderToSQL_tuangou(sqls,params):
             goodsdict = {}
             recstext = {}
             for url,tag in urls.items():
+                htmltext = ""
+                ddsn = ""
+                cookies = {}
                 if tag == 0:
                     ddsn = Spider.split_ddsn(url)
-                    htmltext = utility.get_html_text(url)
+                    cookies = Spider.split_params(url)
+                    url = Spider.remove_params(url)
+                    htmltext = utility.get_html_text(url,cookies)
                 elif tag == 2:
                     data = json.loads(url)
                     ddsn = data[u'sn']
@@ -598,7 +606,7 @@ def SpiderToSQL_tuangou(sqls,params):
                     #商品详情Ajax请求
                     ajaxbaseurl = "http://product.dangdang.com/index.php?r=callback%2Fdetail&productId={id}&templateType=publish&describeMap={descmap}&shopId={shopid}&categoryPath={catpath}"
                     ajaxurl = ajaxbaseurl.format(id=ddsn,descmap=descmap,shopid=shopid,catpath=catpath)
-                    ajaxtext = utility.get_html_text(ajaxurl)
+                    ajaxtext = utility.get_html_text(ajaxurl,cookies=cookies)
                     ajaxdata = json.loads(ajaxtext)
                     ajaxhtmltext = ajaxdata["data"]["html"]
                     producttext = u""

@@ -51,11 +51,11 @@ def get_http_proxies():
     return proxies
 
 
-def get_html_text_with_proxy(url):
+def get_html_text_with_proxy(url,cookies=None):
     text = ""
     for proxy in get_http_proxies():
         try:
-            res = requests.get(url,timeout=6,headers=get_http_headers(),proxies=proxy)
+            res = requests.get(url,timeout=6,headers=get_http_headers(),cookies=cookies,proxies=proxy)
             if res.ok:
                 print(proxy['http'] + " fetched successfully!")
                 text = res.text
