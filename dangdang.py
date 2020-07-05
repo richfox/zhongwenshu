@@ -202,48 +202,43 @@ def generateDefaultOrderConfig():
 def generateDefaultServerConfig():
     fp = open('myServerConfig.sxml','w',encoding="utf-8")
 
-    content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + \
-            "<config>\n" + \
-            "  <mysql>\n" + \
-            "    <host>localhost</host>\n" + \
-            "    <user>to_input</user>\n" + \
-            "    <password>to_input</password>\n" + \
-            "    <db>zhongw_test</db>\n" + \
-            "    <charset>utf8</charset>\n" + \
-            "  </mysql>\n" + \
-            "  <mysql>\n" + \
-            "    <host>sql.your-server.de</host>\n" + \
-            "    <user>to_input</user>\n" + \
-            "    <password>to_input</password>\n" + \
-            "    <db>zhongw_test</db>\n" + \
-            "    <charset>utf8</charset>\n" + \
-            "  </mysql>\n" + \
-            "  <mysql>\n" + \
-            "    <host>sql.your-server.de</host>\n" + \
-            "    <user>to_input</user>\n" + \
-            "    <password>to_input</password>\n" + \
-            "    <db>zhongwenshu_db1</db>\n" + \
-            "    <charset>utf8</charset>\n" + \
-            "  </mysql>\n" + \
-            "  <ftp>\n" + \
-            "    <host>local</host>\n" + \
-            "    <user></user>\n" + \
-            "    <password></password>\n" + \
-            "    <uploadpath>images/winxuan/</uploadpath>\n" + \
-            "  </ftp>\n" + \
-            "  <ftp>\n" + \
-            "    <host>local_test</host>\n" + \
-            "    <user></user>\n" + \
-            "    <password></password>\n" + \
-            "    <uploadpath>images/winxuan/</uploadpath>\n" + \
-            "  </ftp>\n" + \
-            "  <ftp>\n" + \
-            "    <host>www.your-server.de</host>\n" + \
-            "    <user>to_input</user>\n" + \
-            "    <password>to_input</password>\n" + \
-            "    <uploadpath>images/winxuan/</uploadpath>\n" + \
-            "  </ftp>\n" + \
-            "</config>\n"
+    content = '''<?xml version="1.0" encoding="UTF-8"?>
+    <config>
+        <local using="1">
+            <mysql>
+                <host>localhost</host>
+                <user>toinput</user>
+                <password></password>
+                <db>toinput</db>
+                <charset>utf8</charset>
+            </mysql>
+            <ftp>
+                <host>local</host>
+                <user></user>
+                <password></password>
+                <uploadpath>images/toinput/</uploadpath>
+            </ftp>
+        </local>
+        <server using="0">
+            <mysql>
+                <host>toinput.your-server.de</host>
+                <user>toinput</user>
+                <password>toinput</password>
+                <db>toinput</db>
+                <charset>utf8</charset>
+            </mysql>
+            <ftp>
+                <host>toinput.your-server.de</host>
+                <user>toinput</user>
+                <password>toinput</password>
+                <uploadpath>images/toinput/</uploadpath>
+            </ftp>
+        </server>
+        <localtest using="0">
+        </localtest>
+        <servertest using="0">
+        </servertest>
+    </config>'''
 
     fp.write(content)
     fp.close()
@@ -454,72 +449,49 @@ def parseLogisConfigFileOnlyExp(configFile):
     return info
 
 
-def parseSqlConfigFile(configFile):
-    sqls = {}
-    tree = xml.dom.minidom.parse(configFile)
-    configNode = tree.getElementsByTagName(u"config")[0]
-    for node in configNode.childNodes:
-        if node.nodeName == 'mysql':
-            host = ""
-            username = ""
-            password = ""
-            dbname = ""
-            charset = ""
-            for mysql in node.childNodes:
-                if mysql.nodeName == 'host':
-                    host = getNodeText(mysql.childNodes)
-                elif mysql.nodeName == 'user':
-                    username = getNodeText(mysql.childNodes)
-                elif mysql.nodeName == 'password':
-                    password = getNodeText(mysql.childNodes)
-                elif mysql.nodeName == 'db':
-                    dbname = getNodeText(mysql.childNodes)
-                elif mysql.nodeName == 'charset':
-                    charset = getNodeText(mysql.childNodes)
-
-            sqls[host] = (username,password,dbname,charset)
-    return sqls
-
-
 def parseServerConfigFile(configFile):
     server = {}
     tree = xml.dom.minidom.parse(configFile)
     configNode = tree.getElementsByTagName("config")[0]
     for node in configNode.childNodes:
-        if node.nodeName == "mysql":
-            host = ""
-            username = ""
-            password = ""
-            dbname = ""
-            charset = ""
-            for mysql in node.childNodes:
-                if mysql.nodeName == 'host':
-                    host = getNodeText(mysql.childNodes)
-                elif mysql.nodeName == 'user':
-                    username = getNodeText(mysql.childNodes)
-                elif mysql.nodeName == 'password':
-                    password = getNodeText(mysql.childNodes)
-                elif mysql.nodeName == 'db':
-                    dbname = getNodeText(mysql.childNodes)
-                elif mysql.nodeName == 'charset':
-                    charset = getNodeText(mysql.childNodes)
-            server["mysql"] = (host,username,password,dbname,charset)
-        elif node.nodeName == "ftp":
-            host = ""
-            username = ""
-            password = ""
-            uploadpath = ""
-            for ftp in node.childNodes:
-                if ftp.nodeName == 'host':
-                    host = getNodeText(ftp.childNodes)
-                elif ftp.nodeName == 'user':
-                    username = getNodeText(ftp.childNodes)
-                elif ftp.nodeName == 'password':
-                    password = getNodeText(ftp.childNodes)
-                elif ftp.nodeName == 'uploadpath':
-                    uploadpath = getNodeText(ftp.childNodes)
-            server["ftp"] = (host,username,password,uploadpath)
+        if node.nodeType==node.ELEMENT_NODE and node.hasAttribute("using") and node.getAttribute("using")=="1":
+            for subnode in node.childNodes:
+                if subnode.nodeName == "mysql":
+                    host = ""
+                    username = ""
+                    password = ""
+                    dbname = ""
+                    charset = ""
+                    for mysql in subnode.childNodes:
+                        if mysql.nodeName == 'host':
+                            host = getNodeText(mysql.childNodes)
+                        elif mysql.nodeName == 'user':
+                            username = getNodeText(mysql.childNodes)
+                        elif mysql.nodeName == 'password':
+                            password = getNodeText(mysql.childNodes)
+                        elif mysql.nodeName == 'db':
+                            dbname = getNodeText(mysql.childNodes)
+                        elif mysql.nodeName == 'charset':
+                            charset = getNodeText(mysql.childNodes)
+                    server["mysql"] = (host,username,password,dbname,charset)
+                elif subnode.nodeName == "ftp":
+                    host = ""
+                    username = ""
+                    password = ""
+                    uploadpath = ""
+                    for ftp in subnode.childNodes:
+                        if ftp.nodeName == 'host':
+                            host = getNodeText(ftp.childNodes)
+                        elif ftp.nodeName == 'user':
+                            username = getNodeText(ftp.childNodes)
+                        elif ftp.nodeName == 'password':
+                            password = getNodeText(ftp.childNodes)
+                        elif ftp.nodeName == 'uploadpath':
+                            uploadpath = getNodeText(ftp.childNodes)
+                    server["ftp"] = (host,username,password,uploadpath)
+            break
     return server
+
 
 def parseGroupbuyConfigFile(configFile):
     groupbuyparams = {}
