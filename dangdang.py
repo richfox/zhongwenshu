@@ -53,7 +53,7 @@ def printUsage():
     print("")
     print('python ${THIS_SCRIPT_NAME}.py {-l | -logis} ${server.sxml}   import logistics info to database with settings of the sxml file')
     print("")
-    print('python ${THIS_SCRIPT_NAME}.py {-l | -logis} {-exp | -expression} ${server.sxml}   generate logis expression according to the order nr')
+    print('python ${THIS_SCRIPT_NAME}.py {-le | -logisexp} ${server.sxml}   generate logis expression according to the order nr')
     print("")
     print('python ${THIS_SCRIPT_NAME}.py ${config.xml} {-tuan | -tuangou}   use config to search attributes write result to _books.xlsx for groupbuy')
     print("")
@@ -114,7 +114,7 @@ def matchGenerateLogisticsConfigFile(arg):
     return res
 
 def matchLogisExpression(arg):
-    regex = r"-exp$|-expression$"
+    regex = r"-le$|-logisexp$"
     res = scanForMatch(regex,arg)
     return res
 
@@ -626,6 +626,20 @@ def main():
             info = parseLogisConfigFile("logisticsConfig.xml")
             logis.import_logis_to_sql(server,info)
             return True
+        elif matchLogisExpression(sys.argv[1]) and matSqlFile(sys.argv[2]):
+            if not os.path.exists("logisticsConfig.xml"):
+                print('Error: logistics config file does not exist, use -logis to generate it')
+                return False
+            if not os.path.exists(sys.argv[2]):
+                print('Error: sql config file does not exist, use -sql to generate it')
+                return False
+            server = parseServerConfigFile(sys.argv[2])
+            if (not "mysql" in server) or (not "ftp" in server):
+                print("Error: config file is not completed.")
+                return False
+            info = parseLogisConfigFileOnlyExp("logisticsConfig.xml")
+            logis.generate_logis_expression_from_sql(server,info)
+            return True
     elif numArgs == 4:
         if matchConfigFile(sys.argv[1]) and matSqlFile(sys.argv[2]) and matchGroupbuyConfigFile(sys.argv[3]):
             if not os.path.exists(sys.argv[1]):
@@ -670,20 +684,6 @@ def main():
             sqls = {}
             sqls[sql[0]] = (sql[1],sql[2],sql[3],sql[4])
             ExcelToSQL.ExcelToSQLGBuy(sqls,params)
-            return True
-        elif matchGenerateLogisticsConfigFile(sys.argv[1]) and matchLogisExpression(sys.argv[2]) and matSqlFile(sys.argv[3]):
-            if not os.path.exists("logisticsConfig.xml"):
-                print('Error: logistics config file does not exist, use -logis to generate it')
-                return False
-            if not os.path.exists(sys.argv[3]):
-                print('Error: sql config file does not exist, use -sql to generate it')
-                return False
-            server = parseServerConfigFile(sys.argv[3])
-            if (not "mysql" in server) or (not "ftp" in server):
-                print("Error: config file is not completed.")
-                return False
-            info = parseLogisConfigFileOnlyExp("logisticsConfig.xml")
-            logis.generate_logis_expression_from_sql(server,info)
             return True
 
     printUsage()
