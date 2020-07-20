@@ -70,6 +70,7 @@ def import_logis_to_sql(server,logis):
             #log
             LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
             logging.basicConfig(filename='mylogis.log',level=logging.DEBUG,format=LOG_FORMAT)
+            logging.info("----------------------------------------------------------------") #分割线
             logging.info(sql % ("'"+railway_sn+"'","'"+timestamp+"'","'"+inter_company+"'"))
 
             sql = "SELECT `id` FROM " + rinterTable + " WHERE `railway_sn`=%s"
@@ -313,22 +314,30 @@ def generate_logis_expression_from_sql(server,logis):
                     sns.append(order)
     try:
         with connection.cursor() as cursor:
+            #log
+            LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
+            logging.basicConfig(filename='mylogis.log',level=logging.DEBUG,format=LOG_FORMAT)
+            logging.info("----------------------------------------------------------------") #分割线
+
             for sn in sns:
                 orderinfos = {}
                 if regex == "1":
                     sql = "SELECT `order_id`,`order_sn`,`best_time`,`money_paid` FROM " + orderInfoTable + " WHERE `order_sn` REGEXP %s AND `order_id` \
                         in (SELECT `order_id` FROM " + orderGoodsTable + " WHERE `goods_id` = %s);"
                     cursor.execute(sql,(sn,template))
+                    logging.info(sql % ("'"+sn+"'","'"+template+"'"))
                     orderinfos = cursor.fetchall()
                 elif regex == "0":
                     sql = "SELECT `order_id`,`order_sn`,`best_time`,`money_paid` FROM " + orderInfoTable + " WHERE `order_sn` = %s AND `order_id` \
                         in (SELECT `order_id` FROM " + orderGoodsTable + " WHERE `goods_id` = %s);"
                     cursor.execute(sql,(sn,template))
+                    logging.info(sql % ("'"+sn+"'","'"+template+"'"))
                     orderinfos = cursor.fetchall()
 
                 for (orderid,ordersn,wchat,paid) in orderinfos:
                     sql = "SELECT `goods_id` FROM " + orderGoodsTable + " WHERE order_id = %s;"
                     cursor.execute(sql,orderid)
+                    logging.info(sql % ("'"+str(orderid)+"'"))
                     goodsids = cursor.fetchall()
 
                     validitem = {}
@@ -336,6 +345,7 @@ def generate_logis_expression_from_sql(server,logis):
                     for goodsid in goodsids:
                         sql = "SELECT `cat_id`,`goods_name`,`goods_desc` FROM " + goodsTable + " WHERE goods_id = %s;"
                         cursor.execute(sql,goodsid[0])
+                        logging.info(sql % ("'"+str(goodsid[0])+"'"))
                         (catid,goodsname,goodsdesc) = cursor.fetchone()
                         if catid == 82: #82表示订购分类
                             if not(re.match(r".*template.*",goodsname,re.IGNORECASE)): #非模板商品
@@ -354,6 +364,7 @@ def generate_logis_expression_from_sql(server,logis):
                                     for cnsn,(company,note) in forecast.items():
                                         sql = "SELECT * FROM " + logiscnTable + " WHERE cn_packet_sn REGEXP %s;"
                                         cursor.execute(sql,cnsn)
+                                        logging.info(sql % ("'"+cnsn+"'"))
                                         #未录入的而且没有特定标记的加入交接单
                                         if not cursor.fetchone():
                                             if not has_special_label(note):
