@@ -37,8 +37,8 @@
                 {"name":"当当", "code":"ndwl"},
                 {"name":"安能", "code":"annengwuliu"},
                 {"name":"如风达", "code":"rufengda"},
-                {"name":"极兔", "code":"jtexpress"},
                 {"name":"盛丰", "code":"sfwl"},
+                {"name":"极兔", "code":"jtexpress"},
                 {"name":"比利时邮政", "code":"bpost"},
                 {"name":"联邦快递", "code":"fedex"}
             ],
@@ -49,6 +49,7 @@
                 {"header":"JD", "attr":["jd",1]},
                 {"header":"TT", "attr":["tiantian",1]},
                 {"header":"JT", "attr":["jtexpress",1]},
+                {"header":"ZJS", "attr":["zhaijisong",1]},
                 {"header":"DD", "attr":["ndwl",0]},
                 {"header":"TNT", "attr":["tnt",0]},
                 {"header":"EMS", "attr":["ems",0]},
