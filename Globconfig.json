@@ -12,7 +12,9 @@
             "label":
             [
                 {"code":"DA", "name":"到仓"},
-                {"code":"FA", "name":"已发"}
+                {"code":"FA", "name":"已发"},
+                {"code":"DI", "name":"丢失"},
+                {"code":"SH", "name":"客人收到"}
             ],
             "logisCompany":
             [

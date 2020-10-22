@@ -133,58 +133,32 @@ def get_logis_company_headers():
     return res
 
 
-def generate_logis_expression_from_html(htmltree):
-    expression = ""
-    for code,(en,cn,pattern) in Visitor.get_transports_info().items():
-        nodes = htmltree.xpath('//div[@id="' + code + '" or @id="' + en + '"]/div[@class="descrip"]//span/text()')
-        for i,node in enumerate(nodes):
-            if i == 0:
-                if expression:
-                    expression += " + "
-                expression += "%" + code + "("
-            expression += node
-            if i < len(nodes) - 1:
-                expression += " + "
-            else:
-                expression += ")"
-    return expression
-
-
-def has_special_label(nstr):
-    if nstr.strip():
-        for note in json.loads(nstr.strip()):
-            for code,name in get_logis_labels().items():
-                if note.strip().upper() == code:
-                    return True
-    return False
-
 
 #
 #以下若干函数物流表达式解析，不支持括号，和logis.php一致
 #
+def split_logis_expr(expr):
+    return re.split('[+]',expr.strip()) #+为表达式分隔符
+
 def split_logis_expr_and_token(expr):
     res = {}
     ids = split_logis_expr(expr)
     for id in ids:
-        sn = ['']
-        company =['']
-        note = ['']
-        split_token(id,sn,company,note)
-        res[sn[0]] = (company[0],note[0])
+        if id.strip():
+            sn = ['']
+            company =['']
+            notes = [[]]
+            split_token(id.strip(),sn,company,notes)
+            res[sn[0]] = (company[0],notes[0])
     return res
 
 
-def split_logis_expr(expr):
-    return re.split('[\+]',expr.strip()) #+为表达式连接符号
-
-
-def split_token(token,sn,company,note):
+def split_token(token,sn,company,notes):
     pattern = '[:]' #半角冒号为表达式说明符
     if re.search(pattern,token.strip()):
         tokens = re.split(pattern,token.strip())
         token = tokens[0]
-        if len(tokens) > 1:
-            note[0] = json.dumps(tokens[1:])
+        notes[0] = tokens[1:]
 
     matches = re.split('([a-zA-Z0-9\-]+)',token.strip())
     matches = list(filter(None,matches)) #去除空字符串
@@ -245,6 +219,35 @@ def get_company_header_code(header):
             res = attr
             break
     return res
+#
+#以上若干函数物和logis.php一致
+#
+
+
+def generate_logis_expression_from_html(htmltree):
+    expression = ""
+    for code,(en,cn,pattern) in Visitor.get_transports_info().items():
+        nodes = htmltree.xpath('//div[@id="' + code + '" or @id="' + en + '"]/div[@class="descrip"]//span/text()')
+        for i,node in enumerate(nodes):
+            if i == 0:
+                if expression:
+                    expression += " + "
+                expression += "%" + code + "("
+            expression += node
+            if i < len(nodes) - 1:
+                expression += " + "
+            else:
+                expression += ")"
+    return expression
+
+
+def has_special_label(nstr):
+    if nstr:
+        for note in json.loads(nstr.strip()):
+            for code,name in get_logis_labels().items():
+                if note.strip().upper() == code:
+                    return True
+    return False
 
 
 def get_customer_forecast(htmltree):
@@ -261,7 +264,7 @@ def generate_manifest_expression(data):
     expression = ''
     for i,(sn,company,note) in enumerate(data):
         expression += get_company_name(company) + sn
-        if note.strip():
+        if note:
             for n in json.loads(note):
                 expression += ":" + n.strip()
         if i < len(data)-1:
