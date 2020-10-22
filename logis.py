@@ -241,11 +241,11 @@ def generate_logis_expression_from_html(htmltree):
     return expression
 
 
-def has_special_label(nstr):
-    if nstr:
-        for note in json.loads(nstr.strip()):
+def has_special_label(notes):
+    if notes:
+        for note in notes:
             for code,name in get_logis_labels().items():
-                if note.strip().upper() == code:
+                if note.lower() == code.lower():
                     return True
     return False
 
@@ -262,11 +262,11 @@ def get_customer_forecast(htmltree):
 
 def generate_manifest_expression(data):
     expression = ''
-    for i,(sn,company,note) in enumerate(data):
+    for i,(sn,company,notes) in enumerate(data):
         expression += get_company_name(company) + sn
-        if note:
-            for n in json.loads(note):
-                expression += ":" + n.strip()
+        if notes:
+            for note in notes:
+                expression += ":" + note.strip()
         if i < len(data)-1:
             expression += ' + '
     return expression
@@ -364,14 +364,14 @@ def generate_logis_expression_from_sql(server,logis):
                                 
                                 manifest = []
                                 for forecast in get_customer_forecast(htmltree):
-                                    for cnsn,(company,note) in forecast.items():
+                                    for cnsn,(company,notes) in forecast.items():
                                         sql = "SELECT * FROM " + logiscnTable + " WHERE cn_packet_sn REGEXP %s;"
                                         cursor.execute(sql,cnsn)
                                         logging.info(sql % ("'"+cnsn+"'"))
                                         #未录入的而且没有特定标记的加入交接单
                                         if not cursor.fetchone():
-                                            if not has_special_label(note):
-                                                manifest.append((cnsn,company,note))
+                                            if not has_special_label(notes):
+                                                manifest.append((cnsn,company,notes))
 
                                 validitem["manifest"] = generate_manifest_expression(manifest)
 
