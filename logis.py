@@ -229,11 +229,31 @@ def generate_logis_expression_from_html(htmltree):
     for code,(en,cn,pattern) in Visitor.get_transports_info().items():
         nodes = htmltree.xpath('//div[@id="' + code + '" or @id="' + en + '"]/div[@class="descrip"]//span/text()')
         for i,node in enumerate(nodes):
+            #物流标签属于上一个span里的单号，不能单独出现
+            label = node.getparent().get("class")
+            if label:
+                notes = [label.strip()]
+                if has_special_label(notes) and not node.strip()[0]=="+":
+                    #注意这里是lxml模块的bug,getparent()判断错误，所以要额外检查node.strip()[0]不是分隔符
+                    expression = expression.strip()[0:-1].strip()
+                    expression += ":" + label.strip()
+                    if i < len(nodes) - 1:
+                        expression += " + "
+                    else:
+                        expression += ")"
+                    continue
+
             if i == 0:
                 if expression:
                     expression += " + "
                 expression += "%" + code + "("
-            expression += node
+            
+            #物流标签会打破原来的表达式，出现以分隔符比如 + 号开头的表达式
+            if not node.strip()[0]=="+":
+                expression += node.strip()
+            else:
+                expression += node.strip()[1:].strip()
+
             if i < len(nodes) - 1:
                 expression += " + "
             else:
@@ -256,6 +276,15 @@ def get_customer_forecast(htmltree):
         if code == 'r':
             nodes = htmltree.xpath('//div[@id="' + code + '" or @id="' + en + '"]/div[@class="descrip"]//span/text()')
             for i,node in enumerate(nodes):
+                #物流标签属于上一个span里的单号，不能单独出现
+                label = node.getparent().get("class")
+                if label:
+                    note = [label.strip()]
+                    if has_special_label(note) and not node.strip()[0]=="+":
+                        #注意这里是lxml模块的bug,getparent()判断错误，所以要额外检查node.strip()[0]不是分隔符
+                        (company,notes) = next(iter(forecast[len(forecast)-1].values()))
+                        notes.append(label.strip())
+                        continue
                 forecast.append(split_logis_expr_and_token(node))
     return forecast
 
