@@ -224,6 +224,24 @@ def get_company_header_code(header):
 #
 
 
+def generate_logis_expression_from_html_ex(htmltree):
+    expression = ""
+    for code,(en,cn,pattern) in Visitor.get_transports_info().items():
+        nodes = htmltree.xpath('//div[@id="' + code + '" or @id="' + en + '"]/div[@class="descrip"]//span/text()')
+        tokens = []
+        for i,node in enumerate(nodes):
+            #物流标签属于上一个span里的单号，不能单独出现
+            #注意这里是lxml模块的bug,getparent()判断错误，所以要额外检查node.strip()[0]不是分隔符
+            if node.getparent().get("class") and not node.strip()[0]=="+":
+                tokens.append(node.getparent().get("class").strip())
+            else:
+                #物流标签会打破原来的表达式，出现以分隔符比如 + 号开头的表达式
+                if not node.strip()[0]=="+":
+                    tokens.append(node.strip())
+                else:
+                    tokens.append(node.strip()[1:].strip())
+    return expression
+
 def generate_logis_expression_from_html(htmltree):
     expression = ""
     for code,(en,cn,pattern) in Visitor.get_transports_info().items():
@@ -392,7 +410,8 @@ def generate_logis_expression_from_sql(server,logis):
                                 parser = lxml.html.HTMLParser()
                                 htmltree = xml.etree.ElementTree.fromstring(goodsdesc,parser)
                                 validitem["expression"] = generate_logis_expression_from_html(htmltree)
-                                
+                                generate_logis_expression_from_html_ex(htmltree)
+
                                 manifest = []
                                 for forecast in get_customer_forecast(htmltree):
                                     for cnsn,(company,notes) in forecast.items():
