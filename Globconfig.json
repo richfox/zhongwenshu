@@ -14,7 +14,7 @@
                 {"code":"DA", "name":"到仓"},
                 {"code":"FA", "name":"已发"},
                 {"code":"DI", "name":"丢失"},
-                {"code":"SH", "name":"客人收到"}
+                {"code":"SH", "name":"收货确认"}
             ],
             "logisCompany":
             [
@@ -53,6 +53,8 @@
                 {"header":"JT", "attr":["jtexpress",1]},
                 {"header":"ZJS", "attr":["zhaijisong",1]},
                 {"header":"DD", "attr":["ndwl",0]},
+                {"header":"ZT", "attr":["zhongtong",0]},
+                {"header":"YD", "attr":["yunda",0]},
                 {"header":"TNT", "attr":["tnt",0]},
                 {"header":"EMS", "attr":["ems",0]},
                 {"header":"DHL", "attr":["dhlen",0]},
