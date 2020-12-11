@@ -224,59 +224,40 @@ def get_company_header_code(header):
 #
 
 
-def generate_logis_expression_from_html_ex(htmltree):
+def generate_logis_expression_from_html(htmltree):
     expression = ""
     for code,(en,cn,pattern) in Visitor.get_transports_info().items():
         nodes = htmltree.xpath('//div[@id="' + code + '" or @id="' + en + '"]/div[@class="descrip"]//span/text()')
         tokens = []
-        for i,node in enumerate(nodes):
+        for node in nodes:
             #物流标签属于上一个span里的单号，不能单独出现
             #注意这里是lxml模块的bug,getparent()判断错误，所以要额外检查node.strip()[0]不是分隔符
             if node.getparent().get("class") and not node.strip()[0]=="+":
                 tokens.append(node.getparent().get("class").strip())
             else:
                 #物流标签会打破原来的表达式，出现以分隔符比如 + 号开头的表达式
-                if not node.strip()[0]=="+":
-                    tokens.append(node.strip())
-                else:
-                    tokens.append(node.strip()[1:].strip())
-    return expression
+                tokens.append(split_logis_expr(node.strip()))
 
-def generate_logis_expression_from_html(htmltree):
-    expression = ""
-    for code,(en,cn,pattern) in Visitor.get_transports_info().items():
-        nodes = htmltree.xpath('//div[@id="' + code + '" or @id="' + en + '"]/div[@class="descrip"]//span/text()')
-        for i,node in enumerate(nodes):
-            #物流标签属于上一个span里的单号，不能单独出现
-            label = node.getparent().get("class")
-            if label:
-                notes = [label.strip()]
-                if has_special_label(notes) and not node.strip()[0]=="+":
-                    #注意这里是lxml模块的bug,getparent()判断错误，所以要额外检查node.strip()[0]不是分隔符
-                    expression = expression.strip()[0:-1].strip()
-                    expression += ":" + label.strip()
-                    if i < len(nodes) - 1:
-                        expression += " + "
-                    else:
-                        expression += ")"
-                    continue
-
+        for i,token in enumerate(tokens):
             if i == 0:
                 if expression:
                     expression += " + "
                 expression += "%" + code + "("
-            
-            #物流标签会打破原来的表达式，出现以分隔符比如 + 号开头的表达式
-            if not node.strip()[0]=="+":
-                expression += node.strip()
+            if isinstance(token,list):
+                for j,t in enumerate(token):
+                    if (t.strip()):
+                        expression += t.strip()
+                        if j < len(token) - 1:
+                            expression += " + "
             else:
-                expression += node.strip()[1:].strip()
-
-            if i < len(nodes) - 1:
-                expression += " + "
+                expression += ":" + token
+            if i < len(tokens) - 1:
+                if isinstance(tokens[i+1],list):
+                    expression += " + "
             else:
                 expression += ")"
     return expression
+
 
 
 def has_special_label(notes):
@@ -410,7 +391,6 @@ def generate_logis_expression_from_sql(server,logis):
                                 parser = lxml.html.HTMLParser()
                                 htmltree = xml.etree.ElementTree.fromstring(goodsdesc,parser)
                                 validitem["expression"] = generate_logis_expression_from_html(htmltree)
-                                generate_logis_expression_from_html_ex(htmltree)
 
                                 manifest = []
                                 for forecast in get_customer_forecast(htmltree):
