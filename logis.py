@@ -228,6 +228,7 @@ def generate_logis_expression_from_html(htmltree):
     expression = ""
     for code,(en,cn,pattern) in Visitor.get_transports_info().items():
         nodes = htmltree.xpath('//div[@id="' + code + '" or @id="' + en + '"]/div[@class="descrip"]//span/text()')
+
         tokens = []
         for node in nodes:
             #物流标签属于上一个span里的单号，不能单独出现
@@ -238,22 +239,27 @@ def generate_logis_expression_from_html(htmltree):
                 #物流标签会打破原来的表达式，出现以分隔符比如 + 号开头的表达式
                 tokens.append(split_logis_expr(node.strip()))
 
+        multitokens = {}
         for i,token in enumerate(tokens):
+            if isinstance(token,list):
+                for t in token:
+                    if t.strip():
+                        multitokens[t.strip()] = []
+            else: #是标签
+                lastkey = list(multitokens.keys())[len(multitokens)-1]
+                multitokens[lastkey].append(token)
+
+        for i,(token,labels) in enumerate(multitokens.items()):
             if i == 0:
                 if expression:
                     expression += " + "
                 expression += "%" + code + "("
-            if isinstance(token,list):
-                for j,t in enumerate(token):
-                    if (t.strip()):
-                        expression += t.strip()
-                        if j < len(token) - 1:
-                            expression += " + "
-            else:
-                expression += ":" + token
-            if i < len(tokens) - 1:
-                if isinstance(tokens[i+1],list):
-                    expression += " + "
+            expression += token
+            if labels:
+                for label in labels:
+                    expression += ":" + label
+            if i < len(multitokens) - 1:
+                expression += " + "
             else:
                 expression += ")"
     return expression
