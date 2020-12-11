@@ -287,7 +287,9 @@ def get_customer_forecast(htmltree):
                     note = [label.strip()]
                     if has_special_label(note) and not node.strip()[0]=="+":
                         #注意这里是lxml模块的bug,getparent()判断错误，所以要额外检查node.strip()[0]不是分隔符
-                        (company,notes) = next(iter(forecast[len(forecast)-1].values()))
+                        dicitems = forecast[len(forecast)-1].values()
+                        #标签总是加在最后一个单号后面
+                        (company,notes) = list(dicitems)[len(dicitems)-1]
                         notes.append(label.strip())
                         continue
                 forecast.append(split_logis_expr_and_token(node))
