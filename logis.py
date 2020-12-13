@@ -17,6 +17,7 @@ import xml
 import lxml
 import openpyxl.workbook
 import Visitor
+import unittest
 
 
 def import_logis_to_sql(server,logis):
@@ -444,3 +445,20 @@ def generate_logis_expression_from_sql(server,logis):
     os.system("start _manifest.xlsx")
 
     print("Finished.")
+
+
+
+class TestLogis(unittest.TestCase):
+    def setUp(self):
+        self._cwd = os.getcwd()
+
+    def tearDown(self):
+        os.chdir(self._cwd)
+
+    def testSplitter(self):
+        res = split_logis_expr_and_token("jd112233-1:todo + 中通223344 + DHL445566:books:fa")
+        self.assertEqual(len(res),3)
+        self.assertEqual(list(res.keys())[0],"jd112233")
+        self.assertEqual(list(res.values())[1],(get_logis_companies()["中通"],[]))
+        company,notes = list(res.values())[2]
+        self.assertEqual(has_special_label(notes),True)

@@ -262,7 +262,7 @@ class TestVisitor(unittest.TestCase):
                 succeed = True
             self.assertEqual(succeed,True)
 
-    #@unittest.skip("I don't want to run this case.") #skip装饰器
+    @unittest.skip("I don't want to run this case.") #skip装饰器
     def testSearchOrderGoodsTuan(self):
         files = [".\\testdata\\simple.order.dangdang.html",
                  ".\\testdata\\fenbao.order.dangdang.html"]
