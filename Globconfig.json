@@ -54,6 +54,8 @@
                 {"header":"ZJS", "attr":["zhaijisong",1]},
                 {"header":"DD", "attr":["ndwl",0]},
                 {"header":"ZT", "attr":["zhongtong",0]},
+                {"header":"ST", "attr":["shentong",0]},
+                {"header":"HT", "attr":["huitongkuaidi",0]},
                 {"header":"YD", "attr":["yunda",0]},
                 {"header":"TNT", "attr":["tnt",0]},
                 {"header":"EMS", "attr":["ems",0]},
