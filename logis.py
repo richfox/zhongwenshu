@@ -471,10 +471,9 @@ class TestLogis(unittest.TestCase):
             <div class="section" id="railway">
             <div class="title"><span>铁路</span></div>
             <div class="descrip">
-            <p><span style="color:#330099">JDX000019048165-1-1</span></p>
             <p><span style="color:#330099">邮政23232445<span class="da">到仓</span> + JT798797947646<span class="da">到仓</span></span></p>
             <p><span style="color:#330099">邮政232324452-1<span class="da">到仓</span> + JT7987979476461</span></p>
-            <p><span style="color:#330099">邮政232324452-2:15kg + JT7987979476462:16kg:文具<span class="da">到仓</span></span></p>
+            <p><span style="color:#330099">中通223344:todo + JT7987979476462:16kg:文具<span class="da">到仓</span></span></p>
             <p>各种书</p>
             <p>&nbsp;</p>
             </div>
@@ -486,5 +485,14 @@ class TestLogis(unittest.TestCase):
     def testGenerateLogisExpr(self):
         parser = lxml.html.HTMLParser()
         htmltree = xml.etree.ElementTree.fromstring(self.getGoodsDesc(),parser)
-        self.assertEqual(generate_logis_expression_from_html(htmltree).replace(' ', ''),
-                        '%r(JDX000019048165-1-1+邮政23232445:da+JT798797947646:da+邮政232324452-1:da+JT7987979476461+邮政232324452-2:15kg+JT7987979476462:16kg:文具:da)')
+        expr = generate_logis_expression_from_html(htmltree)
+        res = split_logis_expr_and_token(expr[3:-1])
+        self.assertEqual(len(res),6)
+        self.assertEqual(list(res.keys())[0],"23232445")
+        self.assertEqual(list(res.keys())[1],"JT798797947646")
+        self.assertEqual(list(res.keys())[2],"232324452")
+        company,notes = list(res.values())[3]
+        self.assertEqual(has_special_label(notes),False)
+        self.assertEqual(list(res.values())[4],(get_logis_companies()["中通"],["todo"]))
+        company,notes = list(res.values())[5]
+        self.assertEqual(has_special_label(notes),True)
