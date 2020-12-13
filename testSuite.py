@@ -16,7 +16,8 @@ def run():
 
     tests = [Visitor.TestVisitor("testSearchOrderGoods"),
              Visitor.TestVisitor("testSearchOrderGoodsTuan"),
-             logis.TestLogis("testSplitter")]
+             logis.TestLogis("testSplitter"),
+             logis.TestLogis("testGenerateLogisExpr")]
 
     suite.addTests(tests)
 

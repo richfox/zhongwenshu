@@ -462,3 +462,29 @@ class TestLogis(unittest.TestCase):
         self.assertEqual(list(res.values())[1],(get_logis_companies()["中通"],[]))
         company,notes = list(res.values())[2]
         self.assertEqual(has_special_label(notes),True)
+
+    def getGoodsDesc(self):
+        goodsdesc = '''
+            <div><zws-product>
+            <p><font size="6">2019110192875</font></p>
+            <p>&nbsp;</p>
+            <div class="section" id="railway">
+            <div class="title"><span>铁路</span></div>
+            <div class="descrip">
+            <p><span style="color:#330099">JDX000019048165-1-1</span></p>
+            <p><span style="color:#330099">邮政23232445<span class="da">到仓</span> + JT798797947646<span class="da">到仓</span></span></p>
+            <p><span style="color:#330099">邮政232324452-1<span class="da">到仓</span> + JT7987979476461</span></p>
+            <p><span style="color:#330099">邮政232324452-2:15kg + JT7987979476462:16kg:文具<span class="da">到仓</span></span></p>
+            <p>各种书</p>
+            <p>&nbsp;</p>
+            </div>
+            </div>
+            </zws-product></div>
+        '''
+        return goodsdesc
+
+    def testGenerateLogisExpr(self):
+        parser = lxml.html.HTMLParser()
+        htmltree = xml.etree.ElementTree.fromstring(self.getGoodsDesc(),parser)
+        self.assertEqual(generate_logis_expression_from_html(htmltree).replace(' ', ''),
+                        '%r(JDX000019048165-1-1+邮政23232445:da+JT798797947646:da+邮政232324452-1:da+JT7987979476461+邮政232324452-2:15kg+JT7987979476462:16kg:文具:da)')
