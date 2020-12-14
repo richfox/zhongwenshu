@@ -136,7 +136,7 @@ def get_logis_company_headers():
 
 
 #
-#以下若干函数物流表达式解析，不支持括号，和logis.php一致
+#以下若干函数物流表达式解析，不支持括号，和lib_logis.php一致
 #
 def split_logis_expr(expr):
     return re.split('[+]',expr.strip()) #+为表达式分隔符
@@ -146,30 +146,31 @@ def split_logis_expr_and_token(expr):
     ids = split_logis_expr(expr)
     for id in ids:
         if id.strip():
-            sn = ['']
+            sn = [''] #为了达到传引用的效果，这里把字符串包裹在数组里
+            subsns = [[]]
             company =['']
             notes = [[]]
-            split_token(id.strip(),sn,company,notes)
+            split_token(id.strip(),sn,subsns,company,notes)
             res[sn[0]] = (company[0],notes[0])
     return res
 
 
-def split_token(token,sn,company,notes):
+def split_token(token,sn,subsns,company,notes):
     pattern = '[:]' #半角冒号为表达式说明符
     if re.search(pattern,token.strip()):
         tokens = re.split(pattern,token.strip())
         token = tokens[0]
         notes[0] = tokens[1:]
 
-    matches = re.split('([a-zA-Z0-9\-]+)',token.strip())
+    matches = re.split('([a-zA-Z0-9-]+)',token.strip())
     matches = list(filter(None,matches)) #去除空字符串
     if len(matches) == 1:
         matches[0] = [matches[0]]
-        get_main_sn(matches[0])
+        get_main_sn(matches[0],subsns)
         sn[0] = matches[0][0]
     else:
         matches[1] = [matches[1]]
-        get_main_sn(matches[1])
+        get_main_sn(matches[1],subsns)
         sn[0] = matches[1][0]
         company[0] = get_company_code(matches[0])
 
@@ -177,11 +178,12 @@ def split_token(token,sn,company,notes):
         company[0] = split_company_header_code(sn)
 
 
-def get_main_sn(sn):
-    pattern = '[\-]' #-符号代表的子单号
+def get_main_sn(sn,subsns):
+    pattern = '[-]' #-符号代表的子单号
     if re.search(pattern,sn[0].strip()):
         sns = re.split(pattern,sn[0].strip())
         sn[0] = sns[0]
+        subsns[0] = sns[1:]
 
 
 def get_company_code(company):
@@ -221,7 +223,7 @@ def get_company_header_code(header):
             break
     return res
 #
-#以上若干函数物和logis.php一致
+#以上若干函数物和lib_logis.php一致
 #
 
 
