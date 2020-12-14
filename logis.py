@@ -134,12 +134,30 @@ def get_logis_company_headers():
     return res
 
 
+def get_logis_operators():
+    res = {}
+    jsonstring = open(".\\Globconfig.json",'rb').read()
+    allinfo = json.loads(jsonstring)
+    for config in allinfo["configurations"]:
+        if "logisOperator" in config:
+            for operator in config["logisOperator"]:
+                res[operator["type"]] = operator["characters"]
+            break
+    return res
+
+
+#物流表达式特殊符号
+#顺丰240564577148:10kg + YT2028772443672:点读笔 + JD001122-1-1
+logisSeparator = get_logis_operators()["separator"] #分隔符
+logisExplanator = get_logis_operators()["explanator"] #半角冒号代表说明符
+logisConnector = get_logis_operators()["connector"] #母子单号连接符
 
 #
 #以下若干函数物流表达式解析，不支持括号，和lib_logis.php一致
 #
 def split_logis_expr(expr):
-    return re.split('[+]',expr.strip()) #+为表达式分隔符
+    pattern = '[' + logisSeparator + ']'
+    return re.split(pattern,expr.strip())
 
 def split_logis_expr_and_token(expr):
     res = {}
@@ -156,13 +174,14 @@ def split_logis_expr_and_token(expr):
 
 
 def split_token(token,sn,subsns,company,notes):
-    pattern = '[:]' #半角冒号为表达式说明符
+    pattern = '[' + logisExplanator + ']'
     if re.search(pattern,token.strip()):
         tokens = re.split(pattern,token.strip())
         token = tokens[0]
         notes[0] = tokens[1:]
 
-    matches = re.split('([a-zA-Z0-9-]+)',token.strip())
+    pattern = '([a-zA-Z0-9' + logisConnector + ']+)'
+    matches = re.split(pattern,token.strip())
     matches = list(filter(None,matches)) #去除空字符串
     if len(matches) == 1:
         matches[0] = [matches[0]]
@@ -179,7 +198,7 @@ def split_token(token,sn,subsns,company,notes):
 
 
 def get_main_sn(sn,subsns):
-    pattern = '[-]' #-符号代表的子单号
+    pattern = '[' + logisConnector + ']'
     if re.search(pattern,sn[0].strip()):
         sns = re.split(pattern,sn[0].strip())
         sn[0] = sns[0]

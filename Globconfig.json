@@ -16,6 +16,12 @@
                 {"code":"DI", "name":"丢失"},
                 {"code":"SH", "name":"收货确认"}
             ],
+            "logisOperator":
+            [
+                {"type":"separator", "characters":"+"},
+                {"type":"explanator", "characters":":"},
+                {"type":"connector", "characters":"-"}
+            ],
             "logisCompany":
             [
                 {"name":"顺丰", "code":"shunfeng"},
