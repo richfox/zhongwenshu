@@ -218,7 +218,7 @@ def split_company_header_code(sn):
 def get_company_header_code(header):
     res = []
     for h,attr in get_logis_company_headers().items():
-        if (h == header.upper()):
+        if (h.upper() == header.upper()):
             res = attr
             break
     return res
@@ -458,6 +458,15 @@ class TestLogis(unittest.TestCase):
         os.chdir(self._cwd)
 
     def testSplitter(self):
+        sn = ['']
+        subsns = [[]]
+        company =['']
+        notes = [[]]
+        split_token("Dd112233-1-2:book:12kg",sn,subsns,company,notes)
+        self.assertEqual(sn,["112233"])
+        self.assertEqual(subsns[0],["1","2"])
+        self.assertEqual(company,[get_logis_companies()["当当"]])
+        self.assertEqual(notes[0],["book","12kg"])
         res = split_logis_expr_and_token("jd112233-1:todo + 中通223344 + DHL445566:books:fa")
         self.assertEqual(len(res),3)
         self.assertEqual(list(res.keys())[0],"jd112233")
