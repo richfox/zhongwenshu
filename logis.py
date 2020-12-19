@@ -246,6 +246,16 @@ def get_company_header_code(header):
 #
 
 
+#从html生成物流表达式
+#html
+#<p><span style="color:#330099">邮政232324452-1<span class="da">到仓</span> + JT7987979476461</span></p>
+#<p><span style="color:#330099">邮政232324452-2:15kg + JT7987979476462:16kg:文具<span class="da">到仓</span></span></p>
+#nodes
+#['邮政232324452-1', '到仓', ' + JT7987979476461', '邮政232324452-2:15kg + JT7987979476462:16kg:文具', '到仓']
+#tokens
+#[['邮政232324452-1'], 'da', ' ', ' JT7987979476461', ['邮政232324452-2:15kg ', ' JT7987979476462:16kg:文具'], 'da']
+#multitokens
+#{'邮政232324452-1':['da'], 'JT7987979476461':[], '邮政232324452-2:15kg':[], 'JT7987979476462:16kg:文具':['da']}
 def generate_logis_expression_from_html(htmltree):
     expression = ""
     for code,(en,cn,pattern) in Visitor.get_transports_info().items():
