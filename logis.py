@@ -256,6 +256,8 @@ def get_company_header_code(header):
 #[['邮政232324452-1'], 'da', ' ', ' JT7987979476461', ['邮政232324452-2:15kg ', ' JT7987979476462:16kg:文具'], 'da']
 #multitokens
 #{'邮政232324452-1':['da'], 'JT7987979476461':[], '邮政232324452-2:15kg':[], 'JT7987979476462:16kg:文具':['da']}
+#logis expression
+#%r(邮政232324452-1:da + JT7987979476461 + 邮政232324452-2:15kg + JT7987979476462:16kg:文具:da)
 def generate_logis_expression_from_html(htmltree):
     expression = ""
     for code,(en,cn,pattern) in Visitor.get_transports_info().items():
