@@ -149,8 +149,6 @@ def get_logis_operators():
 #物流表达式特殊符号
 #%railway(顺丰240564577148:10kg + YT2028772443672:点读笔 + JD001122-1-1)
 logisKeywordHeader = get_logis_operators()["keywordheader"] #关键字
-logisKeywordOpen = get_logis_operators()["keywordopen"] #关键字开括号
-logisKeywordClose = get_logis_operators()["keywordclose"] #关键字闭括号
 logisSeparator = get_logis_operators()["separator"] #分隔符
 logisExplanator = get_logis_operators()["explanator"] #半角冒号代表说明符
 logisConnector = get_logis_operators()["connector"] #母子单号连接符
@@ -290,7 +288,7 @@ def generate_logis_expression_from_html(htmltree):
             if i == 0:
                 if expression:
                     expression += " + "
-                expression += logisKeywordHeader + code + logisKeywordOpen
+                expression += logisKeywordHeader + code + "("
             expression += token
             if labels:
                 for label in labels:
@@ -298,7 +296,7 @@ def generate_logis_expression_from_html(htmltree):
             if i < len(multitokens) - 1:
                 expression += " + "
             else:
-                expression += logisKeywordClose
+                expression += ")"
     return expression
 
 
