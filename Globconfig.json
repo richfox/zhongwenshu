@@ -19,6 +19,8 @@
             "logisOperator":
             [
                 {"type":"keywordheader", "characters":"%"},
+                {"type":"keywordopen", "characters":"("},
+                {"type":"keywordclose", "characters":")"},
                 {"type":"separator", "characters":"+"},
                 {"type":"explanator", "characters":":"},
                 {"type":"connector", "characters":"-"}
