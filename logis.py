@@ -147,7 +147,8 @@ def get_logis_operators():
 
 
 #物流表达式特殊符号
-#顺丰240564577148:10kg + YT2028772443672:点读笔 + JD001122-1-1
+#%railway(顺丰240564577148:10kg + YT2028772443672:点读笔 + JD001122-1-1)
+logisKeywordHeader = get_logis_operators()["keywordheader"] #关键字
 logisSeparator = get_logis_operators()["separator"] #分隔符
 logisExplanator = get_logis_operators()["explanator"] #半角冒号代表说明符
 logisConnector = get_logis_operators()["connector"] #母子单号连接符
