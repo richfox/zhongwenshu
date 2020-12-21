@@ -259,7 +259,7 @@ def get_company_header_code(header):
 #{'邮政232324452-1':['da'], 'JT7987979476461':[], '邮政232324452-2:15kg':[], 'JT7987979476462:16kg:文具':['da']}
 #logis expression
 #%r(邮政232324452-1:da + JT7987979476461 + 邮政232324452-2:15kg + JT7987979476462:16kg:文具:da)
-def generate_logis_expression_from_html(htmltree):
+def generate_logis_expression_from_html(htmltree,filter=[]):
     expression = ""
     for code,(en,cn,pattern) in Visitor.get_transports_info().items():
         nodes = htmltree.xpath('//div[@id="' + code + '" or @id="' + en + '"]/div[@class="descrip"]//span/text()')
@@ -283,6 +283,17 @@ def generate_logis_expression_from_html(htmltree):
             else: #是标签
                 lastkey = list(multitokens.keys())[len(multitokens)-1]
                 multitokens[lastkey].append(token)
+
+        if filter:
+            for token,labels in multitokens.items():
+                found = False
+                for label in labels:
+                    if label.lower() in [elem.lower() for elem in filter]:
+                        found = True
+                        break
+                if not found:
+                    multitokens[token] = ['to_del'] #标记为待删除
+            multitokens = {key:multitokens[key] for key in multitokens if multitokens[key]!=['to_del']}
 
         for i,(token,labels) in enumerate(multitokens.items()):
             if i == 0:
@@ -434,6 +445,7 @@ def generate_logis_expression_from_sql(server,logis):
                                 parser = lxml.html.HTMLParser()
                                 htmltree = xml.etree.ElementTree.fromstring(goodsdesc,parser)
                                 validitem["expression"] = generate_logis_expression_from_html(htmltree)
+                                validitem["expression2"] = generate_logis_expression_from_html(htmltree,["FA","SH"])
 
                                 manifest = []
                                 for forecast in get_customer_forecast(htmltree):
@@ -471,6 +483,7 @@ def generate_logis_expression_from_sql(server,logis):
             i = 1
         ws.cell(row=i+1,column=1,value=item["ordersn"])
         ws.cell(row=i+1,column=2,value=item["expression"])
+        ws.cell(row=i+1,column=3,value=item["expression2"])
         ws.cell(row=i+1,column=4,value=item["wchat"])
         ws.cell(row=i+1,column=5,value=item["paid"])
         ws.cell(row=i+1,column=8,value=item["manifest"])
