@@ -268,7 +268,7 @@ def generate_logis_expression_from_html(htmltree,filter=[],inverse=False):
         for node in nodes:
             #物流标签属于上一个span里的单号，不能单独出现
             #注意这里是lxml模块的bug,getparent()判断错误，所以要额外检查node.strip()[0]不是分隔符
-            if node.getparent().get("class") and not node.strip()[0]=="+":
+            if node.getparent().get("class") and not node.strip()[0]==logisSeparator:
                 tokens.append(node.getparent().get("class").strip())
             else:
                 #物流标签会打破原来的表达式，出现以分隔符比如 + 号开头的表达式
@@ -302,14 +302,14 @@ def generate_logis_expression_from_html(htmltree,filter=[],inverse=False):
         for i,(token,labels) in enumerate(multitokens.items()):
             if i == 0:
                 if expression:
-                    expression += " + "
+                    expression += " " + logisSeparator + " "
                 expression += logisKeywordHeader + code + "("
             expression += token
             if labels:
                 for label in labels:
                     expression += logisExplanator + label
             if i < len(multitokens) - 1:
-                expression += " + "
+                expression += " " + logisSeparator + " "
             else:
                 expression += ")"
     return expression
@@ -328,6 +328,7 @@ def has_special_label(notes):
 def get_customer_forecast(htmltree):
     forecast = []
     for code,(en,cn,pattern) in Visitor.get_transports_info().items():
+        #当前只支持铁路
         if code == 'r':
             nodes = htmltree.xpath('//div[@id="' + code + '" or @id="' + en + '"]/div[@class="descrip"]//span/text()')
             for i,node in enumerate(nodes):
@@ -335,7 +336,7 @@ def get_customer_forecast(htmltree):
                 label = node.getparent().get("class")
                 if label:
                     note = [label.strip()]
-                    if has_special_label(note) and not node.strip()[0]=="+":
+                    if has_special_label(note) and not node.strip()[0]==logisSeparator:
                         #注意这里是lxml模块的bug,getparent()判断错误，所以要额外检查node.strip()[0]不是分隔符
                         dicitems = forecast[len(forecast)-1].values()
                         #标签总是加在最后一个单号后面
@@ -352,9 +353,9 @@ def generate_manifest_expression(data):
         expression += get_company_name(company) + sn
         if notes:
             for note in notes:
-                expression += ":" + note.strip()
+                expression += logisExplanator + note.strip()
         if i < len(data)-1:
-            expression += ' + '
+            expression += ' ' + logisSeparator + ' '
     return expression
 
 
