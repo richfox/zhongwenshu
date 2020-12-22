@@ -259,7 +259,7 @@ def get_company_header_code(header):
 #{'邮政232324452-1':['da'], 'JT7987979476461':[], '邮政232324452-2:15kg':[], 'JT7987979476462:16kg:文具':['da']}
 #logis expression
 #%r(邮政232324452-1:da + JT7987979476461 + 邮政232324452-2:15kg + JT7987979476462:16kg:文具:da)
-def generate_logis_expression_from_html(htmltree,filter=[]):
+def generate_logis_expression_from_html(htmltree,filter=[],inverse=False):
     expression = ""
     for code,(en,cn,pattern) in Visitor.get_transports_info().items():
         nodes = htmltree.xpath('//div[@id="' + code + '" or @id="' + en + '"]/div[@class="descrip"]//span/text()')
@@ -291,8 +291,12 @@ def generate_logis_expression_from_html(htmltree,filter=[]):
                     if label.lower() in [elem.lower() for elem in filter]:
                         found = True
                         break
-                if not found:
-                    multitokens[token] = ['to_del'] #标记为待删除
+                if inverse:
+                    if found:
+                        multitokens[token] = ['to_del'] #标记为待删除
+                else:    
+                    if not found:
+                        multitokens[token] = ['to_del'] #标记为待删除
             multitokens = {key:multitokens[key] for key in multitokens if multitokens[key]!=['to_del']}
 
         for i,(token,labels) in enumerate(multitokens.items()):
@@ -444,7 +448,7 @@ def generate_logis_expression_from_sql(server,logis):
 
                                 parser = lxml.html.HTMLParser()
                                 htmltree = xml.etree.ElementTree.fromstring(goodsdesc,parser)
-                                validitem["expression"] = generate_logis_expression_from_html(htmltree)
+                                validitem["expression"] = generate_logis_expression_from_html(htmltree,["FA","SH"],True)
                                 validitem["expression2"] = generate_logis_expression_from_html(htmltree,["FA","SH"])
 
                                 manifest = []
