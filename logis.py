@@ -170,7 +170,7 @@ def split_logis_expr_and_token(expr):
             company =['']
             notes = [[]]
             split_token(id.strip(),sn,subsns,company,notes)
-            res[sn[0]] = (company[0],notes[0])
+            res[sn[0]+build_subsn(subsns[0])] = (company[0],notes[0])
     return res
 
 
@@ -241,6 +241,14 @@ def get_company_header_code(header):
         if (h.upper() == header.upper()):
             res = attr
             break
+    return res
+
+
+def build_subsn(subsns):
+    res = ""
+    logisConnector
+    for subsn in subsns:
+        res += logisConnector + subsn.strip()
     return res
 #
 #以上若干函数物和lib_logis.php一致
@@ -519,7 +527,7 @@ class TestLogis(unittest.TestCase):
         self.assertEqual(notes[0],["book","12kg"])
         res = split_logis_expr_and_token("jd112233-1:todo + 中通223344 + DHL445566:books:fa")
         self.assertEqual(len(res),3)
-        self.assertEqual(list(res.keys())[0],"jd112233")
+        self.assertEqual(list(res.keys())[0],"jd112233-1")
         self.assertEqual(list(res.values())[1],(get_logis_companies()["中通"],[]))
         company,notes = list(res.values())[2]
         self.assertEqual(has_special_label(notes),True)
@@ -533,8 +541,8 @@ class TestLogis(unittest.TestCase):
             <div class="title"><span>铁路</span></div>
             <div class="descrip">
             <p><span style="color:#330099">邮政23232445<span class="da">到仓</span> + JT798797947646<span class="da">到仓</span></span></p>
-            <p><span style="color:#330099">邮政232324452-1<span class="da">到仓</span> + JT7987979476461</span></p>
-            <p><span style="color:#330099">中通223344:todo + JT7987979476462:16kg：文具<span class="da">到仓</span></span></p>
+            <p><span style="color:#330099">中通232324452-1-2<span class="da">到仓</span> + JT7987979476461</span></p>
+            <p><span style="color:#330099">中通快递232324452-2-2:todo + JT7987979476462:16kg：文具<span class="da">到仓</span></span></p>
             <p>各种书</p>
             <p>&nbsp;</p>
             </div>
@@ -552,7 +560,7 @@ class TestLogis(unittest.TestCase):
         self.assertEqual(len(res),6)
         self.assertEqual(list(res.keys())[0],"23232445")
         self.assertEqual(list(res.keys())[1],"JT798797947646")
-        self.assertEqual(list(res.keys())[2],"232324452")
+        self.assertEqual(list(res.keys())[2],"232324452-1-2")
         company,notes = list(res.values())[3]
         self.assertEqual(has_special_label(notes),False)
         self.assertEqual(list(res.values())[4],(get_logis_companies()["中通"],["todo"]))
