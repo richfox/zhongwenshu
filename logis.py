@@ -558,3 +558,4 @@ class TestLogis(unittest.TestCase):
         self.assertEqual(list(res.values())[4],(get_logis_companies()["中通"],["todo"]))
         company,notes = list(res.values())[5]
         self.assertEqual(has_special_label(notes),True)
+        self.assertEqual(len(notes),3)
