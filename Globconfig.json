@@ -20,7 +20,7 @@
             [
                 {"type":"keywordheader", "characters":"%"},
                 {"type":"separator", "characters":"+"},
-                {"type":"explanator", "characters":":"},
+                {"type":"explanator", "characters":":："},
                 {"type":"connector", "characters":"-"}
             ],
             "logisCompany":

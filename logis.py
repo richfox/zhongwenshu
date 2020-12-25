@@ -150,7 +150,7 @@ def get_logis_operators():
 #%railway(顺丰240564577148:10kg + YT2028772443672:点读笔 + JD001122-1-1)
 logisKeywordHeader = get_logis_operators()["keywordheader"] #关键字
 logisSeparator = get_logis_operators()["separator"] #分隔符
-logisExplanator = get_logis_operators()["explanator"] #半角冒号代表说明符
+logisExplanator = get_logis_operators()["explanator"] #半角或全角冒号代表说明符
 logisConnector = get_logis_operators()["connector"] #母子单号连接符
 
 #
@@ -307,7 +307,7 @@ def generate_logis_expression_from_html(htmltree,filter=[],inverse=False):
             expression += token
             if labels:
                 for label in labels:
-                    expression += logisExplanator + label
+                    expression += logisExplanator[0] + label
             if i < len(multitokens) - 1:
                 expression += " " + logisSeparator + " "
             else:
@@ -353,7 +353,7 @@ def generate_manifest_expression(data):
         expression += get_company_name(company) + sn
         if notes:
             for note in notes:
-                expression += logisExplanator + note.strip()
+                expression += logisExplanator[0] + note.strip()
         if i < len(data)-1:
             expression += ' ' + logisSeparator + ' '
     return expression
@@ -534,7 +534,7 @@ class TestLogis(unittest.TestCase):
             <div class="descrip">
             <p><span style="color:#330099">邮政23232445<span class="da">到仓</span> + JT798797947646<span class="da">到仓</span></span></p>
             <p><span style="color:#330099">邮政232324452-1<span class="da">到仓</span> + JT7987979476461</span></p>
-            <p><span style="color:#330099">中通223344:todo + JT7987979476462:16kg:文具<span class="da">到仓</span></span></p>
+            <p><span style="color:#330099">中通223344:todo + JT7987979476462:16kg：文具<span class="da">到仓</span></span></p>
             <p>各种书</p>
             <p>&nbsp;</p>
             </div>
