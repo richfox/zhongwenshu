@@ -262,7 +262,7 @@ def build_subsn(subsns):
 #nodes
 #['邮政232324452-1', '到仓', ' + JT7987979476461', '邮政232324452-2:15kg + JT7987979476462:16kg:文具', '到仓']
 #tokens
-#[['邮政232324452-1'], 'da', ' ', ' JT7987979476461', ['邮政232324452-2:15kg ', ' JT7987979476462:16kg:文具'], 'da']
+#[['邮政232324452-1'], 'da', ['', '', 'JT7987979476461'], ['邮政232324452-2:15kg ', '', '', 'JT7987979476462:16kg:文具'], 'da']
 #multitokens
 #{'邮政232324452-1':['da'], 'JT7987979476461':[], '邮政232324452-2:15kg':[], 'JT7987979476462:16kg:文具':['da']}
 #logis expression
@@ -276,7 +276,7 @@ def generate_logis_expression_from_html(htmltree,filter=[],inverse=False):
         for node in nodes:
             #物流标签属于上一个span里的单号，不能单独出现
             #注意这里是lxml模块的bug,getparent()判断错误，所以要额外检查node.strip()[0]不是分隔符
-            if node.getparent().get("class") and not node.strip()[0]==logisSeparator:
+            if node.getparent().get("class") and not node.strip()[0] in logisSeparator:
                 tokens.append(node.getparent().get("class").strip())
             else:
                 #物流标签会打破原来的表达式，出现以分隔符比如 + 号开头的表达式
@@ -310,14 +310,14 @@ def generate_logis_expression_from_html(htmltree,filter=[],inverse=False):
         for i,(token,labels) in enumerate(multitokens.items()):
             if i == 0:
                 if expression:
-                    expression += " " + logisSeparator + " "
+                    expression += " " + logisSeparator[0] + " "
                 expression += logisKeywordHeader + code + "("
             expression += token
             if labels:
                 for label in labels:
                     expression += logisExplanator[0] + label
             if i < len(multitokens) - 1:
-                expression += " " + logisSeparator + " "
+                expression += " " + logisSeparator[0] + " "
             else:
                 expression += ")"
     return expression
@@ -344,7 +344,7 @@ def get_customer_forecast(htmltree):
                 label = node.getparent().get("class")
                 if label:
                     note = [label.strip()]
-                    if has_special_label(note) and not node.strip()[0]==logisSeparator:
+                    if has_special_label(note) and not node.strip()[0] in logisSeparator:
                         #注意这里是lxml模块的bug,getparent()判断错误，所以要额外检查node.strip()[0]不是分隔符
                         dicitems = forecast[len(forecast)-1].values()
                         #标签总是加在最后一个单号后面
@@ -363,7 +363,7 @@ def generate_manifest_expression(data):
             for note in notes:
                 expression += logisExplanator[0] + note.strip()
         if i < len(data)-1:
-            expression += ' ' + logisSeparator + ' '
+            expression += ' ' + logisSeparator[0] + ' '
     return expression
 
 
@@ -555,8 +555,9 @@ class TestLogis(unittest.TestCase):
         parser = lxml.html.HTMLParser()
         htmltree = xml.etree.ElementTree.fromstring(self.getGoodsDesc(),parser)
         expr = generate_logis_expression_from_html(htmltree)
+        print(expr)
         pattern = "[\(\)]" #分离括号
-        res = split_logis_expr_and_token(re.split(pattern,expr)[1])
+        res = split_logis_expr_and_token(re.split(pattern,expr)[1].strip())
         self.assertEqual(len(res),6)
         self.assertEqual(list(res.keys())[0],"23232445")
         self.assertEqual(list(res.keys())[1],"JT798797947646")
