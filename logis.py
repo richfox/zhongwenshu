@@ -525,7 +525,7 @@ class TestLogis(unittest.TestCase):
         self.assertEqual(subsns[0],["1","2"])
         self.assertEqual(company,[get_logis_companies()["当当"]])
         self.assertEqual(notes[0],["book","12kg"])
-        res = split_logis_expr_and_token("jd112233-1:todo + 中通223344 + DHL445566:books:fa")
+        res = split_logis_expr_and_token("jd112233-1:todo ,+ 中通223344 +, DHL445566:books:fa")
         self.assertEqual(len(res),3)
         self.assertEqual(list(res.keys())[0],"jd112233-1")
         self.assertEqual(list(res.values())[1],(get_logis_companies()["中通"],[]))
@@ -540,9 +540,9 @@ class TestLogis(unittest.TestCase):
             <div class="section" id="railway">
             <div class="title"><span>铁路</span></div>
             <div class="descrip">
-            <p><span style="color:#330099">邮政23232445<span class="da">到仓</span> + JT798797947646<span class="da">到仓</span></span></p>
-            <p><span style="color:#330099">中通232324452-1-2<span class="da">到仓</span> + JT7987979476461</span></p>
-            <p><span style="color:#330099">中通快递232324452-2-2:todo + JT7987979476462:16kg：文具<span class="da">到仓</span></span></p>
+            <p><span style="color:#330099">邮政23232445<span class="da">到仓</span> ,+ JT798797947646<span class="da">到仓</span></span></p>
+            <p><span style="color:#330099">中通232324452-1-2<span class="da">到仓</span> ,+ JT7987979476461</span></p>
+            <p><span style="color:#330099">中通快递232324452-2-2:todo ,，+ JT7987979476462:16kg：文具<span class="da">到仓</span></span></p>
             <p>各种书</p>
             <p>&nbsp;</p>
             </div>

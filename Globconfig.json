@@ -19,7 +19,7 @@
             "logisOperator":
             [
                 {"type":"keywordheader", "characters":"%"},
-                {"type":"separator", "characters":",， +"},
+                {"type":"separator", "characters":",，+ "},
                 {"type":"explanator", "characters":":："},
                 {"type":"connector", "characters":"-"}
             ],
