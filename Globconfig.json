@@ -11,8 +11,8 @@
             ],
             "label":
             [
-                {"code":"DA", "name":"到仓"},
-                {"code":"FA", "name":"已发"},
+                {"code":"DA", "name":"到德仓"},
+                {"code":"FA", "name":"德仓发出"},
                 {"code":"DI", "name":"丢失"},
                 {"code":"SH", "name":"收货确认"}
             ],
