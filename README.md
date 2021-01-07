@@ -1,2 +1,2 @@
 # zhongwenshu
-tools for www.zhongwenshu.de
+tools for internet
