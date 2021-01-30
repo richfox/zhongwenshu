@@ -274,13 +274,14 @@ def generate_logis_expression_from_html(htmltree,filter=[],inverse=False):
 
         tokens = []
         for node in nodes:
-            #物流标签属于上一个span里的单号，不能单独出现
-            #注意这里是lxml模块的bug,getparent()判断错误，所以要额外检查node.strip()[0]不是分隔符
-            if node.getparent().get("class") and not node.strip()[0] in logisSeparator:
-                tokens.append(node.getparent().get("class").strip())
-            else:
-                #物流标签会打破原来的表达式，出现以分隔符比如 + 号开头的表达式
-                tokens.append(split_logis_expr(node.strip()))
+            if node.strip():
+                #物流标签属于上一个span里的单号，不能单独出现
+                #注意这里是lxml模块的bug,getparent()判断错误，所以要额外检查node[0]不是分隔符
+                if node.getparent().get("class") and not node.strip()[0] in logisSeparator:
+                    tokens.append(node.getparent().get("class").strip())
+                else:
+                    #物流标签会打破原来的表达式，出现以分隔符比如逗号开头的表达式
+                    tokens.append(split_logis_expr(node.strip()))
 
         multitokens = {}
         for i,token in enumerate(tokens):
@@ -340,17 +341,18 @@ def get_customer_forecast(htmltree):
         if code == 'r':
             nodes = htmltree.xpath('//div[@id="' + code + '" or @id="' + en + '"]/div[@class="descrip"]//span/text()')
             for i,node in enumerate(nodes):
-                #物流标签属于上一个span里的单号，不能单独出现
-                label = node.getparent().get("class")
-                if label:
-                    note = [label.strip()]
-                    if has_special_label(note) and not node.strip()[0] in logisSeparator:
-                        #注意这里是lxml模块的bug,getparent()判断错误，所以要额外检查node.strip()[0]不是分隔符
-                        dicitems = forecast[len(forecast)-1].values()
-                        #标签总是加在最后一个单号后面
-                        (company,notes) = list(dicitems)[len(dicitems)-1]
-                        notes.append(label.strip())
-                        continue
+                if node.strip():
+                    #物流标签属于上一个span里的单号，不能单独出现
+                    label = node.getparent().get("class")
+                    if label:
+                        note = [label.strip()]
+                        if has_special_label(note) and not node.strip()[0] in logisSeparator:
+                            #注意这里是lxml模块的bug,getparent()判断错误，所以要额外检查node[0]不是分隔符
+                            dicitems = forecast[len(forecast)-1].values()
+                            #标签总是加在最后一个单号后面
+                            (company,notes) = list(dicitems)[len(dicitems)-1]
+                            notes.append(label.strip())
+                            continue
                 forecast.append(split_logis_expr_and_token(node))
     return forecast
 
