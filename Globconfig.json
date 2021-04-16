@@ -58,6 +58,7 @@
                 {"header":"JD", "attr":["jd",1]},
                 {"header":"TT", "attr":["tiantian",1]},
                 {"header":"JT", "attr":["jtexpress",1]},
+                {"header":"DPK", "attr":["debangwuliu",1]},
                 {"header":"ZJS", "attr":["zhaijisong",1]},
                 {"header":"DD", "attr":["ndwl",0]},
                 {"header":"ZT", "attr":["zhongtong",0]},
