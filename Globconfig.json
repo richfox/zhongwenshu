@@ -69,7 +69,7 @@
                 {"header":"EMS", "attr":["youzhengguonei",0]},
                 {"header":"DHL", "attr":["dhlen",0]},
                 {"header":"UPS", "attr":["ups",0]},
-                {"header":"DPD", "attr":["dpd",0]},
+                {"header":"DPD", "attr":["dpdgermany",0]},
                 {"header":"GLS", "attr":["gls",0]},
                 {"header":"FEDEX", "attr":["fedex",0]}
             ]

@@ -324,6 +324,12 @@ def generateDefaultLogisticsConfig():
                 1Z30YE206898744314
             </sn>
         </company>
+        <company code="dpdgermany">
+            <sn>
+                01505271430031
+                01505271430032
+            </sn>
+        </company>
     </de>
     <!-- 物流表达式 -->
     <expression>
