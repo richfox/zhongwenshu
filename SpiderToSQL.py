@@ -119,111 +119,112 @@ def saveFirstPicture(text,sn,fconn):
     reg = '<img alt=\"\" src=\".*.jpg\" title=\"\" id=\"modalBigImg\">'
     urls = re.findall(reg,text,re.S)
     if urls:
-        pic_url = re.findall('http://.*.jpg',urls[0],re.S)
-        webbrowser.open(pic_url[0])
-        img = ImageProcess.Processor(pic_url[0])
-        if img.Loaded():
-            try:
-                if "server" in fconn:
-                    src = img.Save("./temp",sn,img.Format())
-                    target = img.Upload(fconn["server"],src,"source_img",sn,img.Format())
-                    if target:
-                        oriImg = fconn["path"] + target
-                    target = img.Upload(fconn["server"],src,"source_img",sn+"_P",img.Format())
-                    if target:
-                        galleryOriImg = fconn["path"] + target
-                    target = img.Upload(fconn["server"],src,"goods_img",sn+"_G_P",img.Format())
-                    if target:
-                        galleryGoodsImg = fconn["path"] + target
+        pic_url = re.findall('//.*.jpg',urls[0],re.S)
+        if pic_url:
+            webbrowser.open('http:' + pic_url[0])
+            img = ImageProcess.Processor('http:' + pic_url[0])
+            if img.Loaded():
+                try:
+                    if "server" in fconn:
+                        src = img.Save("./temp",sn,img.Format())
+                        target = img.Upload(fconn["server"],src,"source_img",sn,img.Format())
+                        if target:
+                            oriImg = fconn["path"] + target
+                        target = img.Upload(fconn["server"],src,"source_img",sn+"_P",img.Format())
+                        if target:
+                            galleryOriImg = fconn["path"] + target
+                        target = img.Upload(fconn["server"],src,"goods_img",sn+"_G_P",img.Format())
+                        if target:
+                            galleryGoodsImg = fconn["path"] + target
 
-                    if img.Width()>230 and img.Height()>230:
-                        img.Thumb(230,230)
-                        src = img.Save("./temp",sn+"_G",img.Format())
-                        target = img.Upload(fconn["server"],src,"goods_img",sn+"_G",img.Format())
-                        if target:
-                            goodsImg = fconn["path"] + target
+                        if img.Width()>230 and img.Height()>230:
+                            img.Thumb(230,230)
+                            src = img.Save("./temp",sn+"_G",img.Format())
+                            target = img.Upload(fconn["server"],src,"goods_img",sn+"_G",img.Format())
+                            if target:
+                                goodsImg = fconn["path"] + target
 
-                        img.Thumb(100,100)
-                        src = img.Save("./temp",sn+"_T",img.Format())
-                        target = img.Upload(fconn["server"],src,"thumb_img",sn+"_T",img.Format())
-                        if target:
-                            thumbImg = fconn["path"] + target
-                        target = img.Upload(fconn["server"],src,"thumb_img",sn+"_T_P",img.Format())
-                        if target:
-                            galleryThumbImg = fconn["path"] + target
-                    else:
-                        target = img.Upload(fconn["server"],src,"goods_img",sn+"_G",img.Format())
-                        if target:
-                            goodsImg = fconn["path"] + target
-
-                        if img.Width()>100 and img.Height()>100:
                             img.Thumb(100,100)
                             src = img.Save("./temp",sn+"_T",img.Format())
-                            target = img.Upload(fconn["server"],src,"thumb_img",sn+"_T",img.Format())
-                            if target:
-                                humbImg = fconn["path"] + target
-                            target = img.Upload(fconn["server"],src,"thumb_img",sn+"_T_P",img.Format())
-                            if target:
-                                galleryThumbImg = fconn["path"] + target
-                        else:
                             target = img.Upload(fconn["server"],src,"thumb_img",sn+"_T",img.Format())
                             if target:
                                 thumbImg = fconn["path"] + target
                             target = img.Upload(fconn["server"],src,"thumb_img",sn+"_T_P",img.Format())
                             if target:
                                 galleryThumbImg = fconn["path"] + target
-                elif "local" in fconn:
-                    root = "C:/xampp"
-                    if not os.path.exists(root):
-                        if os.path.exists(root + ".lnk"):
-                            shell = win32com.client.Dispatch("WScript.Shell")
-                            shortcut = shell.CreateShortCut(root + ".lnk")
-                            root = shortcut.Targetpath
-                    if not re.match(r".*test.*",fconn["local"]):
-                        root += "/htdocs/ecshop/"
-                    else:
-                        root += "/htdocs/ecshop/test/"
+                        else:
+                            target = img.Upload(fconn["server"],src,"goods_img",sn+"_G",img.Format())
+                            if target:
+                                goodsImg = fconn["path"] + target
 
-                    img.Save(root+fconn["path"]+"source_img",sn,img.Format())
-                    oriImg = fconn["path"] + "source_img/" + sn + "." + img.Format()
-                    img.Save(root+fconn["path"]+"source_img",sn+"_P",img.Format())
-                    galleryOriImg = fconn["path"] + "source_img/" + sn + "_P." + img.Format()
-                    img.Save(root+fconn["path"]+"goods_img",sn+"_G_P",img.Format())
-                    galleryGoodsImg = fconn["path"] + "goods_img/" + sn + "_G_P." + img.Format()
+                            if img.Width()>100 and img.Height()>100:
+                                img.Thumb(100,100)
+                                src = img.Save("./temp",sn+"_T",img.Format())
+                                target = img.Upload(fconn["server"],src,"thumb_img",sn+"_T",img.Format())
+                                if target:
+                                    humbImg = fconn["path"] + target
+                                target = img.Upload(fconn["server"],src,"thumb_img",sn+"_T_P",img.Format())
+                                if target:
+                                    galleryThumbImg = fconn["path"] + target
+                            else:
+                                target = img.Upload(fconn["server"],src,"thumb_img",sn+"_T",img.Format())
+                                if target:
+                                    thumbImg = fconn["path"] + target
+                                target = img.Upload(fconn["server"],src,"thumb_img",sn+"_T_P",img.Format())
+                                if target:
+                                    galleryThumbImg = fconn["path"] + target
+                    elif "local" in fconn:
+                        root = "C:/xampp"
+                        if not os.path.exists(root):
+                            if os.path.exists(root + ".lnk"):
+                                shell = win32com.client.Dispatch("WScript.Shell")
+                                shortcut = shell.CreateShortCut(root + ".lnk")
+                                root = shortcut.Targetpath
+                        if not re.match(r".*test.*",fconn["local"]):
+                            root += "/htdocs/ecshop/"
+                        else:
+                            root += "/htdocs/ecshop/test/"
 
-                    if img.Width()>230 and img.Height()>230:
-                        img.Thumb(230,230)
-                        img.Save(root+fconn["path"]+"goods_img/",sn+"_G",img.Format())
-                        goodsImg = fconn["path"] + "goods_img/" + sn + "_G." + img.Format()
+                        img.Save(root+fconn["path"]+"source_img",sn,img.Format())
+                        oriImg = fconn["path"] + "source_img/" + sn + "." + img.Format()
+                        img.Save(root+fconn["path"]+"source_img",sn+"_P",img.Format())
+                        galleryOriImg = fconn["path"] + "source_img/" + sn + "_P." + img.Format()
+                        img.Save(root+fconn["path"]+"goods_img",sn+"_G_P",img.Format())
+                        galleryGoodsImg = fconn["path"] + "goods_img/" + sn + "_G_P." + img.Format()
 
-                        img.Thumb(100,100)
-                        img.Save(root+fconn["path"]+"thumb_img/",sn+"_T",img.Format())
-                        thumbImg = fconn["path"] + "thumb_img/" + sn + "_T." + img.Format()
-                        img.Save(root+fconn["path"]+"thumb_img/",sn+"_T_P",img.Format())
-                        galleryThumbImg = fconn["path"] + "thumb_img/" + sn + "_T_P." + img.Format()
-                    else:
-                        img.Save(root+fconn["path"]+"goods_img/",sn+"_G",img.Format())
-                        goodsImg = fconn["path"] + "goods_img/" + sn + "_G." + img.Format()
+                        if img.Width()>230 and img.Height()>230:
+                            img.Thumb(230,230)
+                            img.Save(root+fconn["path"]+"goods_img/",sn+"_G",img.Format())
+                            goodsImg = fconn["path"] + "goods_img/" + sn + "_G." + img.Format()
 
-                        if img.Width()>100 and img.Height()>100:
                             img.Thumb(100,100)
                             img.Save(root+fconn["path"]+"thumb_img/",sn+"_T",img.Format())
                             thumbImg = fconn["path"] + "thumb_img/" + sn + "_T." + img.Format()
                             img.Save(root+fconn["path"]+"thumb_img/",sn+"_T_P",img.Format())
                             galleryThumbImg = fconn["path"] + "thumb_img/" + sn + "_T_P." + img.Format()
                         else:
-                            img.Save(root+fconn["path"]+"thumb_img/",sn+"_T",img.Format())
-                            thumbImg = fconn["path"] + "thumb_img/" + sn + "_T." + img.Format()
-                            img.Save(root+fconn["path"]+"thumb_img/",sn+"_T_P",img.Format())
-                            galleryThumbImg = fconn["path"] + "thumb_img/" + sn + "_T_P." + img.Format()
-            except:
-                oriImg = ""
-                goodsImg = ""
-                thumbImg = ""
-                galleryOriImg = ""
-                galleryGoodsImg = ""
-                galleryThumbImg = ""
-                print("unexpected error: {0}".format(sys.exc_info()[0]))
+                            img.Save(root+fconn["path"]+"goods_img/",sn+"_G",img.Format())
+                            goodsImg = fconn["path"] + "goods_img/" + sn + "_G." + img.Format()
+
+                            if img.Width()>100 and img.Height()>100:
+                                img.Thumb(100,100)
+                                img.Save(root+fconn["path"]+"thumb_img/",sn+"_T",img.Format())
+                                thumbImg = fconn["path"] + "thumb_img/" + sn + "_T." + img.Format()
+                                img.Save(root+fconn["path"]+"thumb_img/",sn+"_T_P",img.Format())
+                                galleryThumbImg = fconn["path"] + "thumb_img/" + sn + "_T_P." + img.Format()
+                            else:
+                                img.Save(root+fconn["path"]+"thumb_img/",sn+"_T",img.Format())
+                                thumbImg = fconn["path"] + "thumb_img/" + sn + "_T." + img.Format()
+                                img.Save(root+fconn["path"]+"thumb_img/",sn+"_T_P",img.Format())
+                                galleryThumbImg = fconn["path"] + "thumb_img/" + sn + "_T_P." + img.Format()
+                except:
+                    oriImg = ""
+                    goodsImg = ""
+                    thumbImg = ""
+                    galleryOriImg = ""
+                    galleryGoodsImg = ""
+                    galleryThumbImg = ""
+                    print("unexpected error: {0}".format(sys.exc_info()[0]))
     
     imgurl["ori"] = oriImg
     imgurl["goods"] = goodsImg
