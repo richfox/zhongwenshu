@@ -82,6 +82,13 @@ def import_logis_to_sql(server,logis):
             for sn,company in cn_packet.items():
                 sql = "INSERT INTO " + logiscnTable + " (`id`, `cn_packet_sn`, `railway_id`, `cn_log`, `cn_time`, `cn_status`, `cn_company`) \
                     VALUES (NULL, %s, %s, '', %s, '-1', %s);"
+                if not company:
+                    mainsn = ['']
+                    subsns = [[]]
+                    companycode =['']
+                    notes = [[]]
+                    split_token(sn,mainsn,subsns,companycode,notes)
+                    company = companycode[0]
                 cursor.execute(sql,(sn,rinterid,timestamp,company))
                 logging.info(sql % ("'"+sn+"'",rinterid,"'"+timestamp+"'","'"+company+"'"))
 
