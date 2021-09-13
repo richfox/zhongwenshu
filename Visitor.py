@@ -74,13 +74,16 @@ class Visitor:
 
 
     def searchOrderGoods(self):
+        #没有分包的包裹路径
         basepath = '//*[@id="normalorder"]//*[@class="merch_bord"]//table[@class="tabl_merch"]'
 
-        #包件信息
+        #有分包的包裹中每个包件的路径
         subpath = '//*[@id="normalorder"]//*[@class="merch_bord"]//*[@class="sort_package_list"]/table'
         packages = self._htmltree.xpath(subpath)
         if len(packages) > 0:
             basepath = subpath
+
+        #todo: #每个订单可能有若干个包裹，每个包裹可能有若干个分包, 当前只考虑了其中一种情况
 
         books = self._htmltree.xpath(basepath + '//*[@class="tab_w1"]/*[@name="productname"]')
         titles = self._htmltree.xpath(basepath + '//*[@class="tab_w1"]/*[@name="productname"]/@title')
