@@ -102,7 +102,19 @@ class Visitor:
         others = self._htmltree.xpath('//*[@id="normalorder"]//div[@class="ditail_frame_notop"]/table[@class="tabl_other"]')
         endprice = self._htmltree.xpath('//*[@id="normalorder"]//div[@class="price_total"]/span[1]')
         payment = self._htmltree.xpath('//*[@id="normalorder"]//*[@class="order_detail_frame"]/ul[position()=4]/li')
+
+        #国内物流信息
+        logispath = '//*[@id="normalorder"]//div[@id="divorderhead"][@class="order_news"]//p[@class="p_space"]'
         
+        cncompany = ""
+        logiscompany = self._htmltree.xpath(logispath + '/span[4]/span')
+        if (logiscompany):
+            cncompany = logiscompany[0].text
+        cnnr = ""
+        logisnr = self._htmltree.xpath(logispath + '/span[7]/span')
+        if (logisnr):
+            cnnr = logisnr[0].text
+
         #物流信息
         header = ""
         consignee = self._htmltree.xpath('//*[@id="label_name"]')[0].text
@@ -191,7 +203,7 @@ class Visitor:
 
         lastrow = len(books) + len(subbooks)
 
-        #订单号，下单时间，付款方式，最终价
+        #订单号，下单时间，付款方式，快递单号，最终价等
         if len(ordernr) != 0: #普通订单不分包裹
             nr = ''
             for n in ordernr:
@@ -199,11 +211,11 @@ class Visitor:
                     nr = n.strip()
                     break
             if len(ordertime) == 0:
-                ws.cell(row=lastrow+1,column=1,value=header+nr+payment[0].text)
+                ws.cell(row=lastrow+1,column=1,value=header+nr+payment[0].text+cncompany+cnnr)
             elif len(ordertime) == 1:
-                ws.cell(row=lastrow+1,column=1,value=header+nr+ordertime[0].text+payment[0].text)
+                ws.cell(row=lastrow+1,column=1,value=header+nr+ordertime[0].text+payment[0].text+cncompany+cnnr)
             elif len(ordertime) == 2:
-                ws.cell(row=lastrow+1,column=1,value=header+nr+ordertime[0].text+ordertime[1].text+payment[0].text)
+                ws.cell(row=lastrow+1,column=1,value=header+nr+ordertime[0].text+ordertime[1].text+payment[0].text+cncompany+cnnr)
             #最终价
             if (endprice[0].text.find(u'\xa5')) >= 0: #包含¥符号
                 ws.cell(row=lastrow+1,column=6,value=endprice[0].text.replace(u'\xa5',u''))
