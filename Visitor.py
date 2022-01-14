@@ -267,7 +267,9 @@ class TestVisitor(unittest.TestCase):
 
     def testSearchOrderGoods(self):
         files = [".\\testdata\\simple.order.dangdang.html",
-                 ".\\testdata\\fenbao.order.dangdang.html"]
+                 ".\\testdata\\fenbao.order.dangdang.html",
+                 ".\\testdata\\shipped.order.dangdang.html",
+                 ".\\testdata\\notshipped.order.dangdang.html"]
         for file in files:
             succeed = False
             try:
