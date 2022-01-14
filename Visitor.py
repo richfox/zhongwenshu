@@ -97,21 +97,21 @@ class Visitor:
         subbooks = self._htmltree.xpath(basepath + '//*[@class="tab_w1"]/*[@class="present"]')
 
         ordernr = self._htmltree.xpath('//*[@id="normalorder"]//div[@id="divorderhead"][@class="order_news"]/p/text()')
-        parcel = self._htmltree.xpath('//*[@id="normalorder"]//span[@class="business_package_bg"]')
+        parcel = self._htmltree.xpath('//*[@id="normalorder"]//div[@class="business_package"]')
         ordertime = self._htmltree.xpath('//*[@id="normalorder"]//div[@id="divorderhead"][@class="order_news"]//span[@class="order_news_hint"]/span')
         others = self._htmltree.xpath('//*[@id="normalorder"]//div[@class="ditail_frame_notop"]/table[@class="tabl_other"]')
         endprice = self._htmltree.xpath('//*[@id="normalorder"]//div[@class="price_total"]/span[1]')
         payment = self._htmltree.xpath('//*[@id="normalorder"]//*[@class="order_detail_frame"]/ul[position()=4]/li')
 
         #国内物流信息
-        logispath = '//*[@id="normalorder"]//div[@id="divorderhead"][@class="order_news"]//p[@class="p_space"]'
-        
-        cncompany = ""
+        logispath = '//*[@id="normalorder"]//p[@class="p_space"]'
         logiscompany = self._htmltree.xpath(logispath + '/span[4]/span')
+        logisnr = self._htmltree.xpath(logispath + '/span[7]/span')
+
+        cncompany = ""
         if (logiscompany):
             cncompany = logiscompany[0].text
         cnnr = ""
-        logisnr = self._htmltree.xpath(logispath + '/span[7]/span')
         if (logisnr):
             cnnr = logisnr[0].text
 
@@ -235,10 +235,10 @@ class Visitor:
                     ws.cell(row=lastrow+1+i-1,column=3,value=bonus[i].text)
         else: #分包裹
             for i,elem in enumerate(parcel):
-                note = elem.xpath('./b/text()')
-                nr = elem.xpath('./text()[1]')
-                time = elem.xpath('.//span[@class="t_time_n"]')
-                ws.cell(row=lastrow+1+i,column=1,value=note[0]+nr[0]+time[0].text+payment[0].text)
+                note = elem.xpath('.//span[@class="business_package_bg"]/b/text()')
+                nr = elem.xpath('.//span[@class="business_package_bg"]/text()[1]')
+                time = elem.xpath('.//span[@class="business_package_bg"]//span[@class="t_time_n"]')
+                ws.cell(row=lastrow+1+i,column=1,value=note[0]+nr[0]+time[0].text+payment[0].text+logiscompany[i].text+logisnr[i].text)
                 ws.cell(row=lastrow+1+i,column=6,value=endprice[i].text)
                 bonus = others[i].xpath('.//span')
                 ws.cell(row=lastrow+1+i,column=5,value=bonus[0].text)
