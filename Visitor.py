@@ -205,8 +205,9 @@ class Visitor:
 
         lastrow = len(books) + len(subbooks)
 
-        #订单号，下单时间，付款方式，快递单号，最终价等
+
         if len(ordernr) != 0: #普通订单不分包裹
+            #订单号，下单时间，付款方式，快递单号等
             nr = ''
             for n in ordernr:
                 if n.strip() != '':
@@ -238,7 +239,7 @@ class Visitor:
                 note = elem.xpath('.//span[@class="business_package_bg"]/b/text()')
                 nr = elem.xpath('.//span[@class="business_package_bg"]/text()[1]')
                 time = elem.xpath('.//span[@class="business_package_bg"]//span[@class="t_time_n"]')
-                ws.cell(row=lastrow+1+i,column=1,value=note[0]+nr[0]+time[0].text+payment[0].text+logiscompany[i].text+logisnr[i].text)
+                ws.cell(row=lastrow+1+i,column=1,value=header+note[0]+nr[0]+time[0].text+payment[0].text+logiscompany[i].text+logisnr[i].text)
                 ws.cell(row=lastrow+1+i,column=6,value=endprice[i].text)
                 bonus = others[i].xpath('.//span')
                 ws.cell(row=lastrow+1+i,column=5,value=bonus[0].text)
