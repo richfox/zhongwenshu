@@ -115,13 +115,15 @@ class Visitor:
         if (logisnr):
             cnnr = logisnr[0].text
 
-        #物流信息
+        #国际物流信息
         header = ""
         consignee = self._htmltree.xpath('//*[@id="label_name"]')[0].text
         for code,(en,cn,pattern) in get_transports_info().items():
             if re.match(pattern,consignee):
                 header += u"【" + cn + u"】"
                 break
+
+        #采购账号
         for code,pattern in get_ddusers_info().items():
             if re.match(pattern,consignee):
                 header += u"【" + code + u"】"
