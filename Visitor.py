@@ -239,7 +239,10 @@ class Visitor:
                 note = elem.xpath('.//span[@class="business_package_bg"]/b/text()')
                 nr = elem.xpath('.//span[@class="business_package_bg"]/text()[1]')
                 time = elem.xpath('.//span[@class="business_package_bg"]//span[@class="t_time_n"]')
-                ws.cell(row=lastrow+1+i,column=1,value=header+note[0]+nr[0]+time[0].text+payment[0].text+logiscompany[i].text+logisnr[i].text)
+                if len(logiscompany) >= i+1:
+                    ws.cell(row=lastrow+1+i,column=1,value=header+note[0]+nr[0]+time[0].text+payment[0].text+logiscompany[i].text+logisnr[i].text)
+                else:
+                    ws.cell(row=lastrow+1+i,column=1,value=header+note[0]+nr[0]+time[0].text+payment[0].text)
                 ws.cell(row=lastrow+1+i,column=6,value=endprice[i].text)
                 bonus = others[i].xpath('.//span')
                 ws.cell(row=lastrow+1+i,column=5,value=bonus[0].text)
