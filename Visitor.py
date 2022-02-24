@@ -207,18 +207,20 @@ class Visitor:
 
 
         if len(ordernr) != 0: #普通订单不分包裹
-            #订单号，下单时间，付款方式，快递单号等
+            #订单号，下单时间，付款方式等
             nr = ''
             for n in ordernr:
                 if n.strip() != '':
                     nr = n.strip()
                     break
             if len(ordertime) == 0:
-                ws.cell(row=lastrow+1,column=1,value=header+nr+payment[0].text+cncompany+cnnr)
+                ws.cell(row=lastrow+1,column=1,value=header+nr+payment[0].text)
             elif len(ordertime) == 1:
-                ws.cell(row=lastrow+1,column=1,value=header+nr+ordertime[0].text+payment[0].text+cncompany+cnnr)
+                ws.cell(row=lastrow+1,column=1,value=header+nr+ordertime[0].text+payment[0].text)
             elif len(ordertime) == 2:
-                ws.cell(row=lastrow+1,column=1,value=header+nr+ordertime[0].text+ordertime[1].text+payment[0].text+cncompany+cnnr)
+                ws.cell(row=lastrow+1,column=1,value=header+nr+ordertime[0].text+ordertime[1].text+payment[0].text)
+            #快递单号
+            ws.cell(row=lastrow+1,column=12,value=cncompany+cnnr)
             #最终价
             if (endprice[0].text.find(u'\xa5')) >= 0: #包含¥符号
                 ws.cell(row=lastrow+1,column=6,value=endprice[0].text.replace(u'\xa5',u''))
@@ -240,7 +242,8 @@ class Visitor:
                 nr = elem.xpath('.//span[@class="business_package_bg"]/text()[1]')
                 time = elem.xpath('.//span[@class="business_package_bg"]//span[@class="t_time_n"]')
                 if len(logiscompany) >= i+1:
-                    ws.cell(row=lastrow+1+i,column=1,value=header+note[0]+nr[0]+time[0].text+payment[0].text+logiscompany[i].text+logisnr[i].text)
+                    ws.cell(row=lastrow+1+i,column=1,value=header+note[0]+nr[0]+time[0].text+payment[0].text)
+                    ws.cell(row=lastrow+1+i,column=12,value=logiscompany[i].text+logisnr[i].text)
                 else:
                     ws.cell(row=lastrow+1+i,column=1,value=header+note[0]+nr[0]+time[0].text+payment[0].text)
                 ws.cell(row=lastrow+1+i,column=6,value=endprice[i].text)
