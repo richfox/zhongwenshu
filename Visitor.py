@@ -74,16 +74,10 @@ class Visitor:
 
 
     def searchOrderGoods(self):
-        #没有分包的包裹路径
-        basepath = '//*[@id="normalorder"]//*[@class="merch_bord"]//table[@class="tabl_merch"]'
-
-        #有分包的包裹中每个包件的路径
-        subpath = '//*[@id="normalorder"]//*[@class="merch_bord"]//*[@class="sort_package_list"]/table'
-        packages = self._htmltree.xpath(subpath)
-        if len(packages) > 0:
-            basepath = subpath
-
-        #todo: #每个订单可能有若干个包裹，每个包裹可能有若干个分包, 当前只考虑了其中一种情况
+        #每个订单可能有若干个包裹，每个包裹可能有若干个分包
+        #没有分包的包裹路径为<table class="tabl_merch">
+        #有分包的包裹中每个包件的路径为<table class="tabl_merch sort_package">
+        basepath = '//*[@id="normalorder"]//*[@class="merch_bord"]//table[@class="tabl_merch" or contains(@class,"sort_package")]'
 
         books = self._htmltree.xpath(basepath + '//*[@class="tab_w1"]/*[@name="productname"]')
         titles = self._htmltree.xpath(basepath + '//*[@class="tab_w1"]/*[@name="productname"]/@title')
@@ -276,7 +270,8 @@ class TestVisitor(unittest.TestCase):
         files = [".\\testdata\\simple.order.dangdang.html",
                  ".\\testdata\\fenbao.order.dangdang.html",
                  ".\\testdata\\shipped.order.dangdang.html",
-                 ".\\testdata\\notshipped.order.dangdang.html"]
+                 ".\\testdata\\notshipped.order.dangdang.html",
+                 ".\\testdata\\combi.order.dangdang.html"]
         for file in files:
             succeed = False
             try:
