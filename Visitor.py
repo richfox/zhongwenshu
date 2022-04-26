@@ -74,9 +74,9 @@ class Visitor:
 
 
     def searchOrderGoods(self):
-        #每个订单可能有若干个包裹，每个包裹可能有若干个分包
-        #没有分包的包裹路径为<table class="tabl_merch">
-        #有分包的包裹中每个包件的路径为<table class="tabl_merch sort_package">
+        #每个订单可能有若干个包裹，每个包裹可能有若干个包件
+        #没有包件的包裹路径为<table class="tabl_merch">
+        #有包件的包裹中每个包件的路径为<table class="tabl_merch sort_package">
         basepath = '//*[@id="normalorder"]//*[@class="merch_bord"]//table[@class="tabl_merch" or contains(@class,"sort_package")]'
 
         books = self._htmltree.xpath(basepath + '//*[@class="tab_w1"]/*[@name="productname"]')
@@ -98,16 +98,32 @@ class Visitor:
         payment = self._htmltree.xpath('//*[@id="normalorder"]//*[@class="order_detail_frame"]/ul[position()=4]/li')
 
         #国内物流信息
-        logispath = '//*[@id="normalorder"]//p[@class="p_space"]'
-        logiscompany = self._htmltree.xpath(logispath + '/span[4]/span')
-        logisnr = self._htmltree.xpath(logispath + '/span[7]/span')
+        #没有包件的包裹路径为<p class="p_space">
+        #有包件的包裹中每个包件的路径为<p class="p_space" id="express_detail_?_?">
+        logisexprs = []
+        logispath = '//*[@id="normalorder"]//p[@class="p_space" or contains(@id,"express_detail")]'
+        logisinfo = self._htmltree.xpath(logispath)
+        for logisnode in logisinfo:
+            if logisnode.text: #有包件
+                for i,logistext in enumerate(logisnode.xpath('./text()')):
+                    if re.match(u'.*公司',logistext):
+                        logiscompany = logisnode.xpath('./span')[i]
+                    if re.match(u'.*包裹号',logistext):
+                        logisnr = logisnode.xpath('./span')[i]
+                if re.match('express_detail_.+_0',logisnode.attrib['id']): #第一个包件
+                    logisexprs.append(logiscompany.text + logisnr.text)
+                else:
+                    logisexprs[len(logisexprs)-1] += ',' + logiscompany.text + logisnr.text
+            else: #没有包件
+                logiscompany = logisnode.xpath('./span[4]/span')
+                logisnr = logisnode.xpath('./span[7]/span')
+                if (logiscompany):
+                    logisexprs.append(logiscompany[0].text + logisnr[0].text)
+                else:
+                    logisexprs.append('')
 
-        cncompany = ""
-        if (logiscompany):
-            cncompany = logiscompany[0].text
-        cnnr = ""
-        if (logisnr):
-            cnnr = logisnr[0].text
+        if len(logisexprs) == 0: #未发货
+            logisexprs.append('')
 
         #国际物流信息
         header = ""
@@ -214,7 +230,7 @@ class Visitor:
             elif len(ordertime) == 2:
                 ws.cell(row=lastrow+1,column=1,value=header+nr+ordertime[0].text+ordertime[1].text+payment[0].text)
             #快递单号
-            ws.cell(row=lastrow+1,column=12,value=cncompany+cnnr)
+            ws.cell(row=lastrow+1,column=12,value=logisexprs[0])
             #最终价
             if (endprice[0].text.find(u'\xa5')) >= 0: #包含¥符号
                 ws.cell(row=lastrow+1,column=6,value=endprice[0].text.replace(u'\xa5',u''))
@@ -235,11 +251,8 @@ class Visitor:
                 note = elem.xpath('.//span[@class="business_package_bg"]/b/text()')
                 nr = elem.xpath('.//span[@class="business_package_bg"]/text()[1]')
                 time = elem.xpath('.//span[@class="business_package_bg"]//span[@class="t_time_n"]')
-                if len(logiscompany) >= i+1:
-                    ws.cell(row=lastrow+1+i,column=1,value=header+note[0]+nr[0]+time[0].text+payment[0].text)
-                    ws.cell(row=lastrow+1+i,column=12,value=logiscompany[i].text+logisnr[i].text)
-                else:
-                    ws.cell(row=lastrow+1+i,column=1,value=header+note[0]+nr[0]+time[0].text+payment[0].text)
+                ws.cell(row=lastrow+1+i,column=1,value=header+note[0]+nr[0]+time[0].text+payment[0].text)
+                ws.cell(row=lastrow+1+i,column=12,value=logisexprs[i])
                 ws.cell(row=lastrow+1+i,column=6,value=endprice[i].text)
                 bonus = others[i].xpath('.//span')
                 ws.cell(row=lastrow+1+i,column=5,value=bonus[0].text)
