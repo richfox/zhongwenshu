@@ -307,13 +307,14 @@ def generate_logis_expression_from_html(htmltree,filter=[],inverse=False):
                     if label.lower() in [elem.lower() for elem in filter]:
                         found = True
                         break
+                #忽略没找到Filter中标签的单号，如果设置了inverse则正好相反
                 if inverse:
                     if found:
-                        multitokens[token] = ['to_del'] #标记为待删除
-                else:    
+                        multitokens[token] = ['ignore']
+                else:
                     if not found:
-                        multitokens[token] = ['to_del'] #标记为待删除
-            multitokens = {key:multitokens[key] for key in multitokens if multitokens[key]!=['to_del']}
+                        multitokens[token] = ['ignore']
+            multitokens = {key:multitokens[key] for key in multitokens if multitokens[key]!=['ignore']}
 
         for i,(token,labels) in enumerate(multitokens.items()):
             if i == 0:
@@ -466,7 +467,9 @@ def generate_logis_expression_from_sql(server,logis):
 
                                 parser = lxml.html.HTMLParser()
                                 htmltree = xml.etree.ElementTree.fromstring(goodsdesc,parser)
+                                #非已发货或者收货确认的单号
                                 validitem["expression"] = generate_logis_expression_from_html(htmltree,["FA","SH"],True)
+                                #已发货或者收货确认的单号
                                 validitem["expression2"] = generate_logis_expression_from_html(htmltree,["FA","SH"])
 
                                 manifest = []
