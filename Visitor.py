@@ -286,6 +286,7 @@ class TestVisitor(unittest.TestCase):
                  ".\\testdata\\fenbao.order.dangdang.html",
                  ".\\testdata\\shipped.order.dangdang.html",
                  ".\\testdata\\notshipped.order.dangdang.html",
+                 ".\\testdata\\fenbao_notshipped.order.dangdang.html",
                  ".\\testdata\\combi.order.dangdang.html"]
         for file in files:
             succeed = False
