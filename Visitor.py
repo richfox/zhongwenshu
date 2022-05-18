@@ -248,6 +248,8 @@ class Visitor:
                     ws.cell(row=lastrow+1+i-1,column=3,value=bonus[i].text)
         else: #分包裹
             for i,elem in enumerate(parcel):
+                if len(logisexprs) < i+1: #未发货
+                    logisexprs.append('')
                 note = elem.xpath('.//span[@class="business_package_bg"]/b/text()')
                 nr = elem.xpath('.//span[@class="business_package_bg"]/text()[1]')
                 time = elem.xpath('.//span[@class="business_package_bg"]//span[@class="t_time_n"]')
