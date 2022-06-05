@@ -400,11 +400,13 @@ def generate_logis_expression_from_sql(server,logis):
         orderGoodsTable = "ecs_test_order_goods"
         goodsTable = "ecs_test_goods"
         logiscnTable = "zws_test_logis_cn"
+        logisOrderTable = "zws_test_logis_order"
     elif mysql[3] == 'zhongwenshu_db1':
         orderInfoTable = "ecs_order_info"
         orderGoodsTable = "ecs_order_goods"
         goodsTable = "ecs_goods"
         logiscnTable = "zws_logis_cn"
+        logisOrderTable = "zws_logis_order"
 
     timestamp = time.strftime("%Y-%m-%d %H:%M:%S",time.localtime())
     template = ""
@@ -473,17 +475,42 @@ def generate_logis_expression_from_sql(server,logis):
                                 validitem["expression2"] = generate_logis_expression_from_html(htmltree,["FA","SH"])
 
                                 manifest = []
+                                isOpenOrder = False
                                 for forecast in get_customer_forecast(htmltree):
                                     for cnsn,(company,notes) in forecast.items():
                                         sql = "SELECT * FROM " + logiscnTable + " WHERE cn_packet_sn REGEXP %s;"
                                         cursor.execute(sql,cnsn)
                                         logging.info(sql % ("'"+cnsn+"'"))
-                                        #未录入的而且没有特定标记的加入交接单
+                                        #未录入的而且没有特定标记的加入交接单和未结单
                                         if not cursor.fetchone():
                                             if not has_special_label(notes):
                                                 manifest.append((cnsn,company,notes))
+                                                isOpenOrder = True
+                                        #录入的而且没有特定标记的加入未结单
+                                        else:
+                                            if not has_special_label(notes):
+                                                isOpenOrder = True
 
+                                #生成交接单表达式
                                 validitem["manifest"] = generate_manifest_expression(manifest)
+
+                                #更新物流订单表
+                                if (isOpenOrder):
+                                    validitem["open"] = 1
+                                else:
+                                    validitem["open"] = 0
+                                sql = "SELECT * FROM " + logisOrderTable + " WHERE order_id=%s;"
+                                cursor.execute(sql,orderid)
+                                logging.info(sql % ("'"+str(orderid)+"'"))
+                                if cursor.fetchone():
+                                    sql = "UPDATE " + logisOrderTable + " SET type=%s WHERE order_id=%s;"
+                                    cursor.execute(sql,(validitem["open"],orderid))
+                                    logging.info(sql % ("'"+str(validitem["open"])+"'","'"+str(orderid)+"'"))
+                                else:
+                                    sql = "INSERT INTO " + logisOrderTable + " (`id`, `order_id`, `type`, `log_time`, `reserve`) \
+                                           VALUES (NULL, %s, '1', '0', '0');"
+                                    cursor.execute(sql,orderid)
+                                    logging.info(sql % ("'"+str(orderid)+"'"))
 
                                 break
 
@@ -505,6 +532,7 @@ def generate_logis_expression_from_sql(server,logis):
             ws.cell(row=1,column=6,value="重量")
             ws.cell(row=1,column=7,value="备注")
             ws.cell(row=1,column=8,value="交接单")
+            ws.cell(row=1,column=9,value="未结单")
             i = 1
         ws.cell(row=i+1,column=1,value=item["ordersn"])
         ws.cell(row=i+1,column=2,value=item["expression"])
@@ -512,6 +540,7 @@ def generate_logis_expression_from_sql(server,logis):
         ws.cell(row=i+1,column=4,value=item["wchat"])
         ws.cell(row=i+1,column=5,value=item["paid"])
         ws.cell(row=i+1,column=8,value=item["manifest"])
+        ws.cell(row=i+1,column=9,value=item["open"])
         i += 1
     wb.save("_manifest.xlsx")
     os.system("start _manifest.xlsx")
