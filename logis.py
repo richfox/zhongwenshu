@@ -502,13 +502,15 @@ def generate_logis_expression_from_sql(server,logis):
                                 sql = "SELECT * FROM " + logisOrderTable + " WHERE order_id=%s;"
                                 cursor.execute(sql,orderid)
                                 logging.info(sql % ("'"+str(orderid)+"'"))
-                                if cursor.fetchone():
-                                    sql = "UPDATE " + logisOrderTable + " SET type=%s WHERE order_id=%s;"
-                                    cursor.execute(sql,(validitem["open"],orderid))
-                                    logging.info(sql % ("'"+str(validitem["open"])+"'","'"+str(orderid)+"'"))
+                                rec = cursor.fetchone()
+                                if rec:
+                                    if (rec[2] != validitem["open"]):
+                                        sql = "UPDATE " + logisOrderTable + " SET type=%s WHERE order_id=%s;"
+                                        cursor.execute(sql,(validitem["open"],orderid))
+                                        logging.info(sql % ("'"+str(validitem["open"])+"'","'"+str(orderid)+"'"))
                                 else:
-                                    sql = "INSERT INTO " + logisOrderTable + " (`id`, `order_id`, `type`, `from_func`, `reserve`) \
-                                           VALUES (NULL, %s, '1', '1', '0');"
+                                    sql = "INSERT INTO " + logisOrderTable + " (`id`, `order_id`, `type`, `from_func`, `last_update`, `reserve`) \
+                                           VALUES (NULL, %s, '1', '1', NULL, '0');"
                                     cursor.execute(sql,orderid)
                                     logging.info(sql % ("'"+str(orderid)+"'"))
 
