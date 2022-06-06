@@ -507,8 +507,8 @@ def generate_logis_expression_from_sql(server,logis):
                                     cursor.execute(sql,(validitem["open"],orderid))
                                     logging.info(sql % ("'"+str(validitem["open"])+"'","'"+str(orderid)+"'"))
                                 else:
-                                    sql = "INSERT INTO " + logisOrderTable + " (`id`, `order_id`, `type`, `log_time`, `reserve`) \
-                                           VALUES (NULL, %s, '1', '0', '0');"
+                                    sql = "INSERT INTO " + logisOrderTable + " (`id`, `order_id`, `type`, `from_func`, `reserve`) \
+                                           VALUES (NULL, %s, '1', '1', '0');"
                                     cursor.execute(sql,orderid)
                                     logging.info(sql % ("'"+str(orderid)+"'"))
 
