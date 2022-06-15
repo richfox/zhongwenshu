@@ -247,13 +247,14 @@ def SpiderToSQL(sqls):
         fconn = {}
         fconn["path"] = ftp[3]
         if re.match(r".*your-server\.de$",ftp[0]):
-            fconn["server"] = ftplib.FTP(ftp[0],ftp[1],ftp[2])
+            fconn["server"] = ftplib.FTP_TLS(ftp[0],ftp[1],ftp[2])
         elif re.match(r".*local.*",ftp[0]):
             fconn["local"] = ftp[0]
 
         try:
             #设置ftp上传路径
             if "server" in fconn:
+                fconn["server"].prot_p()
                 if dbname == 'zhongw_test':
                     fconn["server"].cwd("test/" + ftp[3])
                 elif dbname == 'zhongwenshu_db1':
