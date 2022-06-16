@@ -217,6 +217,7 @@ def generateDefaultServerConfig():
                 <user></user>
                 <password></password>
                 <uploadpath>images/toinput/</uploadpath>
+                <tls>0</tls>
             </ftp>
         </local>
         <server using="0">
@@ -232,6 +233,7 @@ def generateDefaultServerConfig():
                 <user>toinput</user>
                 <password>toinput</password>
                 <uploadpath>images/toinput/</uploadpath>
+                <tls>1</tls>
             </ftp>
         </server>
         <localtest using="0">
@@ -485,6 +487,7 @@ def parseServerConfigFile(configFile):
                     username = ""
                     password = ""
                     uploadpath = ""
+                    tls = ""
                     for ftp in subnode.childNodes:
                         if ftp.nodeName == 'host':
                             host = getNodeText(ftp.childNodes)
@@ -494,7 +497,9 @@ def parseServerConfigFile(configFile):
                             password = getNodeText(ftp.childNodes)
                         elif ftp.nodeName == 'uploadpath':
                             uploadpath = getNodeText(ftp.childNodes)
-                    server["ftp"] = (host,username,password,uploadpath)
+                        elif ftp.nodeName == 'tls':
+                            tls = getNodeText(ftp.childNodes)
+                    server["ftp"] = (host,username,password,uploadpath,tls)
             break
     return server
 
