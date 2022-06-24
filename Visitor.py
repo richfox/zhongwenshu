@@ -74,7 +74,9 @@ class Visitor:
 
 
     def searchOrderGoods(self):
-        #每个订单可能有若干个包裹，每个包裹可能有若干个包件
+        #每个订单可能有若干个包裹，每个分包可能有若干个包件
+
+        #包裹内容
         #没有包件的包裹路径为<table class="tabl_merch">
         #有包件的包裹中每个包件的路径为<table class="tabl_merch sort_package">
         basepath = '//*[@id="normalorder"]//*[@class="merch_bord"]//table[@class="tabl_merch" or contains(@class,"sort_package")]'
@@ -90,8 +92,12 @@ class Visitor:
         #换购商品或分册信息
         subbooks = self._htmltree.xpath(basepath + '//*[@class="tab_w1"]/*[@class="present"]')
 
-        ordernr = self._htmltree.xpath('//*[@id="normalorder"]//div[@id="divorderhead"][@class="order_news"]/p/text()')
+        #分包路径
+        ordernrparcel = self._htmltree.xpath('//*[@id="normalorder"]//div[@id="divorderparcelhead"]/div[@class="order_news"]/p/text()')
         parcel = self._htmltree.xpath('//*[@id="normalorder"]//div[@class="business_package"]')
+
+        #不分包路径
+        ordernr = self._htmltree.xpath('//*[@id="normalorder"]//div[@id="divorderhead"][@class="order_news"]/p/text()')
         ordertime = self._htmltree.xpath('//*[@id="normalorder"]//div[@id="divorderhead"][@class="order_news"]//span[@class="order_news_hint"]/span')
         others = self._htmltree.xpath('//*[@id="normalorder"]//div[@class="ditail_frame_notop"]/table[@class="tabl_other"]')
         endprice = self._htmltree.xpath('//*[@id="normalorder"]//div[@class="price_total"]/span[1]')
@@ -246,7 +252,7 @@ class Visitor:
                         ws.cell(row=lastrow+1,column=5,value=bonus[0].text)
                 else:
                     ws.cell(row=lastrow+1+i-1,column=3,value=bonus[i].text)
-        else: #分包裹
+        elif len(ordernrparcel) != 0: #分包裹
             for i,elem in enumerate(parcel):
                 if len(logisexprs) < i+1: #未发货
                     logisexprs.append('')
