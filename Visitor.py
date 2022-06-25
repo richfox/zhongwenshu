@@ -74,9 +74,8 @@ class Visitor:
 
 
     def searchOrderGoods(self):
-        #每个订单可能有若干个包裹，每个分包可能有若干个包件
-
         #包裹内容
+        #每个订单可能有若干个分包裹，每个分包可能有若干个包件
         #没有包件的包裹路径为<table class="tabl_merch">
         #有包件的包裹中每个包件的路径为<table class="tabl_merch sort_package">
         basepath = '//*[@id="normalorder"]//*[@class="merch_bord"]//table[@class="tabl_merch" or contains(@class,"sort_package")]'
@@ -107,28 +106,34 @@ class Visitor:
         #没有包件的包裹路径为<p class="p_space">
         #有包件的包裹中每个包件的路径为<p class="p_space" id="express_detail_?_?">
         logisexprs = []
-        logispath = '//*[@id="normalorder"]//p[@class="p_space" or contains(@id,"express_detail")]'
-        logisinfo = self._htmltree.xpath(logispath)
-        for logisnode in logisinfo:
-            if logisnode.text: #有包件
-                for i,logistext in enumerate(logisnode.xpath('./text()')):
-                    if re.match(u'.*公司',logistext):
-                        logiscompany = logisnode.xpath('./span')[i]
-                    if re.match(u'.*包裹号',logistext):
-                        logisnr = logisnode.xpath('./span')[i]
-                if re.match('express_detail_.+_0',logisnode.attrib['id']): #第一个包件
-                    logisexprs.append(logiscompany.text + logisnr.text)
-                else:
-                    logisexprs[len(logisexprs)-1] += ',' + logiscompany.text + logisnr.text
-            else: #没有包件
-                logiscompany = logisnode.xpath('./span[4]/span')
-                logisnr = logisnode.xpath('./span[7]/span')
+        #logispath = '//*[@id="normalorder"]//div[@class="business_package"]//p[@class="p_space" or contains(@id,"express_detail")]'
+        #logisinfo = self._htmltree.xpath(logispath)
+        for parcelnode in parcel:
+            logisnode = parcelnode.xpath('./p[@class="p_space"]')
+            packlogisnode = parcelnode.xpath('./div[@class="send_package_list"]/p[@class="p_space" and contains(@id,"express_detail")]')
+            if packlogisnode: #分包内有包件
+                for package in packlogisnode:
+                    for i,logistext in enumerate(package.xpath('./text()')):
+                        if re.match(u'.*公司',logistext):
+                            logiscompany = package.xpath('./span')[i]
+                        if re.match(u'.*包裹号',logistext):
+                            logisnr = package.xpath('./span')[i]
+                    if re.match('express_detail_.+_0',package.attrib['id']): #第一个包件
+                        logisexprs.append(logiscompany.text + logisnr.text)
+                    else:
+                        logisexprs[len(logisexprs)-1] += ',' + logiscompany.text + logisnr.text
+            elif logisnode: #分包内没有包件
+                logiscompany = logisnode[0].xpath('./span[4]/span')
+                logisnr = logisnode[0].xpath('./span[7]/span')
                 if (logiscompany):
                     logisexprs.append(logiscompany[0].text + logisnr[0].text)
                 else:
                     logisexprs.append('')
+            else: #分包未发货
+                logisexprs.append('')
 
-        if len(logisexprs) == 0: #未发货
+        #单独一个包裹且没有发货的情况
+        if len(logisexprs) == 0:
             logisexprs.append('')
 
         #国际物流信息
@@ -254,8 +259,6 @@ class Visitor:
                     ws.cell(row=lastrow+1+i-1,column=3,value=bonus[i].text)
         elif len(ordernrparcel) != 0: #分包裹
             for i,elem in enumerate(parcel):
-                if len(logisexprs) < i+1: #未发货
-                    logisexprs.append('')
                 note = elem.xpath('.//span[@class="business_package_bg"]/b/text()')
                 nr = elem.xpath('.//span[@class="business_package_bg"]/text()[1]')
                 time = elem.xpath('.//span[@class="business_package_bg"]//span[@class="t_time_n"]')
