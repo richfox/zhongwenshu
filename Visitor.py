@@ -78,7 +78,7 @@ class Visitor:
         #每个订单可能有若干个分包裹，每个分包可能有若干个包件
         #没有包件的包裹路径为<table class="tabl_merch">
         #有包件的包裹中每个包件的路径为<table class="tabl_merch sort_package">
-        basepath = '//*[@id="normalorder"]//*[@class="merch_bord"]//table[@class="tabl_merch" or contains(@class,"sort_package")]'
+        basepath = '//*[@id="normalorder"]//*[@class="merch_bord"]//table[@class="tabl_merch" or contains(@class,"sort_package")]//tr'
 
         books = self._htmltree.xpath(basepath + '//*[@class="tab_w1"]/*[@name="productname"]')
         titles = self._htmltree.xpath(basepath + '//*[@class="tab_w1"]/*[@name="productname"]/@title')
