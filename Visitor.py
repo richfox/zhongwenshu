@@ -154,7 +154,16 @@ class Visitor:
         wb = openpyxl.Workbook()
         ws = wb.active
         j = 0
+        separator = []
         for i,book in enumerate(books):
+            #包件分隔位置
+            #包件每行路径<tr class="merch_present">
+            rowbook = book.xpath('../tr[@class="merch_present"]')
+            if (rowbook): #包件
+                colbook = rowbook.xpath('./td[@class="package_numb"]')
+                if (colbook):
+                    separator.append(i)
+
             #预售商品
             res = book.xpath('../span[@class="c_red"]')
             if len(res) != 0: #是预售
