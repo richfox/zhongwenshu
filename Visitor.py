@@ -157,11 +157,17 @@ class Visitor:
         separator = []
         for i,book in enumerate(books):
             #包件分隔位置
+            #分包每行路径<tr>
             #包件每行路径<tr class="merch_present">
-            rowbook = book.xpath('../tr[@class="merch_present"]')
-            if (rowbook): #包件
-                colbook = rowbook.xpath('./td[@class="package_numb"]')
-                if (colbook):
+            rowbook = book.xpath('../parent::tr[@class="merch_present"]')
+            if rowbook: #包件
+                packnumb = rowbook[0].xpath('./td[@class="package_numb"]')
+                if packnumb: #包件内第一本
+                    separator.append(i)
+            else: #分包
+                rowbook = book.xpath('../parent::tr')
+                prerowbook = rowbook[0].xpath('./preceding-sibling::tr')
+                if not prerowbook: #分包内第一本
                     separator.append(i)
 
             #预售商品
