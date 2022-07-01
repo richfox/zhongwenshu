@@ -163,12 +163,14 @@ class Visitor:
             if rowbook: #包件
                 packnumb = rowbook[0].xpath('./td[@class="package_numb"]')
                 if packnumb: #包件内第一本
-                    separator.append(i)
+                    if i != 0:
+                        separator.append(i)
             else: #分包
                 rowbook = book.xpath('../parent::tr')
                 prerowbook = rowbook[0].xpath('./preceding-sibling::tr')
                 if not prerowbook: #分包内第一本
-                    separator.append(i)
+                    if i != 0:
+                        separator.append(i)
 
             #预售商品
             res = book.xpath('../span[@class="c_red"]')
