@@ -165,14 +165,16 @@ class Visitor:
                 if packnumb: #包件内第一本
                     if i != 0:
                         separator.append(i)
+                        titles[i] = '[BJ]' + titles[i]
             else: #分包
                 rowbook = book.xpath('../parent::tr')
                 prerowbook = rowbook[0].xpath('./preceding-sibling::tr')
                 if not prerowbook: #分包内第一本
                     if i != 0:
                         separator.append(i)
+                        titles[i] = '[FB]' + titles[i]
 
-            #预售商品
+            #商品名称
             res = book.xpath('../span[@class="c_red"]')
             if len(res) != 0: #是预售
                 ws.cell(row=i+j+1,column=1,value='[YS] ' + titles[i]).hyperlink = hrefs[i]
