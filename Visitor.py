@@ -332,12 +332,13 @@ class TestVisitor(unittest.TestCase):
         os.chdir(self._cwd)
 
     def testSearchOrderGoods(self):
-        files = [".\\testdata\\simple.order.dangdang.html",
-                 ".\\testdata\\fenbao.order.dangdang.html",
+        files = [".\\testdata\\simple.order.dangdang.html",  #无分包无包件
+                 ".\\testdata\\baojian.order.dangdang.html", #无分包有包件
+                 ".\\testdata\\fenbao.order.dangdang.html",  #有分包无包件
                  ".\\testdata\\shipped.order.dangdang.html",
                  ".\\testdata\\notshipped.order.dangdang.html",
                  ".\\testdata\\fenbao_notshipped.order.dangdang.html",
-                 ".\\testdata\\combi.order.dangdang.html"]
+                 ".\\testdata\\combi.order.dangdang.html"]   #有分包有包件
         for file in files:
             succeed = False
             try:
