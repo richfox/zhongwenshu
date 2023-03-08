@@ -7,7 +7,7 @@
             [
                 {"code":"s", "en":"ship", "cn":"海", "consignee":".*黄琰.*"},
                 {"code":"r", "en":"railway", "cn":"陆", "consignee":".*王丹丹.*|.*李明松.*"},
-                {"code":"a", "en":"airline", "cn":"空", "consignee":".*李沐阳.*"}
+                {"code":"a", "en":"airline", "cn":"空", "consignee":".*李沐阳.*|.*李琳.*"}
             ],
             "label":
             [
