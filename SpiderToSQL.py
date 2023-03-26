@@ -336,7 +336,9 @@ def SpiderToSQL(sqls):
                         shopprice = tabledata[u'rprice']
                         marketprice = u"%.2f" % (float(shopprice)*1.2)
 
-                oriprice = '¥' + Spider.searchOriginalPrice(htmltree)
+                oriprice = Spider.searchOriginalPrice(htmltree)
+                if oriprice:
+                    oriprice = '¥' + oriprice
 
                 #作者
                 authornode = htmltree.xpath('//*[@id="author"]//text()')
@@ -448,7 +450,29 @@ def SpiderToSQL(sqls):
                     #自定义样式
                     zwsprodtext = u"<div><zws-product>" + producttext + u"</zws-product></div>"
                 else:
-                    zwsprodtext = u"<p>本商品暂无详情。</p>"
+                    ajaxbaseurl = "http://product.dangdang.com/index.php?r=callback%2Fdetail&productId={id}&templateType=mall&describeMap={descmap}&shopId={shopid}&categoryPath={catpath}"
+                    ajaxurl = ajaxbaseurl.format(id=ddsn,descmap=descmap,shopid=shopid,catpath=catpath)
+                    ajaxtext = utility.get_html_text(ajaxurl,cookies=cookies)
+                    if ajaxtext:
+                        ajaxhtmltree = utility.get_html_tree(ajaxtext)
+
+                        #详情图片匹配
+                        imgnodes = ajaxhtmltree.xpath('//*[@class="descrip"]//img')
+                        for img in imgnodes:
+                            if img.get('src') == 'images/loading.gif':
+                                img.set('src',img.get('data-original'))
+                                img.set('data-original','')
+                                img.set('width','716')
+
+                        #商品描述
+                        producttext = ""
+                        for item in ajaxhtmltree.body:
+                            producttext += xml.etree.ElementTree.tostring(item,encoding="unicode")
+
+                        #自定义样式
+                        zwsprodtext = u"<div><zws-product>" + producttext + u"</zws-product></div>"
+                    else:
+                        zwsprodtext = u"<p>本商品暂无详情。</p>"
 
 
                 #创建书籍信息字典
