@@ -435,6 +435,14 @@ def SpiderToSQL(sqls):
                     if imgnode:
                         imgnode[0].set('width','716')
 
+                    #书摘插画图片匹配
+                    imgnodes = ajaxhtmltree.xpath('//*[@id="attachImage"]//img')
+                    for img in imgnodes:
+                        if img.get('src') == 'images/loading.gif':
+                            img.set('src',img.get('data-original'))
+                            img.set('data-original','')
+                            img.set('width','716')
+
                     #商品描述
                     producttext = ""
                     for item in ajaxhtmltree.body:
@@ -450,6 +458,7 @@ def SpiderToSQL(sqls):
                     #自定义样式
                     zwsprodtext = u"<div><zws-product>" + producttext + u"</zws-product></div>"
                 else:
+                    #非json格式的商品描述
                     ajaxbaseurl = "http://product.dangdang.com/index.php?r=callback%2Fdetail&productId={id}&templateType=mall&describeMap={descmap}&shopId={shopid}&categoryPath={catpath}"
                     ajaxurl = ajaxbaseurl.format(id=ddsn,descmap=descmap,shopid=shopid,catpath=catpath)
                     ajaxtext = utility.get_html_text(ajaxurl,cookies=cookies)
