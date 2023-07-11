@@ -166,8 +166,8 @@ def generateDefaultConfig():
             "<config>\n" + \
             "  <!-- Exmaple for catch picture from dangdang: http://product.dangdang.com/20771643.html -->\n" + \
             "  <http>\n" + \
-            "    <!-- session id is optional, can be read from chrome developer-tool: Network: Doc: Headers: cookie -->\n" + \
-            "    <url domain=\"product.dangdang.com\" sessionID=\"xxxxxx\">\n" + \
+            "    <!-- visit id is optional, can be read from chrome developer-tool: Network: Doc: Headers: cookie -->\n" + \
+            "    <url domain=\"product.dangdang.com\" visitID=\"xxxxxx\">\n" + \
             "      <productID>20771643</productID>\n" + \
             "      <productID>21022011</productID>\n" + \
             "    </url>\n" + \
@@ -372,14 +372,14 @@ def parseConfigFile(configFile):
             for locator in node.childNodes:
                 if locator.nodeName == "url":
                     domain = locator.getAttribute("domain")
-                    sessionID = locator.getAttribute("sessionID")
+                    visitID = locator.getAttribute("visitID")
                     url = protocol + domain + "/"
                     for id in locator.childNodes:
                         if id.nodeName == "productID":
                             productID = getNodeText(id.childNodes)
                             fullurl = url + productID + ".html"
-                            if sessionID:
-                                fullurl += "?sessionID=" + sessionID
+                            if visitID:
+                                fullurl += "?__visit_id=" + visitID
                             tag = 0
                             print(fullurl)
                             values[fullurl] = tag
