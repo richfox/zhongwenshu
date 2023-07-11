@@ -79,8 +79,8 @@ def get_session_id_from_config(file):
         if node.nodeName == "http":
             for locator in node.childNodes:
                 if locator.nodeName == "url":
-                    visitID = locator.getAttribute("visitID")
-                    res['visitID'] = visitID
+                    sessionID = locator.getAttribute("sessionID")
+                    res['sessionID'] = sessionID
                     break
             if res:
                 break
