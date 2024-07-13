@@ -141,6 +141,18 @@ def get_logis_company_headers():
     return res
 
 
+def get_logis_first_digits():
+    res = {}
+    jsonstring = open(".\\Globconfig.json",'rb').read()
+    allinfo = json.loads(jsonstring)
+    for config in allinfo["configurations"]:
+        if "logisFirstNDigits" in config:
+            for elem in config["logisFirstNDigits"]:
+                res[elem["digits"]] = elem["code"]
+            break
+    return res
+
+
 def get_logis_operators():
     res = {}
     jsonstring = open(".\\Globconfig.json",'rb').read()
@@ -204,6 +216,9 @@ def split_token(token,sn,subsns,company,notes):
     if not company[0]:
         company[0] = split_company_header_code(sn)
 
+    if not company[0]:
+        company[0] = split_company_digis_code(sn)
+
 
 def get_main_sn(sn,subsns):
     pattern = '[' + logisConnector + ']'
@@ -250,6 +265,31 @@ def get_company_header_code(header):
             break
     return res
 
+def split_company_digis_code(sn):
+    company = ""
+    dsize = []
+    for d,c in get_logis_first_digits().items():
+        dsize.append(len(d))
+    dsize = list(set(dsize))
+
+    for size in dsize:
+        digits = ""
+        if (len(sn[0]) > size):
+            digits = sn[0][0:size]
+            code = get_company_digits_code(digits)
+            if code:
+                company = code
+                break
+    return company
+
+
+def get_company_digits_code(digits):
+    code = ""
+    for d,c in get_logis_first_digits().items():
+        if (d == digits):
+            code = c
+            break
+    return code
 
 def build_subsn(subsns):
     res = ""
@@ -568,13 +608,14 @@ class TestLogis(unittest.TestCase):
         self.assertEqual(subsns[0],["1","2"])
         self.assertEqual(company,[get_logis_companies()["当当"]])
         self.assertEqual(notes[0],["book","12kg"])
-        res = split_logis_expr_and_token("jd112233-1:todo ,, 中通223344 ,, DHL445566:books:fa   ups1Z")
-        self.assertEqual(len(res),4)
+        res = split_logis_expr_and_token("jd112233-1:todo ,, 中通223344 ,, DHL445566:books:fa   ups1Z，  01596817995066")
+        self.assertEqual(len(res),5)
         self.assertEqual(list(res.keys())[0],"jd112233-1")
         self.assertEqual(list(res.values())[1],(get_logis_companies()["中通"],[]))
         company,notes = list(res.values())[2]
         self.assertEqual(has_special_label(notes),True)
         self.assertEqual(list(res.keys())[3],"1Z")
+        self.assertEqual(list(res.values())[4],(get_logis_first_digits()["0159"],[]))
 
     def getGoodsDesc(self):
         goodsdesc = '''

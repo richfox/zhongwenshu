@@ -74,6 +74,10 @@
                 {"header":"GLS", "attr":["gls",0]},
                 {"header":"ZWS", "attr":["zhongwenshu",1]},
                 {"header":"FEDEX", "attr":["fedex",0]}
+            ],
+            "logisFirstNDigits":
+            [
+                {"digits":"0159", "code":"dpdgermany"}
             ]
         },
         {
