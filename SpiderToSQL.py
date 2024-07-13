@@ -241,7 +241,7 @@ def SpiderToSQL(sqls):
 
     for host,(username,password,dbname,charset,ftp,urls) in sqls.items():
         #连接数据库
-        connection = pymysql.connect(host,username,password,dbname,charset=charset)
+        connection = pymysql.connect(host=host,user=username,password=password,database=dbname,charset=charset)
         
         #区分ftp服务器和本地
         fconn = {}

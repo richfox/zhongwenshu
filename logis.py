@@ -430,7 +430,7 @@ def generate_logis_expression_from_sql(server,logis):
     print("Starting generate logis expression from database...\n")
 
     mysql = server["mysql"]
-    connection = pymysql.connect(mysql[0],mysql[1],mysql[2],mysql[3],charset=mysql[4])
+    connection = pymysql.connect(host=mysql[0],user=mysql[1],password=mysql[2],database=mysql[3],charset=mysql[4])
 
     #区分测试和主数据库
     orderInfoTable = ""
