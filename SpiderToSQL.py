@@ -594,7 +594,7 @@ def SpiderToSQL_tuangou(sqls,params):
     recssn = [rec.strip() for rec in params[u"recommend"].split('+')] #分解本期推荐当当单号，去除空格
 
     for host,(username,password,dbname,charset,urls) in sqls.items():
-        connection = pymysql.connect(host=host,user=username,password=password,db=dbname,charset=charset)
+        connection = pymysql.connect(host=host,user=username,password=password,database=dbname,charset=charset)
         try:
             goodnames = ''
             goodsdict = {}
