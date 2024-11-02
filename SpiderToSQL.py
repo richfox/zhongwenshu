@@ -345,7 +345,7 @@ def SpiderToSQL(sqls):
                 author = ''
                 for i,text in enumerate(authornode):
                     if i == 0:
-                        for res in re.findall('\[.*\]',text):
+                        for res in re.findall(r'\[.*\]',text):
                             author += res
                     else:
                         author += text
@@ -457,7 +457,7 @@ def SpiderToSQL(sqls):
                     producttext = ""
                     for item in ajaxhtmltree.body:
                         #重磅推荐广告忽略
-                        if re.match('^describe_http:.*\.xml$',item.attrib["id"]):
+                        if re.match(r'^describe_http:.*\.xml$',item.attrib["id"]):
                             continue
                         
                         try:
@@ -676,7 +676,7 @@ def SpiderToSQL_tuangou(sqls,params):
                         producttext = ""
                         for item in ajaxhtmltree.body:
                             #重磅推荐广告忽略
-                            if re.match('^describe_http:.*\.xml$',item.attrib["id"]):
+                            if re.match(r'^describe_http:.*\.xml$',item.attrib["id"]):
                                 continue
 
                             try:

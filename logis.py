@@ -641,7 +641,7 @@ class TestLogis(unittest.TestCase):
         htmltree = xml.etree.ElementTree.fromstring(self.getGoodsDesc(),parser)
         expr = generate_logis_expression_from_html(htmltree)
         print(expr)
-        pattern = "[\(\)]" #分离括号
+        pattern = r"[\(\)]" #分离括号
         res = split_logis_expr_and_token(re.split(pattern,expr)[1].strip())
         self.assertEqual(len(res),6)
         self.assertEqual(list(res.keys())[0],"23232445")
