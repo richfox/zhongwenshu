@@ -47,7 +47,7 @@ class Processor:
         return target
 
     def Thumb(self,width,height):
-        self._image.thumbnail((width,height),PIL.Image.ANTIALIAS)
+        self._image.thumbnail((width,height),PIL.Image.Resampling.LANCZOS)
 
     def Width(self):
         return self._image.size[0]
