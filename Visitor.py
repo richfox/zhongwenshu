@@ -72,6 +72,23 @@ class Visitor:
         spider = Spider.Spider(url)
         return Spider.searchOriginalPrice(spider.getHtmltree())
 
+    def searchOrderGoodsNew(self):
+        #包裹内容
+        #每个订单可能有若干个包件
+        basepath = '//*[@id="__layout"]//*[@class="container"]'
+        
+        books = self._htmltree.xpath(basepath + '//tbody[@class="ant-table-tbody"]/tr/td[2]//*[@class="product-name"]')
+        titles = self._htmltree.xpath(basepath + '//tbody[@class="ant-table-tbody"]/tr/td[2]//*[@class="product-name"]//a[@class="pro-name"]')
+        hrefs = self._htmltree.xpath(basepath + '//tbody[@class="ant-table-tbody"]/tr/td[2]//*[@class="product-name"]//@href')
+        prices = self._htmltree.xpath(basepath + '//tbody[@class="ant-table-tbody"]/tr/td[3]')
+        bonuses = self._htmltree.xpath(basepath + '//tbody[@class="ant-table-tbody"]/tr/td[6]')
+        amounts = self._htmltree.xpath(basepath + '//tbody[@class="ant-table-tbody"]/tr/td[4]')
+        sums = self._htmltree.xpath(basepath + '//tbody[@class="ant-table-tbody"]/tr/td[7]')
+
+        wb = openpyxl.Workbook()
+
+        wb.save(get_excel_name())
+
 
     def searchOrderGoods(self):
         #包裹内容
