@@ -86,8 +86,35 @@ class Visitor:
         sums = self._htmltree.xpath(basepath + '//tbody[@class="ant-table-tbody"]/tr/td[7]')
 
         wb = openpyxl.Workbook()
+        ws = wb.active
+
+        j = 0
+        for i,book in enumerate(books):
+            #商品名称
+            res = book.xpath('./*[@class="pro-tag"]/text()')
+            if len(res) != 0: #有标签
+                ws.cell(row=i+j+1,column=1,value='[' + res[0] + ']' + titles[i].text).hyperlink = hrefs[i]
+            else:
+                ws.cell(row=i+j+1,column=1,value=titles[i].text).hyperlink = hrefs[i]
+
+            ws.cell(row=i+j+1,column=2,value=prices[i].text)
+            ws.cell(row=i+j+1,column=3,value=bonuses[i].text)
+            ws.cell(row=i+j+1,column=4,value=amounts[i].text)
+
+            #小计以数字形式保存
+            sum = re.findall('\d+.\d+',sums[i].text)[0]
+            ws.cell(row=i+j+1,column=5,value=sum)
+
+            #当当编号
+            sn = Spider.split_ddsn(hrefs[i])
+
+            #换购商品或分册信息
+
+        lastrow = len(books)
 
         wb.save(get_excel_name())
+
+
 
 
     def searchOrderGoods(self):
@@ -334,7 +361,8 @@ class Visitor:
 def visitorStart(file,tuan=False):
     print("Starting visitor...\n")
     visitor = Visitor(file,tuan)
-    visitor.searchOrderGoods()
+    visitor.searchOrderGoodsNew()
+    #visitor.searchOrderGoods()
     os.system("start " + get_excel_name())
     print("\nFinished.")
 
