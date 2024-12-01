@@ -154,7 +154,21 @@ class Visitor:
                         ordertime += t + " "
                     break
 
-        ws.cell(row=lastrow+1,column=1,value = header + orderid + orderstatus +ordertime +payment)
+        ws.cell(row=lastrow+1, column=1, value = header + orderid + orderstatus +ordertime +payment)
+
+        #商品金额总计，优惠，最终价
+        amountinfo = self._htmltree.xpath(basepath + '//*[@class="produc-info__amount bottom"]/*[@class="amount-item"]')
+        for i,info in enumerate(amountinfo):
+            if i == 0:
+                sum = info.xpath('./span[@class="amount-value"]')[0].text
+                ws.cell(row=lastrow+1, column=5, value=sum.replace(u'\xa5',u'')) #删除¥符号
+            elif i == len(amountinfo) - 1:
+                endprice = info.xpath('./span[@class="amount-value last"]')[0].text
+                ws.cell(row=lastrow+1, column=6, value=endprice.replace(u'\xa5',u'')) #删除¥符号
+            else:
+                bonus = info.xpath('./span[@class="amount-value"]')[0].text
+                ws.cell(row=lastrow+i, column=3, value=bonus)
+                
 
         wb.save(get_excel_name())
 
