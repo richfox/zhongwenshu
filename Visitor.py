@@ -112,6 +112,50 @@ class Visitor:
 
         lastrow = len(books)
 
+        #国际物流信息,采购账号
+        header = ""
+        receiverinfos = self._htmltree.xpath(basepath + '//*[@class="delivery-info"]//*[@class="receiver-info"]')
+        if len(receiverinfos) != 0:
+            for info in receiverinfos[0].xpath('//*[@class="item__label"]'):
+                if re.match(u'.*收货人.*',info.text):
+                    consignee = info.xpath('./parent::div')[0].xpath('./*[@class="item__text"]')[0].text
+                elif re.match(u'.*付款方式.*',info.text):
+                    payment = info.xpath('./parent::div')[0].xpath('./*[@class="item__text"]')[0].text
+                elif re.match(u'.*配送公司.*',info.text):
+                    logiscompany = info.xpath('./parent::div')[0].xpath('./*[@class="item__text"]')[0].text
+                elif re.match(u'.*包裹号.*',info.text):
+                    logiscn = info.xpath('./parent::div')[0].xpath('./*[@class="item__text"]')[0].text
+
+            for code,(en,cn,pattern) in get_transports_info().items():
+                if re.match(pattern,consignee):
+                    header += u"【" + cn + u"】"
+                    break
+
+            for code,pattern in get_ddusers_info().items():
+                if re.match(pattern,consignee):
+                    header += u"【" + code + u"】"
+                    break
+
+        #订单号，订单状态
+        baseinfo = self._htmltree.xpath(basepath + '//*[@class="order-info"]//*[@class="base-info"]')
+        if len(baseinfo) != 0:
+            orderid = ""
+            for t in baseinfo[0].xpath('//*[@class="order-id"]/span/text()'):
+                orderid += t
+            orderstatus = baseinfo[0].xpath('//*[@class="order-status-desc"]')[0].text
+
+        #下单时间
+        routeinfo = self._htmltree.xpath(basepath + '//*[@class="order-info"]//*[@class="route-info"]')
+        if len(routeinfo) != 0:
+            for info in routeinfo[0].xpath('//*[@class="route-list"]//*[@class="route-li__title"]'):
+                if info.xpath('./span[@class="number"]')[0].text == '01':
+                    ordertime = info.xpath('./span[@class="txt"]')[0].text
+                    for t in info.xpath('./parent::div')[0].xpath('./*[@class="route-li__time"]/text()'):
+                        ordertime += t + " "
+                    break
+
+        ws.cell(row=lastrow+1,column=1,value = header + orderid + orderstatus +ordertime +payment)
+
         wb.save(get_excel_name())
 
 
