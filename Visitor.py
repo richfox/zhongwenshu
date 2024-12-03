@@ -61,7 +61,7 @@ class Visitor:
         except Exception as error:
             print(error)
             print('delete illegal multibyte sequence...')
-            pos = re.findall('decodebytesinposition(\d+)-(\d+):illegal',str(error).replace(' ',''))
+            pos = re.findall(r'decodebytesinposition(\d+)-(\d+):illegal',str(error).replace(' ',''))
             if len(pos) != 0:
                 htmlstring = htmlstring[0:int(pos[0][0])] + htmlstring[int(pos[0][1]):]
                 return self.preprocess(htmlstring)
@@ -102,7 +102,7 @@ class Visitor:
             ws.cell(row=i+j+1,column=4,value=amounts[i].text)
 
             #小计以数字形式保存
-            sum = re.findall('\d+.\d+',sums[i].text)[0]
+            sum = re.findall(r'\d+.\d+',sums[i].text)[0]
             ws.cell(row=i+j+1,column=5,value=sum)
 
             #当当编号
@@ -319,7 +319,7 @@ class Visitor:
             ws.cell(row=i+j+1,column=4,value=amounts[i].text)
 
             #小计以数字形式保存
-            sum = re.findall('\d+.\d+',sums[i].text)[0]
+            sum = re.findall(r'\d+.\d+',sums[i].text)[0]
             ws.cell(row=i+j+1,column=5,value=sum)
 
             #当当编号
@@ -368,7 +368,7 @@ class Visitor:
                     ws.cell(row=i+j+1,column=4,value=hgamount[1+s])
                 else:
                     ws.cell(row=i+j+1,column=4,value=hgamount[s])
-                ws.cell(row=i+j+1,column=5,value=re.findall('\d+.\d+',hgsum[1+s])[0])
+                ws.cell(row=i+j+1,column=5,value=re.findall(r'\d+.\d+',hgsum[1+s])[0])
                 ws.cell(row=i+j+1,column=7,value=Spider.split_ddsn(hghref[1+s]))
 
         lastrow = len(books) + len(subbooks)
