@@ -146,7 +146,7 @@ class Visitor:
             orderid = ""
             for t in baseinfo[0].xpath('//*[@class="order-id"]/span/text()'):
                 orderid += t
-            orderstatus = baseinfo[0].xpath('//*[@class="order-status-desc"]')[0].text
+            orderstatus = baseinfo[0].xpath('//*[@class="order-status-desc"]/text()')[0]
 
         #下单时间
         routeinfo = self._htmltree.xpath(basepath + '//*[@class="order-info"]//*[@class="route-info"]')
@@ -158,7 +158,7 @@ class Visitor:
                         ordertime += t + " "
                     break
 
-        ws.cell(row=lastrow+1, column=1, value = header + orderid + orderstatus +ordertime +payment)
+        ws.cell(row=lastrow+1, column=1, value = header + orderid + orderstatus + ordertime + payment)
 
         #商品金额总计，最终价，折扣
         amountinfo = self._htmltree.xpath(basepath + '//*[@class="produc-info__amount bottom"]/*[@class="amount-item"]')
@@ -174,7 +174,7 @@ class Visitor:
                 ws.cell(row=lastrow+i, column=3, value=bonus)
 
         #快递单号
-        ws.cell(row=lastrow+1,column=12,value=logiscn)
+        ws.cell(row=lastrow+1,column=12,value=logiscompany+logiscn)
 
         wb.save(get_excel_name())
 
