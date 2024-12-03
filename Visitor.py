@@ -108,9 +108,13 @@ class Visitor:
             #当当编号
             sn = Spider.split_ddsn(hrefs[i])
 
-            #换购商品或分册信息
+            #ISBN
+            spider = Spider.Spider(hrefs[i])
+            ws.cell(row=i+j+1,column=7,value=sn)
+            ws.cell(row=i+j+1,column=8,value=spider.searchISBN())
 
         lastrow = len(books)
+
 
         #国际物流信息,采购账号
         header = ""
