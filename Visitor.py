@@ -116,7 +116,7 @@ class Visitor:
         lastrow = len(books)
 
 
-        #国际物流信息,采购账号
+        #物流信息,采购账号
         header = ""
         receiverinfos = self._htmltree.xpath(basepath + '//*[@class="delivery-info"]//*[@class="receiver-info"]')
         if len(receiverinfos) != 0:
@@ -160,7 +160,7 @@ class Visitor:
 
         ws.cell(row=lastrow+1, column=1, value = header + orderid + orderstatus +ordertime +payment)
 
-        #商品金额总计，优惠，最终价
+        #商品金额总计，最终价，折扣
         amountinfo = self._htmltree.xpath(basepath + '//*[@class="produc-info__amount bottom"]/*[@class="amount-item"]')
         for i,info in enumerate(amountinfo):
             if i == 0:
@@ -172,7 +172,9 @@ class Visitor:
             else:
                 bonus = info.xpath('./span[@class="amount-value"]')[0].text
                 ws.cell(row=lastrow+i, column=3, value=bonus)
-                
+
+        #快递单号
+        ws.cell(row=lastrow+1,column=12,value=logiscn)
 
         wb.save(get_excel_name())
 
