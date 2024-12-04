@@ -72,9 +72,10 @@ class Visitor:
         spider = Spider.Spider(url)
         return Spider.searchOriginalPrice(spider.getHtmltree())
 
+
+    #订单页面新老版本区别
+    #新版本每个分包一个订单页面，老版本所有分包在一个订单页面
     def searchOrderGoodsNew(self):
-        #包裹内容
-        #每个订单可能有若干个包件
         basepath = '//*[@id="__layout"]//*[@class="container"]'
         
         books = self._htmltree.xpath(basepath + '//tbody[@class="ant-table-tbody"]/tr/td[2]//*[@class="product-name"]')
@@ -118,6 +119,10 @@ class Visitor:
 
         #物流信息,采购账号
         header = ""
+        consignee = ""
+        payment = ""
+        logiscompany = ""
+        logiscn = ""
         receiverinfos = self._htmltree.xpath(basepath + '//*[@class="delivery-info"]//*[@class="receiver-info"]')
         if len(receiverinfos) != 0:
             for info in receiverinfos[0].xpath('//*[@class="item__label"]'):
