@@ -78,13 +78,13 @@ class Visitor:
     def searchOrderGoodsNew(self):
         basepath = '//*[@id="__layout"]//*[@class="container"]'
         
-        books = self._htmltree.xpath(basepath + '//tbody[@class="ant-table-tbody"]/tr/td[2]//*[@class="product-name"]')
-        titles = self._htmltree.xpath(basepath + '//tbody[@class="ant-table-tbody"]/tr/td[2]//*[@class="product-name"]//a[@class="pro-name"]')
-        hrefs = self._htmltree.xpath(basepath + '//tbody[@class="ant-table-tbody"]/tr/td[2]//*[@class="product-name"]//@href')
-        prices = self._htmltree.xpath(basepath + '//tbody[@class="ant-table-tbody"]/tr/td[3]')
-        bonuses = self._htmltree.xpath(basepath + '//tbody[@class="ant-table-tbody"]/tr/td[6]')
-        amounts = self._htmltree.xpath(basepath + '//tbody[@class="ant-table-tbody"]/tr/td[4]')
-        sums = self._htmltree.xpath(basepath + '//tbody[@class="ant-table-tbody"]/tr/td[7]')
+        books = self._htmltree.xpath(basepath + '//tbody[@class="ant-table-tbody"]/tr/td[1]//*[@class="product-name"]')
+        titles = self._htmltree.xpath(basepath + '//tbody[@class="ant-table-tbody"]/tr/td[1]//*[@class="product-name"]//a[@class="pro-name"]')
+        hrefs = self._htmltree.xpath(basepath + '//tbody[@class="ant-table-tbody"]/tr/td[1]//*[@class="product-name"]//@href')
+        prices = self._htmltree.xpath(basepath + '//tbody[@class="ant-table-tbody"]/tr/td[2]')
+        bonuses = self._htmltree.xpath(basepath + '//tbody[@class="ant-table-tbody"]/tr/td[5]')
+        amounts = self._htmltree.xpath(basepath + '//tbody[@class="ant-table-tbody"]/tr/td[3]')
+        sums = self._htmltree.xpath(basepath + '//tbody[@class="ant-table-tbody"]/tr/td[6]')
 
         wb = openpyxl.Workbook()
         ws = wb.active
@@ -127,7 +127,7 @@ class Visitor:
         if len(receiverinfos) != 0:
             for info in receiverinfos[0].xpath('//*[@class="item__label"]'):
                 if re.match(u'.*收货人.*',info.text):
-                    consignee = info.xpath('./parent::div')[0].xpath('./*[@class="item__text"]')[0].text
+                    consignee = info.xpath('./parent::div')[0].xpath('./div/*[@class="item__text"]')[0].text
                 elif re.match(u'.*付款方式.*',info.text):
                     payment = info.xpath('./parent::div')[0].xpath('./*[@class="item__text"]')[0].text
                 elif re.match(u'.*配送公司.*',info.text):
