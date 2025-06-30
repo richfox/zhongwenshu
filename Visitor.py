@@ -146,14 +146,16 @@ class Visitor:
                     break
 
         #订单号，订单状态
+        orderid = ""
+        orderstatus = ""
         baseinfo = self._htmltree.xpath(basepath + '//*[@class="order-info"]//*[@class="base-info"]')
         if len(baseinfo) != 0:
-            orderid = ""
             for t in baseinfo[0].xpath('//*[@class="order-id"]/span/text()'):
                 orderid += t
             orderstatus = baseinfo[0].xpath('//*[@class="order-status-desc"]/text()')[0]
 
         #下单时间
+        ordertime = ""
         routeinfo = self._htmltree.xpath(basepath + '//*[@class="order-info"]//*[@class="route-info"]')
         if len(routeinfo) != 0:
             for info in routeinfo[0].xpath('//*[@class="route-list"]//*[@class="route-li__title"]'):
