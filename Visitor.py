@@ -79,7 +79,7 @@ class Visitor:
         basepath = '//*[@id="__layout"]//*[@class="container"]'
         
         books = self._htmltree.xpath(basepath + '//tbody[@class="ant-table-tbody"]/tr/td[1]//*[@class="product-name"]')
-        titles = self._htmltree.xpath(basepath + '//tbody[@class="ant-table-tbody"]/tr/td[1]//*[@class="product-name"]//a[@class="pro-name"]')
+        titles = self._htmltree.xpath(basepath + '//tbody[@class="ant-table-tbody"]/tr/td[1]//*[@class="product-name"]//a[@class="pro-name" or @class="pro-name one-line"]')
         hrefs = self._htmltree.xpath(basepath + '//tbody[@class="ant-table-tbody"]/tr/td[1]//*[@class="product-name"]//@href')
         prices = self._htmltree.xpath(basepath + '//tbody[@class="ant-table-tbody"]/tr/td[2]')
         bonuses = self._htmltree.xpath(basepath + '//tbody[@class="ant-table-tbody"]/tr/td[5]')
@@ -91,12 +91,17 @@ class Visitor:
 
         j = 0
         for i,book in enumerate(books):
+            #有无分册
+            title = titles[i].text
+            if titles[i].attrib['class'] == 'pro-name one-line':
+                title = '[FC]' + titles[i].text
+
             #商品名称
             res = book.xpath('./*[@class="pro-tag"]/text()')
             if len(res) != 0: #有标签
-                ws.cell(row=i+j+1,column=1,value='[' + res[0] + ']' + titles[i].text).hyperlink = hrefs[i]
+                ws.cell(row=i+j+1,column=1,value='[' + res[0] + ']' + title).hyperlink = hrefs[i]
             else:
-                ws.cell(row=i+j+1,column=1,value=titles[i].text).hyperlink = hrefs[i]
+                ws.cell(row=i+j+1,column=1,value=title).hyperlink = hrefs[i]
 
             ws.cell(row=i+j+1,column=2,value=prices[i].text)
             ws.cell(row=i+j+1,column=3,value=bonuses[i].text)
