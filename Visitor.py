@@ -471,6 +471,20 @@ class TestVisitor(unittest.TestCase):
                 succeed = True
             self.assertEqual(succeed,True)
 
+    def testSearchOrderGoodsNew(self):
+        files = [".\\testdata\\new.simple.order.dangdang.html",  #无分包无包件无分册
+                 ".\\testdata\\new.fence.order.dangdang.html"]   #无分包有包件有分册
+        for file in files:
+            succeed = False
+            try:
+                visitor = Visitor(file, False)
+                visitor.searchOrderGoodsNew()
+            except:
+                print("unexpected error: {0} at {1}".format(sys.exc_info()[0], file))
+            else:
+                succeed = True
+            self.assertEqual(succeed, True)
+
     @unittest.skip("I don't want to run this case.") #skip装饰器
     def testSearchOrderGoodsTuan(self):
         files = [".\\testdata\\simple.order.dangdang.html",

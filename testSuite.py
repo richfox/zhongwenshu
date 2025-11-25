@@ -15,6 +15,7 @@ def run():
     suite = unittest.TestSuite()
 
     tests = [Visitor.TestVisitor("testSearchOrderGoods"),
+             Visitor.TestVisitor("testSearchOrderGoodsNew"),
              Visitor.TestVisitor("testSearchOrderGoodsTuan"),
              logis.TestLogis("testSplitter"),
              logis.TestLogis("testGenerateLogisExpr")]
