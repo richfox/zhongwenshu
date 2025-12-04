@@ -22,7 +22,7 @@
                 {"type":"keywordheader", "characters":"%"},
                 {"type":"separator", "characters":",， "},
                 {"type":"explanator", "characters":":："},
-                {"type":"connector", "characters":"-#"}
+                {"type":"connector", "characters":"-"}
             ],
             "logisCompany":
             [

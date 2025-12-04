@@ -215,7 +215,7 @@ def get_company_digits_code(digits):
 def build_subsn(subsns):
     res = ""    
     for subsn in subsns:
-        res += logisConnector[0] + subsn.strip()
+        res += logisConnector + subsn.strip()
     return res
 #
 #以上若干函数物和lib_logis.php一致
@@ -620,9 +620,9 @@ class TestLogis(unittest.TestCase):
         self.assertEqual(subsns[0],["1","2"])
         self.assertEqual(company,[get_logis_companies()["当当"]])
         self.assertEqual(notes[0],["book","12kg"])
-        res = split_logis_expr_and_token("jd112233-1#2:todo ,, 中通223344 ,, DHL445566:books:fa   ups1Z，  01596817995066")
+        res = split_logis_expr_and_token("jd112233-1:todo ,, 中通223344 ,, DHL445566:books:fa   ups1Z，  01596817995066")
         self.assertEqual(len(res),5)
-        self.assertEqual(list(res.keys())[0],"jd112233-1-2")
+        self.assertEqual(list(res.keys())[0],"jd112233-1")
         self.assertEqual(list(res.values())[1],(get_logis_companies()["中通"],[]))
         company,notes = list(res.values())[2]
         self.assertEqual(has_special_label(notes),True)
