@@ -457,7 +457,7 @@ def SpiderToSQL(sqls):
                     producttext = ""
                     for item in ajaxhtmltree.body:
                         #重磅推荐广告忽略
-                        if re.match(r'^describe_http:.*\.xml$',item.attrib["id"]):
+                        if re.match(r'^describe_http:.*',item.attrib["id"]):
                             continue
                         
                         try:
