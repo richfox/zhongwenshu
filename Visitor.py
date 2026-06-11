@@ -473,7 +473,8 @@ class TestVisitor(unittest.TestCase):
 
     def testSearchOrderGoodsNew(self):
         files = [".\\testdata\\new.simple.order.dangdang.html",  #无分包无包件无分册
-                 ".\\testdata\\new.fence.order.dangdang.html"]   #无分包有包件有分册
+                 ".\\testdata\\new.fence.order.dangdang.html",   #无分包无包件有分册
+                 ".\\testdata\\new.baojian.order.dangdang.html"] #无分包有包件无分册
         for file in files:
             succeed = False
             try:
