@@ -78,13 +78,9 @@ class Visitor:
     def searchOrderGoodsNew(self):
         basepath = '//*[@id="__layout"]//*[@class="container"]'
         
-        books = self._htmltree.xpath(basepath + '//tbody[@class="ant-table-tbody"]/tr/td[1]//*[@class="product-name"]')
-        titles = self._htmltree.xpath(basepath + '//tbody[@class="ant-table-tbody"]/tr/td[1]//*[@class="product-name"]//a[@class="pro-name" or @class="pro-name one-line"]')
-        hrefs = self._htmltree.xpath(basepath + '//tbody[@class="ant-table-tbody"]/tr/td[1]//*[@class="product-name"]//@href')
-        prices = self._htmltree.xpath(basepath + '//tbody[@class="ant-table-tbody"]/tr/td[2]')
-        bonuses = self._htmltree.xpath(basepath + '//tbody[@class="ant-table-tbody"]/tr/td[5]')
-        amounts = self._htmltree.xpath(basepath + '//tbody[@class="ant-table-tbody"]/tr/td[3]')
-        sums = self._htmltree.xpath(basepath + '//tbody[@class="ant-table-tbody"]/tr/td[6]')
+        books = self._htmltree.xpath(basepath + '//tbody[@class="ant-table-tbody"]/tr//*[@class="product-name"]')
+        titles = self._htmltree.xpath(basepath + '//tbody[@class="ant-table-tbody"]/tr//*[@class="product-name"]//a[@class="pro-name" or @class="pro-name one-line"]')
+        hrefs = self._htmltree.xpath(basepath + '//tbody[@class="ant-table-tbody"]/tr//*[@class="product-name"]//@href')
 
         wb = openpyxl.Workbook()
         ws = wb.active
@@ -96,6 +92,12 @@ class Visitor:
             if titles[i].attrib['class'] == 'pro-name one-line':
                 title = '[FC]' + titles[i].text
 
+            #有无包件
+            baojian = book.getparent().getprevious()
+            if baojian is not None:
+                if baojian.text:
+                    title = '[BJ]' + titles[i].text
+
             #商品名称
             res = book.xpath('./*[@class="pro-tag"]/text()')
             if len(res) != 0: #有标签
@@ -103,13 +105,20 @@ class Visitor:
             else:
                 ws.cell(row=i+j+1,column=1,value=title).hyperlink = hrefs[i]
 
-            ws.cell(row=i+j+1,column=2,value=prices[i].text)
-            ws.cell(row=i+j+1,column=3,value=bonuses[i].text)
-            ws.cell(row=i+j+1,column=4,value=amounts[i].text)
+            #书名所在行的下一个兄弟元素，分别为当当价数量银铃铛优惠小计
+            price = book.getparent().getnext()
+            amount = book.getparent().getnext().getnext()
+            lingdang = book.getparent().getnext().getnext().getnext()
+            bonus = book.getparent().getnext().getnext().getnext().getnext()
+            sum = book.getparent().getnext().getnext().getnext().getnext().getnext()
+
+            ws.cell(row=i+j+1,column=2,value=price.text)
+            ws.cell(row=i+j+1,column=3,value=bonus.text)
+            ws.cell(row=i+j+1,column=4,value=amount.text)
 
             #小计以数字形式保存
-            sum = re.findall(r'\d+.\d+',sums[i].text)[0]
-            ws.cell(row=i+j+1,column=5,value=sum)
+            snumber = re.findall(r'\d+.\d+',sum.text)[0]
+            ws.cell(row=i+j+1,column=5,value=snumber)
 
             #当当编号
             sn = Spider.split_ddsn(hrefs[i])
