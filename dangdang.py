@@ -332,6 +332,11 @@ def generateDefaultLogisticsConfig():
                 01505271430032
             </sn>
         </company>
+        <company code="gls">
+            <sn>
+                ZWLK0AAY
+            </sn>
+        </company>
     </de>
     <!-- 物流表达式 -->
     <expression>
