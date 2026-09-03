@@ -49,6 +49,8 @@ def printUsage():
     print("")
     print('python ${THIS_SCRIPT_NAME}.py ${config.xml} ${server.sxml}   use config to search attributes than import to database with settings of the sxml file')
     print("")
+    print('python ${THIS_SCRIPT_NAME}.py {-m} ${config.xml} ${server.sxml}   import product.m.dangdang.com products to database')
+    print("")
     print('python ${THIS_SCRIPT_NAME}.py {-wx} ${server.sxml}  call api of winxuan.com and import to database with settings of the sxml file')
     print("")
     print('python ${THIS_SCRIPT_NAME}.py {-l | -logis} ${server.sxml}   import logistics info to database with settings of the sxml file')
@@ -90,6 +92,11 @@ def matchGenerateServerConigFile(arg):
 
 def matchTaobao(arg):
     regex = r"-taobao$"
+    res = scanForMatch(regex,arg)
+    return res
+
+def matchMobileDangdang(arg):
+    regex = r"-m$"
     res = scanForMatch(regex,arg)
     return res
 
@@ -657,7 +664,16 @@ def main():
             logis.generate_logis_expression_from_sql(server,info)
             return True
     elif numArgs == 4:
-        if matchConfigFile(sys.argv[1]) and matSqlFile(sys.argv[2]) and matchGroupbuyConfigFile(sys.argv[3]):
+        if matchMobileDangdang(sys.argv[1]) and matchConfigFile(sys.argv[2]) and matSqlFile(sys.argv[3]):
+            if not os.path.exists(sys.argv[2]):
+                print('Error: config file does not exist.')
+                return False
+            if not os.path.exists(sys.argv[3]):
+                print('Error: sql config file does not exist.')
+                return False
+            import MobileSpiderToSQL
+            return MobileSpiderToSQL.main([sys.argv[2], sys.argv[3]])
+        elif matchConfigFile(sys.argv[1]) and matSqlFile(sys.argv[2]) and matchGroupbuyConfigFile(sys.argv[3]):
             if not os.path.exists(sys.argv[1]):
                 print('Error: config file does not exist, use -g to generate it')
                 return False
