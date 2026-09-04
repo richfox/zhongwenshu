@@ -333,7 +333,7 @@ def _insert_product(connection, dbname, book, image_urls, sn=None):
         `is_on_sale`, `is_alone_sale`, `is_shipping`, `integral`, `add_time`, `sort_order`,
         `is_delete`, `is_best`, `is_new`, `is_hot`, `is_promote`, `bonus_type_id`, `last_update`,
         `goods_type`, `seller_note`, `give_integral`, `rank_integral`, `suppliers_id`, `is_check`) 
-        VALUES (NULL, '134', %s, %s, 
+        VALUES (NULL, %s, %s, %s, 
         '+', '0', '0', '', %s, 
         %s, %s, '', %s, '0.00',
         '0', '0', '1', '', '', 
@@ -342,24 +342,28 @@ def _insert_product(connection, dbname, book, image_urls, sn=None):
         '0', '0', '1', '0', '0', '0', '0', 
         %s, '', '-1', '-1', '0', NULL)""".format(goods=goods)
     with connection.cursor() as cursor:
-        cursor.execute(sql, (sn, book['title'],
+        cursor.execute(sql, ('134', sn, book['title'],
                              '0',
-                             '0.000', market_price, shop_price,
+                             '0.000', '0.00', '0.00',
                              book['description'], image_urls['thumb'], image_urls['goods'], image_urls['ori'],
                              str(int(time.time())),
                              '1'))
-        
+
+        #唯一商品编号
         cursor.execute('SELECT `goods_id` FROM ' + goods + ' WHERE `goods_sn`=%s', sn)
         goods_id = cursor.fetchone()[0]
 
+        #填入书籍信息
         for attr_id, value in attributes.items():
             cursor.execute('INSERT INTO ' + goods_attr +
                            ' (`goods_attr_id`, `goods_id`, `attr_id`, `attr_value`, `attr_price`) '
                            "VALUES (NULL, %s, %s, %s, '0')", (goods_id, attr_id, value))
-            
+
+        #新品到货
         cursor.execute('INSERT INTO ' + goods_cat +
                        " (`goods_id`, `cat_id`) VALUES (%s, '65')", goods_id)
-        
+
+        #填入书籍画册
         if image_urls['galleryori']:
             cursor.execute('INSERT INTO ' + goods_gallery +
                            ' (`img_id`, `goods_id`, `img_url`, `img_desc`, `thumb_url`, `img_original`) '
