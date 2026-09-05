@@ -178,6 +178,10 @@ def generateDefaultConfig():
             "      <productID>20771643</productID>\n" + \
             "      <productID>21022011</productID>\n" + \
             "    </url>\n" + \
+            "    <!-- <url domain=\"product.m.dangdang.com\">\n" + \
+            "      <productID>20771643</productID>\n" + \
+            "      <productID>21022011</productID>\n" + \
+            "    </url> -->\n" + \
             "  </http>\n" + \
             "  <excel>\n" + \
             "    <col index=\"title dprice bonus quantity sum total sn rprice price weight\">\n" + \
