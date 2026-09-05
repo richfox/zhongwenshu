@@ -289,7 +289,7 @@ def parse_mobile_product(page, feature_images=None):
         'isbn': str(publish.get('standard_id', '')).strip(),
         'pressdate': str(publish.get('publish_date', '')).strip(),
         'size': str(publish.get('product_size', '')).strip(),
-        'packing': str(publish.get('binding', '')).strip(),
+        'packing': normalize_binding(publish.get('binding', '')),
         'paper': str(publish.get('paper_quality', '')).strip(),
         'shopprice': str(price.get('price_1') or price.get('low_price') or '0.00'),
         'marketprice': str(price.get('price_2') or '0.00'),
@@ -313,6 +313,18 @@ def _number(value):
         return '%.2f' % float(value)
     except (TypeError, ValueError):
         return '0.00'
+
+
+def normalize_binding(binding):
+    """Map Dangdang's binding text to the predefined ECS attribute options."""
+    binding = str(binding or '').strip()
+    if re.match(r'.*平装', binding):
+        return '平装'
+    if re.match(r'.*精装', binding):
+        return '精装'
+    if re.match(r'.*盒装', binding):
+        return '盒装'
+    return ''
 
 
 def _insert_product(connection, dbname, book, image_urls, sn=None):
