@@ -50,6 +50,7 @@
                 {"name":"盛丰", "code":"sfwl"},
                 {"name":"极兔", "code":"jtexpress"},
                 {"name":"比利时邮政", "code":"bpost"},
+                {"name":"佳成", "code":"jiacheng"},
                 {"name":"联邦快递", "code":"fedex"}
             ],
             "logisCompanyHeader":
@@ -74,6 +75,7 @@
                 {"header":"DPD", "attr":["dpdgermany",0]},
                 {"header":"GLS", "attr":["gls",0]},
                 {"header":"ZWS", "attr":["zhongwenshu",1]},
+                {"header":"LD", "attr":["jiacheng",1]},
                 {"header":"FEDEX", "attr":["fedex",0]}
             ],
             "logisFirstNDigits":
