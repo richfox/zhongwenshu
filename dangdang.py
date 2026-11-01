@@ -51,6 +51,8 @@ def printUsage():
     print("")
     print('python ${THIS_SCRIPT_NAME}.py {-m} ${config.xml} ${server.sxml}   import product.m.dangdang.com products to database')
     print("")
+    print('python ${THIS_SCRIPT_NAME}.py {-f} ${config.xml} ${server.sxml}   import saved product pages from bookwebsite to database')
+    print("")
     print('python ${THIS_SCRIPT_NAME}.py {-wx} ${server.sxml}  call api of winxuan.com and import to database with settings of the sxml file')
     print("")
     print('python ${THIS_SCRIPT_NAME}.py {-l | -logis} ${server.sxml}   import logistics info to database with settings of the sxml file')
@@ -97,6 +99,11 @@ def matchTaobao(arg):
 
 def matchMobileDangdang(arg):
     regex = r"-m$"
+    res = scanForMatch(regex,arg)
+    return res
+
+def matchFileDangdang(arg):
+    regex = r"-f$"
     res = scanForMatch(regex,arg)
     return res
 
@@ -677,6 +684,15 @@ def main():
                 return False
             import MobileSpiderToSQL
             return MobileSpiderToSQL.main([sys.argv[2], sys.argv[3]])
+        elif matchFileDangdang(sys.argv[1]) and matchConfigFile(sys.argv[2]) and matSqlFile(sys.argv[3]):
+            if not os.path.exists(sys.argv[2]):
+                print('Error: config file does not exist.')
+                return False
+            if not os.path.exists(sys.argv[3]):
+                print('Error: sql config file does not exist.')
+                return False
+            import FileSpiderToSQL
+            return FileSpiderToSQL.main([sys.argv[2], sys.argv[3]])
         elif matchConfigFile(sys.argv[1]) and matSqlFile(sys.argv[2]) and matchGroupbuyConfigFile(sys.argv[3]):
             if not os.path.exists(sys.argv[1]):
                 print('Error: config file does not exist, use -g to generate it')
